@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.androidKmpLibrary)
 }
 
 // SQLCipher como librería estática: el SQLite de Apple (libsqlite3.dylib) gana a un framework
@@ -50,6 +51,18 @@ fun KotlinNativeTarget.enlazarSqlcipher(dir: String, tarea: TaskProvider<Exec>) 
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "com.migasto.shared"
+        compileSdk = 36
+        minSdk = 24
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
+    }
+
     iosArm64 { enlazarSqlcipher("iosArm64", sqlcipherDevice) }
     iosSimulatorArm64 { enlazarSqlcipher("iosSimulatorArm64", sqlcipherSim) }
 
@@ -71,6 +84,16 @@ kotlin {
 
     sourceSets {
         commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
+        androidMain.dependencies {
+            implementation(libs.sqldelight.android.driver)
+            implementation(libs.sqlcipher.android)
+            implementation(libs.androidx.sqlite)
+        }
+        getByName("androidDeviceTest").dependencies {
+            implementation(libs.androidx.test.runner)
+            implementation(libs.androidx.test.ext.junit)
             implementation(libs.kotlin.test)
         }
         iosMain.dependencies {
