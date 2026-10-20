@@ -8,4 +8,7 @@ xcuserdata/
 DerivedData/
 Pods/
 *.xcworkspace/xcuserdata/
+shared/shared.podspec
+shared/build/
+kotlin-js-store/
 .kotlin/
