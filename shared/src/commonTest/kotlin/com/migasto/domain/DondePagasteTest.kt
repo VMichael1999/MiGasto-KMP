@@ -100,6 +100,12 @@ class DondePagasteTest {
     }
 
     @Test
+    fun conLosMontosOcultosLaDescripcionNoDiceElTotal() {
+        val z = zonas().first { it.nombre == "San Isidro" }
+        assertEquals("San Isidro, 2 pagos. Wong y 1 más", z.descripcion(emptyMap(), ocultarMontos = true))
+    }
+
+    @Test
     fun laSemanaSoloTomaLosUltimosSieteDias() {
         val lista = listOf(
             mov("hoy", "Wong", 10.0, "Av. A 1, Lima"),

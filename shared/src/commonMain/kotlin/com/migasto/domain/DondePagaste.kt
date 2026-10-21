@@ -34,9 +34,12 @@ data class ZonaDePagos(val nombre: String, val movimientos: List<Movimiento>) {
         return if (otros <= 0) nombre else "$nombre y $otros más"
     }
 
-    /** Lo que lee el lector de pantalla. */
-    fun descripcion(alias: Map<String, String>): String =
-        "$nombre, ${movimientos.size} ${if (movimientos.size == 1) "pago" else "pagos"}, ${formatearSoles(totalGastos)}. ${subtitulo(alias)}"
+    /** Lo que lee el lector de pantalla; con los montos ocultos no dice el total. */
+    fun descripcion(alias: Map<String, String>, ocultarMontos: Boolean = false): String {
+        val pagos = "${movimientos.size} ${if (movimientos.size == 1) "pago" else "pagos"}"
+        val total = if (ocultarMontos) "" else ", ${formatearSoles(totalGastos)}"
+        return "$nombre, $pagos$total. ${subtitulo(alias)}"
+    }
 }
 
 /** Los pagos con ubicación del [periodo], por zona; primero la zona con más pagos. */
