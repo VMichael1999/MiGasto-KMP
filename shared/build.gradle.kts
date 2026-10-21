@@ -119,9 +119,12 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.sqldelight.coroutines)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
         androidMain.dependencies {
             implementation(libs.sqldelight.android.driver)
@@ -132,6 +135,7 @@ kotlin {
             implementation(libs.androidx.test.runner)
             implementation(libs.androidx.test.ext.junit)
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
         iosMain.dependencies {
             implementation(libs.sqldelight.native.driver)
@@ -143,6 +147,9 @@ sqldelight {
     databases {
         create("MiGastoDb") {
             packageName.set("com.migasto.db")
+            // Foto de cada versión del esquema: sirve para comprobar las migraciones (.sqm).
+            schemaOutputDirectory.set(file("schemas"))
+            verifyMigrations.set(true)
         }
     }
 }
