@@ -115,6 +115,6 @@ adb shell "cmd notification post -S bigtext -t 'Yape' prueba1 'Yapeaste S/ 32.00
 ## Qué falta
 
 - **iPhone completo** (`iosApp`): SwiftUI, la barra Liquid Glass, la extensión para compartir capturas con Vision, App Intents y el widget.
-- **Android:** mapa y «agregar ubicación», e ícono de la app.
+- **Android:** mapa y «agregar ubicación».
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
