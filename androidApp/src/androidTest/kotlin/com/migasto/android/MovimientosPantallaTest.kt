@@ -11,6 +11,8 @@ import com.migasto.android.movimientos.MovimientosContenido
 import com.migasto.android.movimientos.MovimientosUi
 import com.migasto.android.tema.MiGastoTheme
 import com.migasto.domain.FiltroDeTipo
+import com.migasto.domain.FiltrosDeMovimientos
+import com.migasto.domain.PaymentSource
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -24,10 +26,16 @@ class MovimientosPantallaTest {
     private var limpiados = 0
     private val abiertos = mutableListOf<String>()
 
+    private val aplicados = mutableListOf<Triple<String?, PaymentSource?, ClosedFloatingPointRange<Double>?>>()
+    private var hojaLimpiada = 0
+
     private fun mostrar(ui: MovimientosUi = Muestras.movimientos(), abrirBusqueda: Boolean = false) {
         regla.setContent {
             MiGastoTheme(oscuro = false) {
-                MovimientosContenido(ui, abrirBusqueda, { tipos += it }, { busquedas += it }, { limpiados++ }, { abiertos += it })
+                MovimientosContenido(
+                    ui, abrirBusqueda, { tipos += it }, { busquedas += it }, { limpiados++ }, { abiertos += it },
+                    alAplicarFiltros = { c, f, r -> aplicados += Triple(c, f, r) }, alLimpiarLaHoja = { hojaLimpiada++ },
+                )
             }
         }
     }
@@ -91,5 +99,63 @@ class MovimientosPantallaTest {
         mostrar(Muestras.movimientos(grupos = emptyList()))
         regla.onNodeWithText("Todavía no hay movimientos.").assertIsDisplayed()
         regla.onNodeWithText("Quitar filtros").assertDoesNotExist()
+    }
+
+    // La hoja «Filtrar movimientos»
+
+    @Test
+    fun elBotonDeFiltrosAbreLaHojaConSusOpciones() {
+        mostrar()
+        regla.onNodeWithContentDescription("Filtrar movimientos").performClick()
+        regla.onNodeWithText("Filtrar movimientos").assertIsDisplayed()
+        regla.onNodeWithText("Compras").assertIsDisplayed()
+        regla.onNodeWithText("Google Wallet").assertIsDisplayed()
+        regla.onNodeWithText("Rango de monto").assertIsDisplayed()
+        regla.onNodeWithText("S/ 0 – S/ 500").assertIsDisplayed()
+    }
+
+    @Test
+    fun aplicarEnviaLaCategoriaLaFuenteYSinRangoNoHayRango() {
+        mostrar()
+        regla.onNodeWithContentDescription("Filtrar movimientos").performClick()
+        regla.onNodeWithText("Compras").performClick()
+        regla.onNodeWithText("Yape").performClick()
+        regla.onNodeWithText("Aplicar").performClick()
+        assertEquals(listOf(Triple("compras", PaymentSource.Yape, null)), aplicados)
+    }
+
+    @Test
+    fun limpiarLosFiltrosAvisa() {
+        mostrar(Muestras.movimientos(filtros = FiltrosDeMovimientos(categoria = "compras")))
+        regla.onNodeWithContentDescription("Filtrar movimientos").performClick()
+        regla.onNodeWithText("Limpiar filtros").performClick()
+        assertEquals(1, hojaLimpiada)
+    }
+
+    @Test
+    fun laHojaSeAbreConLoQueYaEstabaElegido() {
+        mostrar(Muestras.movimientos(filtros = FiltrosDeMovimientos(montoMinimo = 40.0, montoMaximo = 120.0)))
+        regla.onNodeWithContentDescription("Filtrar movimientos").performClick()
+        regla.onNodeWithText("S/ 40 – S/ 120").assertIsDisplayed()
+    }
+
+    @Test
+    fun conFiltrosPuestosElBotonMuestraCuantos() {
+        mostrar(Muestras.movimientos(filtros = FiltrosDeMovimientos(categoria = "compras", fuente = PaymentSource.Yape)))
+        regla.onNodeWithContentDescription("2 filtros puestos").assertIsDisplayed()
+    }
+
+    @Test
+    fun sinFiltrosNoHayInsignia() {
+        mostrar()
+        regla.onNodeWithContentDescription("0 filtros puestos").assertDoesNotExist()
+    }
+
+    @Test
+    fun enIngresosLaHojaOfreceLasCategoriasDeIngreso() {
+        mostrar(Muestras.movimientos(tipo = FiltroDeTipo.Ingresos))
+        regla.onNodeWithContentDescription("Filtrar movimientos").performClick()
+        regla.onNodeWithText("Sueldo").assertIsDisplayed()
+        regla.onNodeWithText("Alimentación").assertDoesNotExist()
     }
 }

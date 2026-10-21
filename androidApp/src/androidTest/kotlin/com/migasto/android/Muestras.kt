@@ -8,6 +8,7 @@ import com.migasto.android.resumen.ResumenUi
 import com.migasto.domain.Categoria
 import com.migasto.domain.EstadoDelPresupuesto
 import com.migasto.domain.FiltroDeTipo
+import com.migasto.domain.FiltrosDeMovimientos
 import com.migasto.domain.PaymentSource
 
 /** Los datos del diseño (`docs/diseno/migasto-kmp.html`), ya armados como los entrega `shared` a la vista. */
@@ -38,5 +39,6 @@ object Muestras {
         ),
         hayFiltro: Boolean = false,
         oculto: Boolean = false,
-    ) = MovimientosUi(tipo, busqueda, 2, grupos, hayFiltro, oculto)
+        filtros: FiltrosDeMovimientos = FiltrosDeMovimientos(tipo = tipo, busqueda = busqueda),
+    ) = MovimientosUi(tipo, busqueda, 2, grupos, hayFiltro, oculto, filtros)
 }
