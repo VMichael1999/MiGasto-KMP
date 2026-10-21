@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinCocoapods)
+    alias(libs.plugins.skie)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.androidKmpLibrary)
@@ -79,6 +80,13 @@ val generarReglas = tasks.register("generarReglas") {
                 "    val categorias: String = \"\"\"${texto("category_rules.json")}\"\"\"\n" +
                 "}\n",
         )
+    }
+}
+
+// SKIE manda estadísticas de uso por defecto; la app no habla con ningún servidor, así que se apagan.
+skie {
+    analytics {
+        enabled.set(false)
     }
 }
 

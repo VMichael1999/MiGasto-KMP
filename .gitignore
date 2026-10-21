@@ -12,3 +12,4 @@ shared/shared.podspec
 shared/build/
 kotlin-js-store/
 .kotlin/
+iosApp/MiGasto.xcworkspace/

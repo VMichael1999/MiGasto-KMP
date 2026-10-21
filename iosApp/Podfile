@@ -1,0 +1,17 @@
+# El framework `Shared` (Kotlin Multiplatform) entra por CocoaPods: la pod `shared` compila el
+# framework con Gradle antes de compilar la app y trae SQLCipher como dependencia.
+platform :ios, '17.0'
+use_frameworks! :linkage => :static
+
+target 'MiGasto' do
+  pod 'shared', :path => '../shared'
+end
+
+# SQLCipher declara iOS 12 como mínimo y este Xcode ya no lo admite: todas las pods usan el de la app.
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.0'
+    end
+  end
+end

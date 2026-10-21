@@ -1,0 +1,325 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		04783F7535D9486266FCDA9C /* Pods_MiGasto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EC0E06C5B87C5A5AC7DF319 /* Pods_MiGasto.framework */; };
+		149CAA1C2F6C0EAE66FE02D9 /* MiGastoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978471982C0BFBA8A4BC4721 /* MiGastoApp.swift */; };
+		20DDA1EF970C365A16F71374 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 75046E84DAE53AA83B440071 /* Assets.xcassets */; };
+		8923F13578211529D1947166 /* RaizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E17CE6CFA6EB1BD359E97D /* RaizView.swift */; };
+		B776E07BEECF6E27EE95DD6F /* Outfit.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8954F489A45C30C14CCE7BEC /* Outfit.ttf */; };
+		CF5F2E02DFB6B983FD365E4D /* Aplicacion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307C8C345D28DAAB3B066BBC /* Aplicacion.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1E3C67AF82295810685546EC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		29E17CE6CFA6EB1BD359E97D /* RaizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaizView.swift; sourceTree = "<group>"; };
+		307C8C345D28DAAB3B066BBC /* Aplicacion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Aplicacion.swift; sourceTree = "<group>"; };
+		3EC0E06C5B87C5A5AC7DF319 /* Pods_MiGasto.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MiGasto.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		75046E84DAE53AA83B440071 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8954F489A45C30C14CCE7BEC /* Outfit.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Outfit.ttf; sourceTree = "<group>"; };
+		978471982C0BFBA8A4BC4721 /* MiGastoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiGastoApp.swift; sourceTree = "<group>"; };
+		DDFE642629E30189344E4D39 /* Pods-MiGasto.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MiGasto.debug.xcconfig"; path = "Target Support Files/Pods-MiGasto/Pods-MiGasto.debug.xcconfig"; sourceTree = "<group>"; };
+		ED10680EF58A8E4C253389F1 /* Pods-MiGasto.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MiGasto.release.xcconfig"; path = "Target Support Files/Pods-MiGasto/Pods-MiGasto.release.xcconfig"; sourceTree = "<group>"; };
+		FB47058CA1DEB2BC986B612C /* MiGasto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiGasto.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9C8615A57EB591BB46E600F4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04783F7535D9486266FCDA9C /* Pods_MiGasto.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2800AA93FC1821B2E3D61A22 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				DDFE642629E30189344E4D39 /* Pods-MiGasto.debug.xcconfig */,
+				ED10680EF58A8E4C253389F1 /* Pods-MiGasto.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		78206CA97A07DCA9560549F0 /* MiGasto */ = {
+			isa = PBXGroup;
+			children = (
+				307C8C345D28DAAB3B066BBC /* Aplicacion.swift */,
+				978471982C0BFBA8A4BC4721 /* MiGastoApp.swift */,
+				29E17CE6CFA6EB1BD359E97D /* RaizView.swift */,
+				BEA5C6BE8BDF78F5034A0F0F /* Resources */,
+				75046E84DAE53AA83B440071 /* Assets.xcassets */,
+				1E3C67AF82295810685546EC /* Info.plist */,
+			);
+			path = MiGasto;
+			sourceTree = "<group>";
+		};
+		90F9468BF779C3BB52BCA74F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FB47058CA1DEB2BC986B612C /* MiGasto.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BD0C4C4A25D53504AAF94770 = {
+			isa = PBXGroup;
+			children = (
+				78206CA97A07DCA9560549F0 /* MiGasto */,
+				90F9468BF779C3BB52BCA74F /* Products */,
+				2800AA93FC1821B2E3D61A22 /* Pods */,
+				F8378DF3B8CB51269EA24906 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		BEA5C6BE8BDF78F5034A0F0F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8954F489A45C30C14CCE7BEC /* Outfit.ttf */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		F8378DF3B8CB51269EA24906 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3EC0E06C5B87C5A5AC7DF319 /* Pods_MiGasto.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		42AEFBAE01D2DFD981F7DA7D /* MiGasto */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 14371565B670DF844D28E527 /* Build configuration list for PBXNativeTarget "MiGasto" */;
+			buildPhases = (
+				A20FF39E9EC16BE38D3F7106 /* [CP] Check Pods Manifest.lock */,
+				B5FFDE58AEFB4558E1BF155E /* Sources */,
+				9C8615A57EB591BB46E600F4 /* Frameworks */,
+				23897E47454E01E786759976 /* Resources */,
+				B95C9FEC12B77AD4174FAF80 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MiGasto;
+			productName = MiGasto;
+			productReference = FB47058CA1DEB2BC986B612C /* MiGasto.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7B6581EE30595C57D6133265 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2700;
+				LastUpgradeCheck = 2700;
+			};
+			buildConfigurationList = 9BD98259C1B6C28FFA54694E /* Build configuration list for PBXProject "MiGasto" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = es;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				es,
+				Base,
+			);
+			mainGroup = BD0C4C4A25D53504AAF94770;
+			productRefGroup = 90F9468BF779C3BB52BCA74F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				42AEFBAE01D2DFD981F7DA7D /* MiGasto */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		23897E47454E01E786759976 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B776E07BEECF6E27EE95DD6F /* Outfit.ttf in Resources */,
+				20DDA1EF970C365A16F71374 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A20FF39E9EC16BE38D3F7106 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MiGasto-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B95C9FEC12B77AD4174FAF80 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MiGasto/Pods-MiGasto-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MiGasto/Pods-MiGasto-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MiGasto/Pods-MiGasto-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B5FFDE58AEFB4558E1BF155E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CF5F2E02DFB6B983FD365E4D /* Aplicacion.swift in Sources */,
+				149CAA1C2F6C0EAE66FE02D9 /* MiGastoApp.swift in Sources */,
+				8923F13578211529D1947166 /* RaizView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1A9E10FAAD0A97FB97BCEC18 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DDFE642629E30189344E4D39 /* Pods-MiGasto.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = MiGasto/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.migasto.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		3436F31CD970D918D1D9E594 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B71E9DA8BAFCEFB881D98784 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B79C83306C8ABF7373B5E45C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = ED10680EF58A8E4C253389F1 /* Pods-MiGasto.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = MiGasto/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.migasto.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		14371565B670DF844D28E527 /* Build configuration list for PBXNativeTarget "MiGasto" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A9E10FAAD0A97FB97BCEC18 /* Debug */,
+				B79C83306C8ABF7373B5E45C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9BD98259C1B6C28FFA54694E /* Build configuration list for PBXProject "MiGasto" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B71E9DA8BAFCEFB881D98784 /* Debug */,
+				3436F31CD970D918D1D9E594 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7B6581EE30595C57D6133265 /* Project object */;
+}
