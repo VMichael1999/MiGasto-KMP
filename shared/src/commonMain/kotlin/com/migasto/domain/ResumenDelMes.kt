@@ -18,7 +18,7 @@ data class ResumenDelMes(
     val gastos: Double,
     /** Lo que queda: ingresos menos gastos. */
     val saldo: Double,
-    /** Suma de todo lo que espera confirmación (de cualquier mes y tipo). */
+    /** Lo que van a sumar los ingresos que esperan confirmación (de cualquier mes). */
     val porConfirmar: Double,
     val cantidadPorConfirmar: Int,
     val presupuesto: Double,
@@ -61,7 +61,7 @@ fun calcularResumenDelMes(
         ingresos = ingresos,
         gastos = gastos,
         saldo = ingresos - gastos,
-        porConfirmar = pendientes.sumOf { it.amount },
+        porConfirmar = pendientes.filter { it.esIngreso }.sumOf { it.amount },
         cantidadPorConfirmar = pendientes.size,
         presupuesto = presupuesto,
         fraccionDelMes = (hoy.day.toDouble() / diasDelMes(hoy)).coerceIn(0.0, 1.0),

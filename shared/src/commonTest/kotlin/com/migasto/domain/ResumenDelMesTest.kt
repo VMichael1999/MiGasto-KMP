@@ -66,10 +66,15 @@ class ResumenDelMesTest {
     }
 
     @Test
-    fun loPorConfirmarIncluyeCualquierMesYTipo() {
-        val r = resumen(deEjemplo + mov("viejo", 70.0, TipoMovimiento.Gasto, estado = EstadoMovimiento.Pendiente, mes = 8))
+    fun loPorConfirmarCuentaCualquierMesYElMontoEsSoloDeIngresos() {
+        // Como en el banner de Flutter: el monto es lo que van a sumar los ingresos pendientes.
+        val r = resumen(
+            deEjemplo +
+                mov("viejo", 70.0, TipoMovimiento.Ingreso, estado = EstadoMovimiento.Pendiente, mes = 8) +
+                mov("gasto", 40.0, TipoMovimiento.Gasto, estado = EstadoMovimiento.Pendiente),
+        )
         assertEquals(300.0, r.porConfirmar, 0.001)
-        assertEquals(2, r.cantidadPorConfirmar)
+        assertEquals(3, r.cantidadPorConfirmar)
     }
 
     @Test
