@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.migasto.android.resumen.ResumenContenido
 import com.migasto.android.tema.MiGastoTheme
+import com.migasto.domain.AvisoDeConfiguracion
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -21,10 +22,16 @@ class ResumenPantallaTest {
     private var buscar = 0
     private val abiertos = mutableListOf<String>()
 
-    private fun mostrar(oculto: Boolean = false, presupuesto: Boolean = true) {
+    private var actuados = 0
+    private var pospuestos = 0
+
+    private fun mostrar(oculto: Boolean = false, presupuesto: Boolean = true, aviso: AvisoDeConfiguracion? = null) {
         regla.setContent {
             MiGastoTheme(oscuro = false) {
-                ResumenContenido(Muestras.resumen(oculto, presupuesto), { alternados++ }, { verTodos++ }, { buscar++ }, { abiertos += it })
+                ResumenContenido(
+                    Muestras.resumen(oculto, presupuesto), { alternados++ }, { verTodos++ }, { buscar++ }, { abiertos += it },
+                    aviso = aviso, alActuarSobreAviso = { actuados++ }, alPosponerAviso = { pospuestos++ },
+                )
             }
         }
     }
@@ -84,5 +91,30 @@ class ResumenPantallaTest {
         mostrar()
         regla.onNodeWithText("Minimarket La Esquina").performClick()
         assertEquals(listOf("minimarket"), abiertos)
+    }
+
+    @Test
+    fun sinAvisoNoHayTarjetaDeConfiguracion() {
+        mostrar()
+        regla.onNodeWithText("Ahora no").assertDoesNotExist()
+    }
+
+    @Test
+    fun elAvisoDeBateriaSePuedePosponerOArreglar() {
+        mostrar(aviso = AvisoDeConfiguracion.BateriaRestringida)
+        regla.onNodeWithText("Evita que el teléfono cierre la lectura").assertIsDisplayed()
+        regla.onNodeWithText("Ahora no").performClick()
+        regla.onNodeWithText("Ajustar").performClick()
+        assertEquals(1, pospuestos)
+        assertEquals(1, actuados)
+    }
+
+    @Test
+    fun laLecturaApagadaSoloSePuedeActivar() {
+        mostrar(aviso = AvisoDeConfiguracion.LecturaApagada)
+        regla.onNodeWithText("La lectura de pagos está apagada").assertIsDisplayed()
+        regla.onNodeWithText("Ahora no").assertDoesNotExist()
+        regla.onNodeWithText("Activar").performClick()
+        assertEquals(1, actuados)
     }
 }
