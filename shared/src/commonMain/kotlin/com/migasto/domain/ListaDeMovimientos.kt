@@ -92,3 +92,42 @@ fun etiquetaDelDia(dia: LocalDate, hoy: LocalDate): String {
         else -> "${diaDeLaSemana.replaceFirstChar { it.uppercase() }} ${dia.day} de ${nombreDelMes(dia.month.ordinal + 1).lowercase()}"
     }
 }
+
+/** Lo que ofrece la hoja «Filtrar movimientos» (port de `_showFilterSheet` de Flutter). */
+object OpcionesDeFiltro {
+    val fuentes: List<PaymentSource> = listOf(
+        PaymentSource.Yape, PaymentSource.Plin, PaymentSource.GooglePay,
+        PaymentSource.Tarjeta, PaymentSource.Efectivo, PaymentSource.Manual,
+    )
+
+    const val MONTO_MINIMO = 0.0
+    const val MONTO_MAXIMO = 500.0
+
+    /** El deslizador avanza de 10 en 10 (50 divisiones): 49 marcas entre los extremos. */
+    const val PASOS_INTERMEDIOS = 49
+
+    /** Para los ingresos, las categorías de ingreso; para lo demás, las de gasto. */
+    fun categorias(tipo: FiltroDeTipo): List<Categoria> = if (tipo == FiltroDeTipo.Ingresos) Categoria.ingresos else Categoria.gastos
+
+    fun propias(tipo: FiltroDeTipo, todas: List<CategoriaPropia>): List<CategoriaPropia> {
+        val deIngreso = tipo == FiltroDeTipo.Ingresos
+        return todas.filter { (it.tipo == TipoMovimiento.Ingreso) == deIngreso }
+    }
+
+    fun textoDelRango(desde: Double, hasta: Double): String = "S/ ${desde.toInt()} – S/ ${hasta.toInt()}"
+}
+
+/** Aplica lo elegido en la hoja; el tipo y la búsqueda no cambian. [rango] es `null` si no se tocó el deslizador. */
+fun FiltrosDeMovimientos.conLaHoja(categoria: String?, fuente: PaymentSource?, rango: ClosedFloatingPointRange<Double>?) =
+    copy(categoria = categoria, fuente = fuente, montoMinimo = rango?.start, montoMaximo = rango?.endInclusive)
+
+/** Quita categoría, fuente y rango; el tipo y la búsqueda se quedan. */
+fun FiltrosDeMovimientos.sinLoDeLaHoja() = copy(categoria = null, fuente = null, montoMinimo = null, montoMaximo = null)
+
+/** El rango con el que se abre la hoja, o `null` si no hay rango puesto. Un extremo suelto toma el de la hoja. */
+val FiltrosDeMovimientos.rangoDeLaHoja: ClosedFloatingPointRange<Double>?
+    get() = if (montoMinimo == null && montoMaximo == null) {
+        null
+    } else {
+        (montoMinimo ?: OpcionesDeFiltro.MONTO_MINIMO)..(montoMaximo ?: OpcionesDeFiltro.MONTO_MAXIMO)
+    }
