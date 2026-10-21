@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.migasto.android.movimientos.MovimientosPantalla
+import com.migasto.android.ajustes.AjustesPantalla
 import com.migasto.android.detalle.DetallePantalla
 import com.migasto.android.nuevo.NuevoMovimientoPantalla
 import androidx.compose.material3.SnackbarDuration
@@ -94,6 +95,7 @@ fun MiGastoNavegacion() {
                     alAbrir = { detalleId = it },
                 )
                 Pestana.Movimientos -> MovimientosPantalla(abrirBusqueda) { detalleId = it }
+                Pestana.Ajustes -> AjustesPantalla(alAvisar = { mensaje -> ambito.launch { avisos.showSnackbar(mensaje) } })
                 else -> EnConstruccion(pestana.titulo)
             }
         }
