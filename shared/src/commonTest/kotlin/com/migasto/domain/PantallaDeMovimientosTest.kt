@@ -136,6 +136,34 @@ class PantallaDeMovimientosTest {
         assertEquals(PaymentSource.Yape, f.fuente)
     }
 
+    @Test
+    fun losChipsDeTipoTraenSuTextoConLaCuentaDeLosPorConfirmar() {
+        val opciones = pantalla().opcionesDeTipo
+        assertEquals(listOf("Todo", "Gastos", "Ingresos", "Por confirmar · 2"), opciones.map { it.texto })
+        assertEquals(listOf(FiltroDeTipo.Todo, FiltroDeTipo.Gastos, FiltroDeTipo.Ingresos, FiltroDeTipo.PorConfirmar), opciones.map { it.tipo })
+        assertEquals(listOf(false, false, false, true), opciones.map { it.esPorConfirmar })
+    }
+
+    @Test
+    fun siNoHayMovimientosElAvisoDependeDeSiHayFiltros() {
+        assertEquals("Todavía no hay movimientos.", pantalla(movs = emptyList()).textoSinMovimientos)
+        assertEquals("No hay movimientos con esos filtros.", pantalla(filtros = filtrosVacios().conBusqueda("zzz")).textoSinMovimientos)
+    }
+
+    @Test
+    fun losTextosFijosDeLaPantallaYDeLaHoja() {
+        assertEquals("Movimientos", TextosDeMovimientos.TITULO)
+        assertEquals("Filtrar movimientos", TextosDeMovimientos.FILTRAR)
+        assertEquals("Quitar filtros", TextosDeMovimientos.QUITAR_FILTROS)
+        assertEquals("Limpiar filtros", TextosDeMovimientos.LIMPIAR_FILTROS)
+        assertEquals("Aplicar", TextosDeMovimientos.APLICAR)
+        assertEquals("Categoría", TextosDeMovimientos.CATEGORIA)
+        assertEquals("Fuente", TextosDeMovimientos.FUENTE)
+        assertEquals("Rango de monto", TextosDeMovimientos.RANGO)
+        assertEquals("Todas", TextosDeMovimientos.TODAS)
+        assertEquals("3 filtros puestos", TextosDeMovimientos.filtrosPuestos(3))
+    }
+
     private val fabrica = fabricaDePrueba()
     private val nombre = "prueba-pantalla-movimientos.db"
 

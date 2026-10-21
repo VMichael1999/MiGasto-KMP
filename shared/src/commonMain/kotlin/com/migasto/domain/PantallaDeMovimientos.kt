@@ -19,6 +19,24 @@ class GrupoDeMovimientos(
     val filas: List<FilaDeMovimiento>,
 )
 
+/** Un chip del filtro por tipo. */
+class OpcionDeTipo(val tipo: FiltroDeTipo, val texto: String, val esPorConfirmar: Boolean)
+
+object TextosDeMovimientos {
+    const val TITULO = "Movimientos"
+    const val FILTRAR = "Filtrar movimientos"
+    const val QUITAR_FILTROS = "Quitar filtros"
+    const val LIMPIAR_FILTROS = "Limpiar filtros"
+    const val APLICAR = "Aplicar"
+    const val CATEGORIA = "Categoría"
+    const val FUENTE = "Fuente"
+    const val RANGO = "Rango de monto"
+    const val TODAS = "Todas"
+
+    /** Para el lector de pantalla, en la insignia del botón de filtros. */
+    fun filtrosPuestos(cantidad: Int) = "$cantidad filtros puestos"
+}
+
 class PantallaDeMovimientos(
     val tipo: FiltroDeTipo,
     val busqueda: String,
@@ -29,6 +47,10 @@ class PantallaDeMovimientos(
     /** Todos los filtros puestos: la hoja de filtros se abre con lo que ya está elegido. */
     val filtros: FiltrosDeMovimientos,
     val propias: List<CategoriaPropia>,
+    /** Todo, Gastos, Ingresos y «Por confirmar · N». */
+    val opcionesDeTipo: List<OpcionDeTipo>,
+    /** Lo que se dice cuando no hay nada que mostrar (distinto si hay filtros puestos). */
+    val textoSinMovimientos: String,
 )
 
 fun armarPantallaDeMovimientos(
@@ -47,14 +69,22 @@ fun armarPantallaDeMovimientos(
             filas = g.movimientos.map { crearFila(it, alias, propias, zona) },
         )
     }
+    val porConfirmar = todos.count { it.estado == EstadoMovimiento.Pendiente }
     return PantallaDeMovimientos(
         tipo = filtros.tipo,
         busqueda = filtros.busqueda,
-        cantidadPorConfirmar = todos.count { it.estado == EstadoMovimiento.Pendiente },
+        cantidadPorConfirmar = porConfirmar,
         grupos = grupos,
         hayFiltro = filtros.hayAlgunFiltro,
         filtros = filtros,
         propias = propias,
+        opcionesDeTipo = listOf(
+            OpcionDeTipo(FiltroDeTipo.Todo, "Todo", false),
+            OpcionDeTipo(FiltroDeTipo.Gastos, "Gastos", false),
+            OpcionDeTipo(FiltroDeTipo.Ingresos, "Ingresos", false),
+            OpcionDeTipo(FiltroDeTipo.PorConfirmar, "Por confirmar · $porConfirmar", true),
+        ),
+        textoSinMovimientos = if (filtros.hayAlgunFiltro) "No hay movimientos con esos filtros." else "Todavía no hay movimientos.",
     )
 }
 
