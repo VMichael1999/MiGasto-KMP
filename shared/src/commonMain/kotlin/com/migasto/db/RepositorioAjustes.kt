@@ -6,6 +6,8 @@ import com.migasto.domain.fechaIsoUtc
 import com.migasto.domain.leerFechaIso
 import kotlin.time.Instant
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
@@ -77,12 +79,26 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
 
     fun establecerGuardarIngresosAutomaticamente(valor: Boolean) = guardar(CLAVE_INGRESOS_AUTOMATICOS, valor.toString())
 
+    // Lectura de pagos
+
+    /** Los últimos identificadores de notificaciones y constancias ya leídas (los más viejos primero). */
+    fun idsLeidos(): List<String> = leer(CLAVE_LEIDOS)?.let { texto ->
+        runCatching { Json.parseToJsonElement(texto).jsonArray.map { (it as JsonPrimitive).content } }.getOrNull()
+    } ?: emptyList()
+
+    fun guardarIdsLeidos(ids: List<String>) = guardar(CLAVE_LEIDOS, JsonArray(ids.map { JsonPrimitive(it) }).toString())
+
     // Respaldo
 
     /** Cuándo se hizo el último respaldo; `null` si nunca. Se guarda como en Flutter: UTC en ISO 8601. */
     fun ultimoRespaldo(): Instant? = leer(CLAVE_ULTIMO_RESPALDO)?.let { runCatching { leerFechaIso(it) }.getOrNull() }
 
     fun guardarUltimoRespaldo(cuando: Instant) = guardar(CLAVE_ULTIMO_RESPALDO, fechaIsoUtc(cuando))
+
+    /** Si el monto y el nombre se ven en la notificación con la pantalla bloqueada. Apagado por defecto. */
+    fun mostrarMontoEnPantallaBloqueada(): Boolean = leer(CLAVE_MONTO_BLOQUEADO) == "true"
+
+    fun establecerMostrarMontoEnPantallaBloqueada(valor: Boolean) = guardar(CLAVE_MONTO_BLOQUEADO, valor.toString())
 
     // Interno
 
@@ -113,6 +129,8 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
         const val CLAVE_APRENDIDAS = "migasto_category_overrides_v2"
         const val CLAVE_INGRESOS_AUTOMATICOS = "migasto_auto_save_income"
         const val CLAVE_ULTIMO_RESPALDO = "migasto_last_backup"
+        const val CLAVE_LEIDOS = "migasto_handled_notifications"
+        const val CLAVE_MONTO_BLOQUEADO = "migasto_show_amount_locked"
 
         private val PROVEEDORES_POR_DEFECTO = mapOf("yape" to true, "plin" to true, "googlePay" to true)
     }

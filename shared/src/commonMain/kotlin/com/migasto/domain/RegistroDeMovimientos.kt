@@ -159,6 +159,24 @@ class RegistroDeMovimientos(
         return movimiento
     }
 
+    /**
+     * Guarda un pago que leyó el código nativo cuando no hay ventana flotante que mostrar (pantalla apagada o
+     * bloqueada, o sin el permiso). Un gasto se guarda confirmado; un ingreso, solo si el usuario pidió guardar
+     * los ingresos solos: si no, queda en «Por confirmar». El código nativo ya frenó los duplicados.
+     */
+    fun guardarPagoLeido(pago: PagoLeido, texto: String): PagoGuardado {
+        val guardado = !pago.esIngreso || ajustes.guardarIngresosAutomaticamente()
+        val movimiento = registrarPagoNativo(
+            PagoNativo(
+                amount = pago.amount, peer = pago.peer, provider = pago.provider.clave,
+                tipo = if (pago.esIngreso) TipoMovimiento.Ingreso else TipoMovimiento.Gasto,
+                textoOriginal = texto, confirmado = guardado, en = reloj(), canal = CanalMovimiento.Notificacion,
+                id = nuevoId(), desdeAndroid = true,
+            ),
+        ) ?: error("un pago que llegó por el código nativo nunca se descarta como duplicado")
+        return PagoGuardado(movimiento, guardado)
+    }
+
     /** Confirma el aviso que se estaba mostrando: lo guarda y aprende la categoría que eligió el usuario. */
     fun confirmarPendiente(pendiente: Movimiento, categoriaFinal: Categoria, notas: String): Movimiento {
         val confirmado = pendiente.copiar(category = categoriaFinal, notes = notas, estado = EstadoMovimiento.Confirmado)

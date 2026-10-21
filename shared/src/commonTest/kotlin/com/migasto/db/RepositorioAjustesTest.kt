@@ -127,6 +127,15 @@ class RepositorioAjustesTest {
     }
 
     @Test
+    fun elMontoEnPantallaBloqueadaEstaApagadoPorDefecto() {
+        abrir().use { base ->
+            assertFalse(base.ajustes.mostrarMontoEnPantallaBloqueada())
+            base.ajustes.establecerMostrarMontoEnPantallaBloqueada(true)
+            assertTrue(base.ajustes.mostrarMontoEnPantallaBloqueada())
+        }
+    }
+
+    @Test
     fun losAjustesSobrevivenAlReabrir() {
         abrir().use {
             it.ajustes.guardarPresupuesto(900.0)
