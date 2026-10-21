@@ -3,78 +3,47 @@ package com.migasto.android.ajustes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.migasto.db.BaseMiGasto
-import com.migasto.domain.AliasGuardado
-import com.migasto.domain.CategoriaAprendida
-import com.migasto.domain.CategoriaPropia
+import com.migasto.domain.AperturaDeRespaldo
 import com.migasto.domain.ContenidoDeRespaldo
+import com.migasto.domain.PantallaDeAjustes
 import com.migasto.domain.RegistroDeMovimientos
-import com.migasto.domain.RespaldoDeLaApp
-import com.migasto.domain.ServicioDeRespaldo
-import com.migasto.domain.aliasOrdenados
-import com.migasto.domain.aprendidasOrdenadas
-import com.migasto.domain.movimientosACsv
-import com.migasto.domain.subtituloDelRespaldo
+import com.migasto.domain.ResultadoDelRespaldo
+import com.migasto.domain.SeguimientoDeAjustes
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.Clock
 
-data class AjustesUi(
-    val presupuesto: Double,
-    val ingresosAutomaticos: Boolean,
-    val montoEnPantallaBloqueada: Boolean,
-    val proveedores: Map<String, Boolean>,
-    val subtituloDelRespaldo: String,
-    val aprendidas: List<CategoriaAprendida>,
-    val aliases: List<AliasGuardado>,
-    val propias: List<CategoriaPropia>,
-)
-
+/** Lo de Ajustes que es igual en iPhone vive en [SeguimientoDeAjustes]; aquí solo queda el bloqueo, que es de Android. */
 class AjustesViewModel(
     private val baseDiferida: Deferred<BaseMiGasto>,
     private val registroDiferido: Deferred<RegistroDeMovimientos>,
     private val bloqueoActivado: MutableStateFlow<Boolean?>,
 ) : ViewModel() {
-    private val refresco = MutableStateFlow(0)
+    private suspend fun seguimiento() = SeguimientoDeAjustes(baseDiferida.await(), registroDiferido.await())
 
-    val estado: StateFlow<AjustesUi?> = flow {
-        val base = baseDiferida.await()
-        emitAll(
-            refresco.map {
-                AjustesUi(
-                    presupuesto = base.ajustes.presupuesto(),
-                    ingresosAutomaticos = base.ajustes.guardarIngresosAutomaticamente(),
-                    montoEnPantallaBloqueada = base.ajustes.mostrarMontoEnPantallaBloqueada(),
-                    proveedores = base.ajustes.proveedoresActivos(),
-                    subtituloDelRespaldo = subtituloDelRespaldo(base.ajustes.ultimoRespaldo()),
-                    aprendidas = aprendidasOrdenadas(base.ajustes.aprendidas()),
-                    aliases = aliasOrdenados(base.ajustes.aliases()),
-                    propias = base.categoriasPropias.todas(),
-                )
-            },
-        )
+    private val seguimientoDiferido = viewModelScope.async(Dispatchers.Default) { seguimiento() }
+
+    val estado: StateFlow<PantallaDeAjustes?> = flow {
+        emitAll(seguimientoDiferido.await().estado)
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    private fun cambiar(bloque: suspend (BaseMiGasto) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            bloque(baseDiferida.await())
-            refresco.update { it + 1 }
-        }
+    private fun cambiar(bloque: (SeguimientoDeAjustes) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) { bloque(seguimientoDiferido.await()) }
     }
 
-    fun guardarPresupuesto(monto: Double) = cambiar { it.ajustes.guardarPresupuesto(monto) }
+    /** Guarda el presupuesto y devuelve el aviso. */
+    suspend fun guardarPresupuesto(monto: Double): String = withContext(Dispatchers.IO) { seguimientoDiferido.await().guardarPresupuesto(monto) }
 
-    fun alternarIngresosAutomaticos() = cambiar { it.ajustes.establecerGuardarIngresosAutomaticamente(!it.ajustes.guardarIngresosAutomaticamente()) }
+    fun alternarIngresosAutomaticos() = cambiar { it.alternarIngresosAutomaticos() }
 
     /** Activa o apaga el bloqueo; la puerta de bloqueo lo ve al instante. */
     fun establecerBloqueo(activado: Boolean) {
@@ -84,49 +53,36 @@ class AjustesViewModel(
         }
     }
 
-    fun alternarMontoEnPantallaBloqueada() = cambiar { it.ajustes.establecerMostrarMontoEnPantallaBloqueada(!it.ajustes.mostrarMontoEnPantallaBloqueada()) }
+    fun alternarMontoEnPantallaBloqueada() = cambiar { it.alternarMontoEnPantallaBloqueada() }
 
-    fun alternarProveedor(clave: String) = cambiar { it.ajustes.guardarProveedoresActivos(it.ajustes.proveedoresActivos() + (clave to !(it.ajustes.proveedoresActivos()[clave] ?: false))) }
+    fun alternarProveedor(clave: String) = cambiar { it.alternarProveedor(clave) }
 
-    fun olvidarAprendida(comercio: String) = cambiar { it.ajustes.olvidarAprendida(comercio) }
+    fun olvidarAprendida(comercio: String) = cambiar { it.olvidarAprendida(comercio) }
 
-    fun olvidarTodasLasAprendidas() = cambiar { it.ajustes.olvidarTodasLasAprendidas() }
+    fun olvidarTodasLasAprendidas() = cambiar { it.olvidarTodasLasAprendidas() }
 
-    fun quitarAlias(clave: String) = cambiar { it.ajustes.establecerAlias(clave, "") }
+    fun quitarAlias(clave: String) = cambiar { it.quitarAlias(clave) }
 
-    fun quitarPropia(id: String) = cambiar { it.categoriasPropias.quitar(id) }
+    fun quitarPropia(id: String) = cambiar { it.quitarPropia(id) }
 
     fun borrarUbicaciones(alTerminar: () -> Unit) = viewModelScope.launch {
-        withContext(Dispatchers.IO) { registroDiferido.await().quitarTodasLasUbicaciones() }
+        withContext(Dispatchers.IO) { seguimientoDiferido.await().borrarUbicaciones() }
         alTerminar()
     }
 
     /** Todos los movimientos como CSV, sin ubicaciones. */
-    suspend fun csv(): String = withContext(Dispatchers.IO) {
-        val base = baseDiferida.await()
-        movimientosACsv(base.movimientos.todos(), base.categoriasPropias.todas())
-    }
+    suspend fun csv(): String = withContext(Dispatchers.IO) { seguimientoDiferido.await().csv() }
 
-    private suspend fun respaldoDeLaApp(): RespaldoDeLaApp {
-        val b = baseDiferida.await()
-        return RespaldoDeLaApp(b.movimientos, b.ajustes, b.categoriasPropias)
-    }
+    /** Cifra el respaldo (en base64). Puede tardar unos segundos. */
+    suspend fun crearRespaldo(contrasena: String): ResultadoDelRespaldo = seguimientoDiferido.await().crearRespaldo(contrasena)
 
-    /** Cifra el respaldo. Puede tardar unos segundos: deriva la clave con 210 000 vueltas. */
-    suspend fun crearRespaldo(contrasena: String): ByteArray = withContext(Dispatchers.Default) {
-        ServicioDeRespaldo().cifrar(respaldoDeLaApp().contenido(), contrasena)
-    }
+    fun respaldoGuardado() = cambiar { it.respaldoGuardado() }
 
-    fun respaldoGuardado() = cambiar { it.ajustes.guardarUltimoRespaldo(Clock.System.now()) }
+    suspend fun nombreDelArchivoDeRespaldo(): String = seguimientoDiferido.await().nombreDelArchivoDeRespaldo()
 
-    suspend fun abrirRespaldo(datos: ByteArray, contrasena: String): ContenidoDeRespaldo =
-        withContext(Dispatchers.Default) { ServicioDeRespaldo().descifrar(datos, contrasena) }
+    suspend fun abrirRespaldo(datosEnBase64: String, contrasena: String): AperturaDeRespaldo =
+        seguimientoDiferido.await().abrirRespaldo(datosEnBase64, contrasena)
 
-    suspend fun cuantosSonNuevos(contenido: ContenidoDeRespaldo): Int = withContext(Dispatchers.IO) { respaldoDeLaApp().cuantosSonNuevos(contenido) }
-
-    suspend fun restaurar(contenido: ContenidoDeRespaldo): Int {
-        val agregados = withContext(Dispatchers.IO) { respaldoDeLaApp().restaurar(contenido) }
-        refresco.update { it + 1 }
-        return agregados
-    }
+    /** Agrega lo que falta y devuelve el aviso. */
+    suspend fun restaurar(contenido: ContenidoDeRespaldo): String = withContext(Dispatchers.IO) { seguimientoDiferido.await().restaurar(contenido) }
 }

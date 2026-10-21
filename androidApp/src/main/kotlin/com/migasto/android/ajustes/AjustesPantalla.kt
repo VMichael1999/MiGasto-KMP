@@ -90,22 +90,17 @@ import com.migasto.android.tema.Radio
 import com.migasto.android.tema.Tamano
 import com.migasto.domain.ContenidoDeRespaldo
 import com.migasto.domain.DecisionAlActivar
-import com.migasto.domain.ExcepcionDeRespaldo
+import com.migasto.domain.PantallaDeAjustes
 import com.migasto.domain.TextosDelBloqueo
 import com.migasto.domain.TipoMovimiento
 import com.migasto.domain.activarSiConfirmo
 import com.migasto.domain.decidirAlActivar
-import com.migasto.domain.mensajeDeRestauracion
-import com.migasto.domain.nombreDelArchivoDeRespaldo
 import com.migasto.domain.parsearPresupuesto
-import com.migasto.domain.presupuestoParaEditar
-import com.migasto.domain.textoDeRestauracion
-import com.migasto.domain.textoDelPresupuestoEnAjustes
 import com.migasto.domain.validarContrasenaDeRespaldo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.Clock
+import kotlin.io.encoding.Base64
 
 @Composable
 fun AjustesPantalla(alAvisar: (String) -> Unit, alVerDondePagaste: () -> Unit = {}) {
@@ -119,13 +114,13 @@ private enum class Hoja { Presupuesto, Aprendidas, Propias, Alias, BorrarUbicaci
 
 private sealed interface DialogoDeRespaldo {
     data object PedirContrasenaParaCrear : DialogoDeRespaldo
-    data class PedirContrasenaParaAbrir(val datos: ByteArray) : DialogoDeRespaldo
+    data class PedirContrasenaParaAbrir(val datosEnBase64: String) : DialogoDeRespaldo
     data class Esperando(val mensaje: String) : DialogoDeRespaldo
-    data class ConfirmarRestauracion(val contenido: ContenidoDeRespaldo, val nuevos: Int) : DialogoDeRespaldo
+    data class ConfirmarRestauracion(val contenido: ContenidoDeRespaldo, val texto: String) : DialogoDeRespaldo
 }
 
 @Composable
-private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (String) -> Unit, alVerDondePagaste: () -> Unit) {
+private fun AjustesContenido(ui: PantallaDeAjustes, vm: AjustesViewModel, alAvisar: (String) -> Unit, alVerDondePagaste: () -> Unit) {
     val c = MiGastoTheme.colores
     val contexto = LocalContext.current
     val ambito = rememberCoroutineScope()
@@ -134,19 +129,19 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
     val bloqueo by app.bloqueoActivado.collectAsStateWithLifecycle()
     var hoja by remember { mutableStateOf<Hoja?>(null) }
     var dialogo by remember { mutableStateOf<DialogoDeRespaldo?>(null) }
-    var respaldoListo by remember { mutableStateOf<ByteArray?>(null) }
+    var respaldoListo by remember { mutableStateOf<String?>(null) }
     var sistema by remember { mutableStateOf(leerSistema(contexto)) }
     // Al volver de los ajustes del sistema se vuelve a mirar qué quedó activado.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { sistema = leerSistema(contexto) }
     val pedirPermisoDeAvisos = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { sistema = leerSistema(contexto) }
 
     val guardarArchivo = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
-        val bytes = respaldoListo
+        val datos = respaldoListo
         respaldoListo = null
-        if (uri != null && bytes != null) {
+        if (uri != null && datos != null) {
             ambito.launch {
                 val bien = withContext(Dispatchers.IO) {
-                    runCatching { contexto.contentResolver.openOutputStream(uri)?.use { it.write(bytes) } ?: error("sin salida") }.isSuccess
+                    runCatching { contexto.contentResolver.openOutputStream(uri)?.use { it.write(Base64.Default.decode(datos)) } ?: error("sin salida") }.isSuccess
                 }
                 if (bien) {
                     vm.respaldoGuardado()
@@ -160,7 +155,7 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
     val abrirArchivo = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             ambito.launch {
-                val datos = withContext(Dispatchers.IO) { runCatching { contexto.contentResolver.openInputStream(uri)?.use { it.readBytes() } }.getOrNull() }
+                val datos = withContext(Dispatchers.IO) { runCatching { contexto.contentResolver.openInputStream(uri)?.use { Base64.Default.encode(it.readBytes()) } }.getOrNull() }
                 if (datos == null) alAvisar("No se pudo leer el archivo.") else dialogo = DialogoDeRespaldo.PedirContrasenaParaAbrir(datos)
             }
         }
@@ -191,7 +186,7 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
             Separador()
             FilaDeAjuste(
                 Icons.Outlined.Lock, "Monto en pantalla bloqueada",
-                subtitulo = if (ui.montoEnPantallaBloqueada) "Visible: el aviso muestra el monto y el nombre" else "Oculto: solo dice «Pago detectado»",
+                subtitulo = ui.subtituloDelMontoEnPantallaBloqueada,
                 interruptor = ui.montoEnPantallaBloqueada, alCambiar = { vm.alternarMontoEnPantallaBloqueada() },
             )
             Separador()
@@ -221,13 +216,13 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
             Separador()
             FilaDeAjuste(
                 Icons.Outlined.Lock, "Guardar ingresos automáticamente",
-                subtitulo = if (ui.ingresosAutomaticos) "Los ingresos se guardan solos, como los gastos." else "Apagado: cada ingreso espera tu confirmación.",
+                subtitulo = ui.subtituloDeLosIngresosAutomaticos,
                 interruptor = ui.ingresosAutomaticos, alCambiar = { vm.alternarIngresosAutomaticos() },
             )
             Separador()
-            listOf("yape" to "Yape", "plin" to "Plin", "googlePay" to "Google Wallet").forEachIndexed { i, (clave, nombre) ->
+            ui.proveedores.forEachIndexed { i, p ->
                 if (i > 0) Separador()
-                FilaDeProveedor(nombre, clave, ui.proveedores[clave] == true) { vm.alternarProveedor(clave) }
+                FilaDeProveedor(p.nombre, p.clave, p.activo) { vm.alternarProveedor(p.clave) }
             }
         }
 
@@ -240,7 +235,7 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
 
         Etiqueta("Tus datos")
         Caja {
-            FilaDeAjuste(Icons.Outlined.AccountBalanceWallet, "Presupuesto de gastos", textoFinal = textoDelPresupuestoEnAjustes(ui.presupuesto), alTocar = { hoja = Hoja.Presupuesto })
+            FilaDeAjuste(Icons.Outlined.AccountBalanceWallet, "Presupuesto de gastos", textoFinal = ui.textoDelPresupuesto, alTocar = { hoja = Hoja.Presupuesto })
             Separador()
             FilaDeAjuste(Icons.Outlined.Label, "Aprendidas de tus cambios", subtitulo = "Categorías que la app ya recuerda por comercio", alTocar = { hoja = Hoja.Aprendidas })
             Separador()
@@ -286,9 +281,8 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
     }
 
     when (hoja) {
-        Hoja.Presupuesto -> DialogoDePresupuesto(ui.presupuesto, alCerrar = { hoja = null }) { monto ->
-            vm.guardarPresupuesto(monto)
-            alAvisar(if (monto > 0) "Presupuesto actualizado" else "Presupuesto quitado")
+        Hoja.Presupuesto -> DialogoDePresupuesto(ui.presupuestoParaEditar, alCerrar = { hoja = null }) { monto ->
+            ambito.launch { alAvisar(vm.guardarPresupuesto(monto)) }
         }
         Hoja.Aprendidas -> HojaDeLista(
             "Aprendidas de tus cambios", "Cuando cambias la categoría de un pago, la app lo recuerda para ese comercio.",
@@ -325,27 +319,25 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
         DialogoDeRespaldo.PedirContrasenaParaCrear -> DialogoDeContrasena(creando = true, alCerrar = { dialogo = null }) { contrasena ->
             dialogo = DialogoDeRespaldo.Esperando("Cifrando tu respaldo…")
             ambito.launch {
-                try {
-                    respaldoListo = vm.crearRespaldo(contrasena)
-                    dialogo = null
-                    guardarArchivo.launch(nombreDelArchivoDeRespaldo(Clock.System.now()))
-                } catch (e: ExcepcionDeRespaldo) {
-                    dialogo = null; alAvisar(e.message)
-                } catch (e: Exception) {
-                    dialogo = null; alAvisar("No se pudo crear el respaldo.")
+                val resultado = vm.crearRespaldo(contrasena)
+                dialogo = null
+                if (resultado.datosEnBase64 != null) {
+                    respaldoListo = resultado.datosEnBase64
+                    guardarArchivo.launch(vm.nombreDelArchivoDeRespaldo())
+                } else {
+                    alAvisar(resultado.error.orEmpty())
                 }
             }
         }
         is DialogoDeRespaldo.PedirContrasenaParaAbrir -> DialogoDeContrasena(creando = false, alCerrar = { dialogo = null }) { contrasena ->
             dialogo = DialogoDeRespaldo.Esperando("Abriendo tu respaldo…")
             ambito.launch {
-                try {
-                    val contenido = vm.abrirRespaldo(d.datos, contrasena)
-                    dialogo = DialogoDeRespaldo.ConfirmarRestauracion(contenido, vm.cuantosSonNuevos(contenido))
-                } catch (e: ExcepcionDeRespaldo) {
-                    dialogo = null; alAvisar(e.message)
-                } catch (e: Exception) {
-                    dialogo = null; alAvisar("No se pudo abrir el respaldo.")
+                val apertura = vm.abrirRespaldo(d.datosEnBase64, contrasena)
+                val contenido = apertura.contenido
+                if (contenido != null) {
+                    dialogo = DialogoDeRespaldo.ConfirmarRestauracion(contenido, apertura.textoParaConfirmar.orEmpty())
+                } else {
+                    dialogo = null; alAvisar(apertura.error.orEmpty())
                 }
             }
         }
@@ -363,12 +355,12 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
         is DialogoDeRespaldo.ConfirmarRestauracion -> AlertDialog(
             onDismissRequest = { dialogo = null }, containerColor = c.superficie,
             title = { Text("Restaurar respaldo", color = c.tinta) },
-            text = { Text(textoDeRestauracion(d.contenido, d.nuevos), color = c.tinta) },
+            text = { Text(d.texto, color = c.tinta) },
             dismissButton = { TextButton({ dialogo = null }) { Text("Cancelar", color = c.marcaTinta) } },
             confirmButton = {
                 TextButton({
                     dialogo = null
-                    ambito.launch { alAvisar(mensajeDeRestauracion(vm.restaurar(d.contenido))) }
+                    ambito.launch { alAvisar(vm.restaurar(d.contenido)) }
                 }) { Text("Restaurar", color = c.marcaTinta) }
             },
         )
@@ -462,9 +454,9 @@ private fun Interruptor(activo: Boolean, descripcion: String, alCambiar: () -> U
 }
 
 @Composable
-private fun DialogoDePresupuesto(actual: Double, alCerrar: () -> Unit, alGuardar: (Double) -> Unit) {
+private fun DialogoDePresupuesto(actual: String, alCerrar: () -> Unit, alGuardar: (Double) -> Unit) {
     val c = MiGastoTheme.colores
-    var texto by remember { mutableStateOf(presupuestoParaEditar(actual)) }
+    var texto by remember { mutableStateOf(actual) }
     AlertDialog(
         onDismissRequest = alCerrar, containerColor = c.superficie,
         title = { Text("Presupuesto de gastos", color = c.tinta) },
@@ -476,7 +468,7 @@ private fun DialogoDePresupuesto(actual: Double, alCerrar: () -> Unit, alGuardar
         },
         dismissButton = {
             Row {
-                if (actual > 0) TextButton({ alGuardar(0.0); alCerrar() }) { Text("Quitar", color = c.marcaTinta) }
+                if (actual.isNotEmpty()) TextButton({ alGuardar(0.0); alCerrar() }) { Text("Quitar", color = c.marcaTinta) }
                 TextButton(alCerrar) { Text("Cancelar", color = c.marcaTinta) }
             }
         },
