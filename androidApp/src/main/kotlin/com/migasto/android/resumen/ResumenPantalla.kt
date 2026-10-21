@@ -56,17 +56,19 @@ import com.migasto.domain.EstadoDelPresupuesto
 import com.migasto.domain.PaymentSource
 
 @Composable
-fun ResumenPantalla() {
+fun ResumenPantalla(alVerTodos: () -> Unit = {}, alBuscar: () -> Unit = {}) {
     val app = LocalContext.current.applicationContext as MiGastoApp
-    val vm: ResumenViewModel = viewModel(factory = viewModelFactory { initializer { ResumenViewModel(app.base) } })
+    val vm: ResumenViewModel = viewModel(
+        factory = viewModelFactory { initializer { ResumenViewModel(app.base, app.montosOcultos) } },
+    )
     val ui by vm.estado.collectAsStateWithLifecycle()
-    ui?.let { ResumenContenido(it, alAlternarOculto = vm::alternarOculto) }
+    ui?.let { ResumenContenido(it, vm::alternarOculto, alVerTodos, alBuscar) }
 }
 
-private const val OCULTO = "••••"
+internal const val OCULTO = "••••"
 
 @Composable
-fun ResumenContenido(ui: ResumenUi, alAlternarOculto: () -> Unit) {
+fun ResumenContenido(ui: ResumenUi, alAlternarOculto: () -> Unit, alVerTodos: () -> Unit, alBuscar: () -> Unit) {
     val c = MiGastoTheme.colores
     Column(
         Modifier
@@ -74,20 +76,20 @@ fun ResumenContenido(ui: ResumenUi, alAlternarOculto: () -> Unit) {
             .fillMaxHeight()
             .verticalScroll(rememberScrollState()),
     ) {
-        BarraSuperior(ui, alAlternarOculto)
+        BarraSuperior(ui, alAlternarOculto, alBuscar)
         Column(Modifier.padding(horizontal = Espacio.xl), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Saldo(ui)
             IngresosYGastos(ui)
             ui.porConfirmarTexto?.let { PorConfirmar(it, if (ui.oculto) OCULTO else ui.porConfirmarMonto) }
             ui.presupuesto?.let { Presupuesto(it, ui.oculto) }
-            SeccionHoy(ui)
+            SeccionHoy(ui, alVerTodos)
             Spacer(Modifier.height(Espacio.lg))
         }
     }
 }
 
 @Composable
-private fun BarraSuperior(ui: ResumenUi, alAlternarOculto: () -> Unit) {
+private fun BarraSuperior(ui: ResumenUi, alAlternarOculto: () -> Unit, alBuscar: () -> Unit) {
     val c = MiGastoTheme.colores
     Row(
         Modifier.fillMaxWidth().padding(start = Espacio.xl, end = 10.dp, top = 6.dp, bottom = 10.dp),
@@ -102,12 +104,12 @@ private fun BarraSuperior(ui: ResumenUi, alAlternarOculto: () -> Unit) {
             if (ui.oculto) "Mostrar montos" else "Ocultar montos",
             alAlternarOculto,
         )
-        BotonDeIcono(Icons.Outlined.Search, "Buscar movimientos") { /* búsqueda: pantalla pendiente */ }
+        BotonDeIcono(Icons.Outlined.Search, "Buscar movimientos", alBuscar)
     }
 }
 
 @Composable
-private fun BotonDeIcono(icono: androidx.compose.ui.graphics.vector.ImageVector, descripcion: String, alTocar: () -> Unit) {
+internal fun BotonDeIcono(icono: androidx.compose.ui.graphics.vector.ImageVector, descripcion: String, alTocar: () -> Unit) {
     Box(
         Modifier.size(Tamano.botonDeIcono).clip(RoundedCornerShape(Radio.campo)).clickable(onClick = alTocar)
             .semantics { contentDescription = descripcion },
@@ -218,14 +220,14 @@ private fun Presupuesto(p: PresupuestoUi, oculto: Boolean) {
 }
 
 @Composable
-private fun SeccionHoy(ui: ResumenUi) {
+private fun SeccionHoy(ui: ResumenUi, alVerTodos: () -> Unit) {
     val c = MiGastoTheme.colores
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("Hoy", style = MaterialTheme.typography.titleLarge, color = c.tinta, modifier = Modifier.weight(1f))
             Text(
                 "Ver todos", style = MaterialTheme.typography.labelLarge, color = c.marcaTinta,
-                modifier = Modifier.clickable { /* abre Movimientos (pantalla pendiente) */ }.padding(vertical = 6.dp),
+                modifier = Modifier.clickable(onClick = alVerTodos).padding(vertical = 6.dp),
             )
         }
         if (ui.hoy.isEmpty()) {
@@ -242,7 +244,7 @@ private fun SeccionHoy(ui: ResumenUi) {
 }
 
 @Composable
-private fun FilaDelMovimiento(f: FilaDeMovimiento, oculto: Boolean) {
+internal fun FilaDelMovimiento(f: FilaDeMovimiento, oculto: Boolean) {
     val c = MiGastoTheme.colores
     Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -284,7 +286,7 @@ private fun FilaDelMovimiento(f: FilaDeMovimiento, oculto: Boolean) {
 }
 
 @Composable
-private fun colorDeLaFuente(fuente: PaymentSource): Color {
+internal fun colorDeLaFuente(fuente: PaymentSource): Color {
     val c = MiGastoTheme.colores
     return when (fuente) {
         PaymentSource.Yape -> c.yape

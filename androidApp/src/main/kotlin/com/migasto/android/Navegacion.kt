@@ -35,6 +35,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.migasto.android.movimientos.MovimientosPantalla
 import com.migasto.android.resumen.ResumenPantalla
 import com.migasto.android.tema.ColoresMiGasto
 import com.migasto.android.tema.MiGastoTheme
@@ -52,16 +53,21 @@ private enum class Pestana(val titulo: String, val icono: ImageVector) {
 @Composable
 fun MiGastoNavegacion() {
     var actual by rememberSaveable { mutableStateOf(Pestana.Resumen.name) }
+    var abrirBusqueda by rememberSaveable { mutableStateOf(false) }
     val pestana = Pestana.valueOf(actual)
     val c = MiGastoTheme.colores
 
     Scaffold(
         containerColor = c.fondo,
-        bottomBar = { BarraInferior(pestana) { actual = it.name } },
+        bottomBar = { BarraInferior(pestana) { actual = it.name; abrirBusqueda = false } },
     ) { relleno ->
         Box(Modifier.fillMaxSize().padding(relleno)) {
             when (pestana) {
-                Pestana.Resumen -> ResumenPantalla()
+                Pestana.Resumen -> ResumenPantalla(
+                    alVerTodos = { abrirBusqueda = false; actual = Pestana.Movimientos.name },
+                    alBuscar = { abrirBusqueda = true; actual = Pestana.Movimientos.name },
+                )
+                Pestana.Movimientos -> MovimientosPantalla(abrirBusqueda)
                 else -> EnConstruccion(pestana.titulo)
             }
         }
