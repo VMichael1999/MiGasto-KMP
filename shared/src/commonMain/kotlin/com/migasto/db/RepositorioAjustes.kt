@@ -113,6 +113,11 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
 
     fun establecerMostrarMontoEnPantallaBloqueada(valor: Boolean) = guardar(CLAVE_MONTO_BLOQUEADO, valor.toString())
 
+    /** El bloqueo con huella, rostro o PIN del teléfono. Apagado por defecto. */
+    fun bloqueoActivado(): Boolean = leer(CLAVE_BLOQUEO) == "true"
+
+    fun establecerBloqueoActivado(valor: Boolean) = guardar(CLAVE_BLOQUEO, valor.toString())
+
     // Interno
 
     internal fun leerCrudo(clave: String): String? = leer(clave)
@@ -144,6 +149,7 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
         const val CLAVE_ULTIMO_RESPALDO = "migasto_last_backup"
         const val CLAVE_LEIDOS = "migasto_handled_notifications"
         const val CLAVE_MONTO_BLOQUEADO = "migasto_show_amount_locked"
+        const val CLAVE_BLOQUEO = "migasto_passcode_enabled"
         const val CLAVE_BATERIA_POSPUESTA = "migasto_battery_banner_dismissed_at"
         const val CLAVE_AVISOS_POSPUESTOS = "migasto_alerts_banner_dismissed_at"
 
