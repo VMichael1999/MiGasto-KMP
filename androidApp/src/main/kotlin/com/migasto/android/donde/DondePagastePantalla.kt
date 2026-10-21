@@ -2,7 +2,6 @@ package com.migasto.android.donde
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -105,17 +104,17 @@ fun DondePagasteContenido(
             Modifier.weight(4f).fillMaxWidth().clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)).background(c.superficie)
                 .padding(start = 18.dp, end = 18.dp, top = 14.dp).navigationBarsPadding(),
         ) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(TextosDeDondePagaste.TITULO, style = MaterialTheme.typography.headlineSmall, color = c.tinta, modifier = Modifier.weight(1f))
-                SingleChoiceSegmentedButtonRow {
-                    PeriodoDeUbicaciones.entries.forEachIndexed { i, periodo ->
-                        SegmentedButton(
-                            selected = ui.periodo == periodo,
-                            onClick = { alElegirPeriodo(periodo) },
-                            shape = SegmentedButtonDefaults.itemShape(i, PeriodoDeUbicaciones.entries.size),
-                            icon = {},
-                        ) { Text(periodo.etiqueta, style = MaterialTheme.typography.labelMedium) }
-                    }
+            // El título y los tres botones no caben en una fila en pantallas angostas: cada uno va en la suya.
+            Text(TextosDeDondePagaste.TITULO, style = MaterialTheme.typography.headlineSmall, color = c.tinta)
+            Spacer(Modifier.size(8.dp))
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                PeriodoDeUbicaciones.entries.forEachIndexed { i, periodo ->
+                    SegmentedButton(
+                        selected = ui.periodo == periodo,
+                        onClick = { alElegirPeriodo(periodo) },
+                        shape = SegmentedButtonDefaults.itemShape(i, PeriodoDeUbicaciones.entries.size),
+                        icon = {},
+                    ) { Text(periodo.etiqueta, style = MaterialTheme.typography.labelMedium) }
                 }
             }
             Spacer(Modifier.size(8.dp))
