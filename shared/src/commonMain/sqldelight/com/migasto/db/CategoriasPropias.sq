@@ -1,0 +1,16 @@
+-- Categorías que crea el usuario. El orden de creación (rowid) es el orden en que se muestran.
+CREATE TABLE categorias_propias (
+    id TEXT NOT NULL PRIMARY KEY,
+    nombre TEXT NOT NULL,
+    icono TEXT NOT NULL,
+    tipo TEXT NOT NULL
+);
+
+todas:
+SELECT * FROM categorias_propias ORDER BY rowid;
+
+guardar:
+INSERT OR REPLACE INTO categorias_propias (id, nombre, icono, tipo) VALUES ?;
+
+eliminar:
+DELETE FROM categorias_propias WHERE id = ?;

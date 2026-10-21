@@ -1,0 +1,37 @@
+-- Movimientos (gastos e ingresos). Las columnas conservan los nombres de la app de Flutter
+-- (Drift). La fecha se guarda en milisegundos desde 1970 (UTC).
+CREATE TABLE movimientos (
+    uuid TEXT NOT NULL PRIMARY KEY,
+    amount REAL NOT NULL,
+    merchant TEXT NOT NULL,
+    category_name TEXT NOT NULL,
+    source_name TEXT NOT NULL,
+    date INTEGER NOT NULL,
+    notes TEXT NOT NULL DEFAULT '',
+    tipo_name TEXT NOT NULL DEFAULT 'gasto',
+    estado_name TEXT NOT NULL DEFAULT 'pendiente',
+    canal_name TEXT NOT NULL DEFAULT 'manual',
+    tarjeta TEXT,
+    latitud REAL,
+    longitud REAL,
+    precision REAL,
+    lugar TEXT,
+    texto_original TEXT NOT NULL DEFAULT ''
+);
+
+CREATE INDEX movimientos_fecha ON movimientos(date);
+
+todos:
+SELECT * FROM movimientos ORDER BY date DESC, uuid;
+
+guardar:
+INSERT OR REPLACE INTO movimientos (
+    uuid, amount, merchant, category_name, source_name, date, notes, tipo_name,
+    estado_name, canal_name, tarjeta, latitud, longitud, precision, lugar, texto_original
+) VALUES ?;
+
+eliminar:
+DELETE FROM movimientos WHERE uuid = ?;
+
+contar:
+SELECT count(*) FROM movimientos;
