@@ -14,8 +14,8 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 347 tests y 98 % de cobertura de líneas |
-| `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 34 pruebas de interfaz; faltan algunas pantallas secundarias (ver abajo) |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 360 tests y 98 % de cobertura de líneas |
+| `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 44 pruebas de interfaz; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **Todavía no empieza** |
 
 La versión original en Flutter sigue en [su repo](https://github.com/VMichael1999/MiGasto) y es la referencia de comportamiento: la lógica de aquí se portó de allí, con los tests primero.
@@ -93,8 +93,8 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **347 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
-- **34 pruebas de interfaz** en `androidApp`: Resumen, Movimientos, Nuevo movimiento (con el teclado) y la ventana flotante (botones, cuenta regresiva, pausa y deslizar).
+- **360 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **44 pruebas de interfaz** en `androidApp`: Resumen, Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado) y la ventana flotante (botones, cuenta regresiva, pausa y deslizar).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
 
 ## Cómo correrlo
@@ -115,6 +115,6 @@ adb shell "cmd notification post -S bigtext -t 'Yape' prueba1 'Yapeaste S/ 32.00
 ## Qué falta
 
 - **iPhone completo** (`iosApp`): SwiftUI, la barra Liquid Glass, la extensión para compartir capturas con Vision, App Intents y el widget.
-- **Android:** bienvenida, hoja de filtros de Movimientos, mapa y «agregar ubicación», bloqueo con huella o PIN, el aviso de configuración en el Resumen e ícono de la app.
+- **Android:** bienvenida, mapa y «agregar ubicación», bloqueo con huella o PIN, elegir el mes en el Resumen e ícono de la app.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
