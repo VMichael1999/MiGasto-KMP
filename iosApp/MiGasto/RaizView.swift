@@ -10,7 +10,7 @@ struct RaizView: View {
         TabView {
             Tab("Resumen", systemImage: "house") { ResumenView() }
             Tab("Movimientos", systemImage: "list.bullet") { MovimientosView() }
-            Tab("Reportes", systemImage: "chart.bar") { EnConstruccion(titulo: "Reportes") }
+            Tab("Reportes", systemImage: "chart.bar") { ReportesView(aplicacion: aplicacion) }
             Tab("Ajustes", systemImage: "gearshape") { EnConstruccion(titulo: "Ajustes") }
         }
         .overlay(alignment: .bottomTrailing) {

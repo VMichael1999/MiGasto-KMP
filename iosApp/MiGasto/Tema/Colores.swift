@@ -17,6 +17,7 @@ enum Paleta {
     static let ingreso = dinamico(claro: 0x2458C6, oscuro: 0x7FB6FF)
     static let ingresoSuave = dinamico(claro: 0xE3EBFA, oscuro: 0x18233A)
     static let barra = dinamico(claro: 0xCFCCD7, oscuro: 0x4A4656)
+    static let barraDeGastos = dinamico(claro: 0x8B8896, oscuro: 0x9A96A6)
     static let yape = dinamico(claro: 0x742284, oscuro: 0x9B4FD6)
     static let plin = dinamico(claro: 0x00857A, oscuro: 0x10BFAF)
     static let tarjeta = dinamico(claro: 0xA56A00, oscuro: 0xE8B04A)
