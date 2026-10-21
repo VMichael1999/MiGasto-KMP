@@ -118,6 +118,11 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
 
     fun establecerBloqueoActivado(valor: Boolean) = guardar(CLAVE_BLOQUEO, valor.toString())
 
+    /** `true` cuando el usuario ya pasó por la bienvenida (la marca `onboarding_complete` de Flutter). */
+    fun bienvenidaCompleta(): Boolean = leer(CLAVE_BIENVENIDA) == "true"
+
+    fun establecerBienvenidaCompleta() = guardar(CLAVE_BIENVENIDA, "true")
+
     // Interno
 
     internal fun leerCrudo(clave: String): String? = leer(clave)
@@ -150,6 +155,7 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
         const val CLAVE_LEIDOS = "migasto_handled_notifications"
         const val CLAVE_MONTO_BLOQUEADO = "migasto_show_amount_locked"
         const val CLAVE_BLOQUEO = "migasto_passcode_enabled"
+        const val CLAVE_BIENVENIDA = "onboarding_complete"
         const val CLAVE_BATERIA_POSPUESTA = "migasto_battery_banner_dismissed_at"
         const val CLAVE_AVISOS_POSPUESTOS = "migasto_alerts_banner_dismissed_at"
 
