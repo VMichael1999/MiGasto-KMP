@@ -2,6 +2,9 @@ package com.migasto.db
 
 import com.migasto.domain.Categoria
 import com.migasto.domain.claveDeAlias
+import com.migasto.domain.fechaIsoUtc
+import com.migasto.domain.leerFechaIso
+import kotlin.time.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -74,7 +77,16 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
 
     fun establecerGuardarIngresosAutomaticamente(valor: Boolean) = guardar(CLAVE_INGRESOS_AUTOMATICOS, valor.toString())
 
+    // Respaldo
+
+    /** Cuándo se hizo el último respaldo; `null` si nunca. Se guarda como en Flutter: UTC en ISO 8601. */
+    fun ultimoRespaldo(): Instant? = leer(CLAVE_ULTIMO_RESPALDO)?.let { runCatching { leerFechaIso(it) }.getOrNull() }
+
+    fun guardarUltimoRespaldo(cuando: Instant) = guardar(CLAVE_ULTIMO_RESPALDO, fechaIsoUtc(cuando))
+
     // Interno
+
+    internal fun leerCrudo(clave: String): String? = leer(clave)
 
     internal fun guardarCrudo(clave: String, valor: String) = guardar(clave, valor)
 
@@ -100,6 +112,7 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
         const val CLAVE_ALIAS = "migasto_aliases_v1"
         const val CLAVE_APRENDIDAS = "migasto_category_overrides_v2"
         const val CLAVE_INGRESOS_AUTOMATICOS = "migasto_auto_save_income"
+        const val CLAVE_ULTIMO_RESPALDO = "migasto_last_backup"
 
         private val PROVEEDORES_POR_DEFECTO = mapOf("yape" to true, "plin" to true, "googlePay" to true)
     }
