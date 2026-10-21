@@ -59,13 +59,13 @@ import com.migasto.android.tema.Radio
 import com.migasto.domain.FiltroDeTipo
 
 @Composable
-fun MovimientosPantalla(abrirBusqueda: Boolean = false) {
+fun MovimientosPantalla(abrirBusqueda: Boolean = false, alAbrir: (String) -> Unit = {}) {
     val app = LocalContext.current.applicationContext as MiGastoApp
     val vm: MovimientosViewModel = viewModel(
         factory = viewModelFactory { initializer { MovimientosViewModel(app.base, app.montosOcultos) } },
     )
     val ui by vm.estado.collectAsStateWithLifecycle()
-    ui?.let { MovimientosContenido(it, abrirBusqueda, vm::elegirTipo, vm::buscar, vm::limpiar) }
+    ui?.let { MovimientosContenido(it, abrirBusqueda, vm::elegirTipo, vm::buscar, vm::limpiar, alAbrir) }
 }
 
 @Composable
@@ -75,6 +75,7 @@ fun MovimientosContenido(
     alElegirTipo: (FiltroDeTipo) -> Unit,
     alBuscar: (String) -> Unit,
     alLimpiar: () -> Unit,
+    alAbrir: (String) -> Unit,
 ) {
     val c = MiGastoTheme.colores
     var buscando by rememberSaveable(abrirBusqueda) { mutableStateOf(abrirBusqueda || ui.busqueda.isNotEmpty()) }
@@ -111,7 +112,7 @@ fun MovimientosContenido(
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(Radio.caja)).background(c.superficie)) {
                             grupo.filas.forEachIndexed { i, fila ->
                                 if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(c.linea))
-                                FilaDelMovimiento(fila, ui.oculto)
+                                FilaDelMovimiento(fila, ui.oculto) { alAbrir(fila.id) }
                             }
                         }
                     }

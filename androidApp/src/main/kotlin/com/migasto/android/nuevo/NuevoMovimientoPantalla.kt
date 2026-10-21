@@ -326,7 +326,7 @@ private fun BotonGuardar(f: FormularioNuevoMovimiento, guardando: Boolean, alGua
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HojaDeCategoriaNueva(alCerrar: () -> Unit, alCrear: (String, String) -> Unit) {
+fun HojaDeCategoriaNueva(alCerrar: () -> Unit, alCrear: (String, String) -> Unit) {
     val c = MiGastoTheme.colores
     var nombre by remember { mutableStateOf("") }
     var icono by remember { mutableStateOf(clavesDeIconosPropios.first()) }

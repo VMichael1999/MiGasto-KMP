@@ -56,19 +56,19 @@ import com.migasto.domain.EstadoDelPresupuesto
 import com.migasto.domain.PaymentSource
 
 @Composable
-fun ResumenPantalla(alVerTodos: () -> Unit = {}, alBuscar: () -> Unit = {}) {
+fun ResumenPantalla(alVerTodos: () -> Unit = {}, alBuscar: () -> Unit = {}, alAbrir: (String) -> Unit = {}) {
     val app = LocalContext.current.applicationContext as MiGastoApp
     val vm: ResumenViewModel = viewModel(
         factory = viewModelFactory { initializer { ResumenViewModel(app.base, app.montosOcultos) } },
     )
     val ui by vm.estado.collectAsStateWithLifecycle()
-    ui?.let { ResumenContenido(it, vm::alternarOculto, alVerTodos, alBuscar) }
+    ui?.let { ResumenContenido(it, vm::alternarOculto, alVerTodos, alBuscar, alAbrir) }
 }
 
 internal const val OCULTO = "••••"
 
 @Composable
-fun ResumenContenido(ui: ResumenUi, alAlternarOculto: () -> Unit, alVerTodos: () -> Unit, alBuscar: () -> Unit) {
+fun ResumenContenido(ui: ResumenUi, alAlternarOculto: () -> Unit, alVerTodos: () -> Unit, alBuscar: () -> Unit, alAbrir: (String) -> Unit) {
     val c = MiGastoTheme.colores
     Column(
         Modifier
@@ -82,7 +82,7 @@ fun ResumenContenido(ui: ResumenUi, alAlternarOculto: () -> Unit, alVerTodos: ()
             IngresosYGastos(ui)
             ui.porConfirmarTexto?.let { PorConfirmar(it, if (ui.oculto) OCULTO else ui.porConfirmarMonto) }
             ui.presupuesto?.let { Presupuesto(it, ui.oculto) }
-            SeccionHoy(ui, alVerTodos)
+            SeccionHoy(ui, alVerTodos, alAbrir)
             Spacer(Modifier.height(Espacio.lg))
         }
     }
@@ -220,7 +220,7 @@ private fun Presupuesto(p: PresupuestoUi, oculto: Boolean) {
 }
 
 @Composable
-private fun SeccionHoy(ui: ResumenUi, alVerTodos: () -> Unit) {
+private fun SeccionHoy(ui: ResumenUi, alVerTodos: () -> Unit, alAbrir: (String) -> Unit) {
     val c = MiGastoTheme.colores
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -236,7 +236,7 @@ private fun SeccionHoy(ui: ResumenUi, alVerTodos: () -> Unit) {
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(Radio.caja)).background(c.superficie)) {
                 ui.hoy.forEachIndexed { i, fila ->
                     if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(c.linea))
-                    FilaDelMovimiento(fila, ui.oculto)
+                    FilaDelMovimiento(fila, ui.oculto) { alAbrir(fila.id) }
                 }
             }
         }
@@ -244,9 +244,9 @@ private fun SeccionHoy(ui: ResumenUi, alVerTodos: () -> Unit) {
 }
 
 @Composable
-internal fun FilaDelMovimiento(f: FilaDeMovimiento, oculto: Boolean) {
+internal fun FilaDelMovimiento(f: FilaDeMovimiento, oculto: Boolean, alTocar: () -> Unit) {
     val c = MiGastoTheme.colores
-    Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().clickable(onClick = alTocar).padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(
             Modifier.size(Tamano.iconoDeCategoria).clip(RoundedCornerShape(Radio.icono))
                 .background(if (f.esIngreso) c.ingresoSuave else c.fondoDeIcono),
