@@ -28,7 +28,26 @@ data class FiltrosDeMovimientos(
 
     val hayAlgunFiltro: Boolean
         get() = cantidadDeFiltrosActivos > 0 || busqueda.isNotBlank() || tipo != FiltroDeTipo.Todo
+
+    // Swift no ve los valores por defecto ni los rangos de Kotlin: estas funciones dejan armar los filtros desde ahí.
+
+    fun conTipo(nuevo: FiltroDeTipo) = copy(tipo = nuevo)
+
+    fun conBusqueda(texto: String) = copy(busqueda = texto)
+
+    /** Aplica lo elegido en la hoja; [desde] y [hasta] son `null` si no se tocó el deslizador. */
+    fun conLaHoja(categoria: String?, fuente: PaymentSource?, desde: Double?, hasta: Double?) =
+        copy(categoria = categoria, fuente = fuente, montoMinimo = desde, montoMaximo = hasta)
+
+    fun sinLoDeLaHoja() = copy(categoria = null, fuente = null, montoMinimo = null, montoMaximo = null)
+
+    /** Los extremos con los que se abre el deslizador de la hoja. */
+    val desdeDeLaHoja: Double get() = montoMinimo ?: OpcionesDeFiltro.MONTO_MINIMO
+    val hastaDeLaHoja: Double get() = montoMaximo ?: OpcionesDeFiltro.MONTO_MAXIMO
+    val hayRangoDeLaHoja: Boolean get() = montoMinimo != null || montoMaximo != null
 }
+
+fun filtrosVacios() = FiltrosDeMovimientos()
 
 /** Los movimientos que pasan los [filtros], del más reciente al más antiguo. */
 fun filtrarMovimientos(
@@ -120,9 +139,6 @@ object OpcionesDeFiltro {
 /** Aplica lo elegido en la hoja; el tipo y la búsqueda no cambian. [rango] es `null` si no se tocó el deslizador. */
 fun FiltrosDeMovimientos.conLaHoja(categoria: String?, fuente: PaymentSource?, rango: ClosedFloatingPointRange<Double>?) =
     copy(categoria = categoria, fuente = fuente, montoMinimo = rango?.start, montoMaximo = rango?.endInclusive)
-
-/** Quita categoría, fuente y rango; el tipo y la búsqueda se quedan. */
-fun FiltrosDeMovimientos.sinLoDeLaHoja() = copy(categoria = null, fuente = null, montoMinimo = null, montoMaximo = null)
 
 /** El rango con el que se abre la hoja, o `null` si no hay rango puesto. Un extremo suelto toma el de la hoja. */
 val FiltrosDeMovimientos.rangoDeLaHoja: ClosedFloatingPointRange<Double>?
