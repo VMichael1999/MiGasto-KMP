@@ -30,6 +30,8 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -66,6 +68,7 @@ import com.migasto.android.tema.Radio
 import com.migasto.android.tema.Tamano
 import com.migasto.domain.AvisoDeConfiguracion
 import com.migasto.domain.EstadoDelPresupuesto
+import com.migasto.domain.MesElegido
 import com.migasto.domain.PaymentSource
 import com.migasto.domain.calcularAvisosDeConfiguracion
 import com.migasto.domain.claveDePausa
@@ -112,6 +115,7 @@ fun ResumenPantalla(alVerTodos: () -> Unit = {}, alBuscar: () -> Unit = {}, alAb
                 }
             },
             alPosponerAviso = { aviso?.let(::claveDePausa)?.let(vm::posponer) },
+            alElegirMes = vm::elegirMes,
         )
     }
 }
@@ -128,6 +132,7 @@ fun ResumenContenido(
     aviso: AvisoDeConfiguracion? = null,
     alActuarSobreAviso: () -> Unit = {},
     alPosponerAviso: () -> Unit = {},
+    alElegirMes: (MesElegido) -> Unit = {},
 ) {
     val c = MiGastoTheme.colores
     Column(
@@ -136,7 +141,7 @@ fun ResumenContenido(
             .fillMaxHeight()
             .verticalScroll(rememberScrollState()),
     ) {
-        BarraSuperior(ui, alAlternarOculto, alBuscar)
+        BarraSuperior(ui, alAlternarOculto, alBuscar, alElegirMes)
         Column(Modifier.padding(horizontal = Espacio.xl), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Saldo(ui)
             IngresosYGastos(ui)
@@ -150,15 +155,39 @@ fun ResumenContenido(
 }
 
 @Composable
-private fun BarraSuperior(ui: ResumenUi, alAlternarOculto: () -> Unit, alBuscar: () -> Unit) {
+private fun BarraSuperior(ui: ResumenUi, alAlternarOculto: () -> Unit, alBuscar: () -> Unit, alElegirMes: (MesElegido) -> Unit) {
     val c = MiGastoTheme.colores
+    var menuAbierto by remember { mutableStateOf(false) }
     Row(
         Modifier.fillMaxWidth().padding(start = Espacio.xl, end = 10.dp, top = 6.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            Text(ui.mes, style = MaterialTheme.typography.headlineMedium, color = c.tinta)
-            Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null, tint = c.apagado, modifier = Modifier.size(20.dp))
+        Box(Modifier.weight(1f)) {
+            Row(
+                Modifier.clip(RoundedCornerShape(Radio.campo)).clickable(enabled = ui.meses.size > 1) { menuAbierto = true }
+                    .semantics { contentDescription = "Mes: ${ui.mes}. Elegir otro mes" },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(ui.mes, style = MaterialTheme.typography.headlineMedium, color = c.tinta)
+                Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null, tint = c.apagado, modifier = Modifier.size(20.dp))
+            }
+            DropdownMenu(expanded = menuAbierto, onDismissRequest = { menuAbierto = false }) {
+                ui.meses.forEach { opcion ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                opcion.nombre,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (opcion.mes == ui.mesElegido) FontWeight.Bold else FontWeight.Normal,
+                            )
+                        },
+                        onClick = {
+                            menuAbierto = false
+                            alElegirMes(opcion.mes)
+                        },
+                    )
+                }
+            }
         }
         BotonDeIcono(
             if (ui.oculto) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
@@ -184,7 +213,7 @@ internal fun BotonDeIcono(icono: androidx.compose.ui.graphics.vector.ImageVector
 private fun Saldo(ui: ResumenUi) {
     val c = MiGastoTheme.colores
     Column(Modifier.padding(top = 6.dp)) {
-        Text("Te quedan de este mes", style = MaterialTheme.typography.bodyMedium, color = c.apagado)
+        Text(ui.textoDelSaldo, style = MaterialTheme.typography.bodyMedium, color = c.apagado)
         Row(verticalAlignment = Alignment.Bottom) {
             if (ui.oculto) {
                 Text(OCULTO, style = MaterialTheme.typography.displayLarge, color = c.tinta)
@@ -315,14 +344,14 @@ private fun SeccionHoy(ui: ResumenUi, alVerTodos: () -> Unit, alAbrir: (String) 
     val c = MiGastoTheme.colores
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Hoy", style = MaterialTheme.typography.titleLarge, color = c.tinta, modifier = Modifier.weight(1f))
+            Text(ui.tituloDeLaLista, style = MaterialTheme.typography.titleLarge, color = c.tinta, modifier = Modifier.weight(1f))
             Text(
                 "Ver todos", style = MaterialTheme.typography.labelLarge, color = c.marcaTinta,
                 modifier = Modifier.clickable(onClick = alVerTodos).padding(vertical = 6.dp),
             )
         }
         if (ui.hoy.isEmpty()) {
-            Text("Todavía no hay movimientos hoy.", style = MaterialTheme.typography.bodyMedium, color = c.apagado)
+            Text(ui.textoSinMovimientos, style = MaterialTheme.typography.bodyMedium, color = c.apagado)
         } else {
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(Radio.caja)).background(c.superficie)) {
                 ui.hoy.forEachIndexed { i, fila ->
