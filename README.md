@@ -14,9 +14,9 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 427 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 440 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
-| `iosApp` (SwiftUI) | **Todavía no empieza** |
+| `iosApp` (SwiftUI) | **En marcha**: proyecto, base cifrada con Keychain y la pantalla Resumen; faltan las demás pantallas |
 
 La versión original en Flutter sigue en [su repo](https://github.com/VMichael1999/MiGasto) y es la referencia de comportamiento: la lógica de aquí se portó de allí, con los tests primero.
 
@@ -52,6 +52,14 @@ pantalla de la constancia de Yape ─► ServicioDeAccesibilidad ─────
 
 Lo que en la app de Flutter eran dos lectores de reglas (Dart y Kotlin) y una cola de JSON ahora es un solo código en `shared`: el código nativo de Android solo entrega el texto y dibuja.
 
+## iPhone
+
+El Resumen de iPhone usa los mismos montos y textos que Android: los arma `shared` (`PantallaDelResumen`) y SwiftUI solo los dibuja, con la barra de pestañas de iOS 26 (Liquid Glass).
+
+| Claro | Oscuro, con los montos ocultos |
+|---|---|
+| ![Resumen en iPhone](docs/comparacion/ios-mg-01-resumen-claro.png) | ![Resumen en iPhone, oscuro](docs/comparacion/ios-mg-01-resumen-oscuro-montos-ocultos.png) |
+
 ## Arquitectura
 
 ```text
@@ -62,7 +70,7 @@ MiGasto-KMP/
 │   ├── iosMain/       base con SQLCipher y almacén de la clave en el Keychain
 │   └── reglas/        reader_rules.json y category_rules.json (los mismos que usa Flutter)
 ├── androidApp/        Jetpack Compose, ViewModels con StateFlow y la capa nativa
-├── iosApp/            (pendiente) SwiftUI
+├── iosApp/            SwiftUI; el framework de shared entra por CocoaPods
 └── docs/              diseño de referencia, capturas y notas de compatibilidad
 ```
 
@@ -93,7 +101,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **427 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **440 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
 
@@ -112,6 +120,19 @@ adb shell cmd notification allow_listener com.migasto/com.migasto.android.pagos.
 adb shell "cmd notification post -S bigtext -t 'Yape' prueba1 'Yapeaste S/ 32.00 a Cafe Central'"
 ```
 
+### iPhone
+
+Se necesita Xcode (con el simulador de iOS 26 o más nuevo) y CocoaPods. El proyecto de Xcode se genera con un script (no hay que instalar XcodeGen):
+
+```bash
+./gradlew :shared:generateDummyFramework
+python3 scripts/generar-proyecto-xcode.py   # solo si se agregaron archivos Swift
+cd iosApp && pod install
+open MiGasto.xcworkspace
+```
+
+Al compilar, la pod `shared` construye el framework con Gradle. La versión de depuración trae los datos de ejemplo del diseño si la base está vacía; la de producción no los compila.
+
 ### Mapa (opcional)
 
 Para ver el mapa de «Dónde pagaste» y el mapa chico del detalle, pon tu clave de Google Maps (de [Google Cloud](https://console.cloud.google.com), con «Maps SDK for Android» activado) en `local.properties`, que no se sube al repositorio:
@@ -124,7 +145,7 @@ También sirve la variable de entorno `GOOGLE_MAPS_API_KEY`. Sin clave todo lo d
 
 ## Qué falta
 
-- **iPhone completo** (`iosApp`): SwiftUI, la barra Liquid Glass, la extensión para compartir capturas con Vision, App Intents y el widget.
+- **iPhone** (`iosApp`): faltan Movimientos, Nuevo movimiento, Detalle, Reportes y Ajustes, la extensión para compartir capturas con Vision, App Intents, el widget y Face ID.
 - **Mapa de Google sin probar:** «Agregar ubicación» y «Dónde pagaste» están hechos y probados en el emulador, pero el mapa solo se dibuja con una clave de Google Maps (ver «Cómo correrlo») y no tengo una para probarlo: sin clave la app lo explica en vez de mostrar un mapa en blanco.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
