@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlinCocoapods) apply false
+    alias(libs.plugins.skie) apply false
     alias(libs.plugins.kotlinSerialization) apply false
     alias(libs.plugins.kover) apply false
     alias(libs.plugins.ktlint) apply false
