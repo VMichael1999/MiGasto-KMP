@@ -64,6 +64,16 @@ data class FormularioNuevoMovimiento(
 
     fun conEntrada(nueva: EntradaDeMonto) = copy(entrada = nueva)
 
+    /** Una tecla del teclado como texto (`0`–`9`, `.` o `<`); Swift no ve los `Char` de Kotlin. */
+    fun presionando(tecla: String) = if (tecla.length == 1) conEntrada(entrada.presionar(tecla[0])) else this
+
+    /** Las categorías para elegir: las de siempre del tipo y las propias de ese tipo, con la elegida marcada. */
+    fun chipsDeCategoria(propias: List<CategoriaPropia>): List<OpcionDeCategoria> =
+        Categoria.paraTipo(tipo).map { OpcionDeCategoria(it, null, it.etiqueta, categoriaPropia == null && categoria == it) } +
+            propias.filter { it.tipo == tipo }.map { OpcionDeCategoria(it.base, it, it.nombre, categoriaPropia == it.id) }
+
+    fun conChip(chip: OpcionDeCategoria) = if (chip.propia != null) conPropia(chip.propia) else conCategoria(chip.categoria)
+
     fun conConcepto(texto: String) = copy(concepto = texto)
 
     fun conFuente(nueva: PaymentSource) = copy(fuente = nueva)
@@ -87,6 +97,38 @@ data class FormularioNuevoMovimiento(
 
         fun etiquetaDeLaFuente(fuente: PaymentSource) = if (fuente == PaymentSource.Otro) "Otro" else fuente.etiqueta
     }
+}
+
+/** Una categoría para elegir en el formulario: de siempre ([propia] es `null`) o creada por el usuario. */
+class OpcionDeCategoria(val categoria: Categoria, val propia: CategoriaPropia?, val etiqueta: String, val elegido: Boolean)
+
+class OpcionDeFuenteDelFormulario(val fuente: PaymentSource, val etiqueta: String)
+
+/** El formulario con el que empieza «Nuevo movimiento» (Swift no ve los valores por defecto de Kotlin). */
+fun formularioVacio() = FormularioNuevoMovimiento()
+
+fun opcionesDeFuente() = FormularioNuevoMovimiento.fuentesPosibles.map { OpcionDeFuenteDelFormulario(it, FormularioNuevoMovimiento.etiquetaDeLaFuente(it)) }
+
+object TextosDeNuevoMovimiento {
+    const val TITULO = "Nuevo movimiento"
+    const val CAMBIAR = "Cambiar"
+    const val NUEVA = "Nueva"
+    const val NUEVA_CATEGORIA = "Nueva categoría"
+    const val NOMBRE = "Nombre"
+    const val CREAR_CATEGORIA = "Crear categoría"
+
+    /** En el orden del teclado, de izquierda a derecha y de arriba hacia abajo. */
+    val TECLAS: List<String> = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "<")
+
+    /** `Hoy 16:36`, con la hora del teléfono. */
+    fun hoy(): String = "Hoy ${formatearHora(kotlin.time.Clock.System.now())}"
+}
+
+/** Guarda el formulario como un movimiento nuevo y devuelve el mensaje («Gasto guardado»); `null` si faltan el monto o el detalle. */
+fun guardarNuevoMovimiento(registro: RegistroDeMovimientos, f: FormularioNuevoMovimiento): String? {
+    if (!f.puedeGuardar) return null
+    registro.agregarManual(f.tipo, f.monto, f.conceptoLimpio, f.categoria, f.categoriaPropia, f.fuente)
+    return f.mensajeAlGuardar
 }
 
 const val LARGO_MAXIMO_DEL_NOMBRE_DE_CATEGORIA = 20
