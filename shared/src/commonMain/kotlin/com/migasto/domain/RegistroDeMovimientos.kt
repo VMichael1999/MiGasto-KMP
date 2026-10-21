@@ -319,3 +319,7 @@ class RegistroDeMovimientos(
         return clasificador.clasificarGasto(texto, comercio)
     }
 }
+
+/** Los casos de uso de registrar, confirmar y eliminar movimientos sobre [base], con las reglas de categorías incluidas. */
+fun crearRegistroDeMovimientos(base: com.migasto.db.BaseMiGasto): RegistroDeMovimientos =
+    RegistroDeMovimientos(base.movimientos, base.ajustes, ClasificadorCategorias.desdeJson(com.migasto.domain.reglas.ReglasIncluidas.categorias))
