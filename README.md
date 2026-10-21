@@ -14,8 +14,8 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 360 tests y 98 % de cobertura de líneas |
-| `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 44 pruebas de interfaz; faltan algunas pantallas secundarias (ver abajo) |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 375 tests y 98 % de cobertura de líneas |
+| `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 49 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **Todavía no empieza** |
 
 La versión original en Flutter sigue en [su repo](https://github.com/VMichael1999/MiGasto) y es la referencia de comportamiento: la lógica de aquí se portó de allí, con los tests primero.
@@ -78,7 +78,7 @@ MiGasto-KMP/
 | Base de datos | SQLDelight 2.4 + SQLCipher (en iOS se compila desde Gradle para que gane al SQLite de Apple) |
 | Fechas, JSON, corrutinas | kotlinx-datetime, kotlinx-serialization, kotlinx-coroutines |
 | Cifrado del respaldo | [cryptography-kotlin](https://github.com/whyoleg/cryptography-kotlin) 0.6 (aprobada aparte: no está en la tabla inicial) |
-| Interfaz de Android | Compose (BOM 2026.09), Material 3, ViewModel, Vico 3 para los gráficos |
+| Interfaz de Android | Compose (BOM 2026.09), Material 3, ViewModel, Vico 3 para los gráficos, BiometricPrompt (androidx.biometric 1.1, de la tabla del prompt) para el bloqueo |
 | Tipografía | Outfit empaquetada, licencia OFL en [`docs/licencias`](docs/licencias) |
 | Calidad | ktlint, Kover (mínimo 80 % en `shared`), Compose Testing |
 
@@ -93,8 +93,8 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **360 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
-- **44 pruebas de interfaz** en `androidApp`: Resumen, Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado) y la ventana flotante (botones, cuenta regresiva, pausa y deslizar).
+- **375 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **49 pruebas de interfaz** en `androidApp`: Resumen, Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
 
 ## Cómo correrlo
@@ -115,6 +115,6 @@ adb shell "cmd notification post -S bigtext -t 'Yape' prueba1 'Yapeaste S/ 32.00
 ## Qué falta
 
 - **iPhone completo** (`iosApp`): SwiftUI, la barra Liquid Glass, la extensión para compartir capturas con Vision, App Intents y el widget.
-- **Android:** bienvenida, mapa y «agregar ubicación», bloqueo con huella o PIN, elegir el mes en el Resumen e ícono de la app.
+- **Android:** bienvenida, mapa y «agregar ubicación», elegir el mes en el Resumen e ícono de la app.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
