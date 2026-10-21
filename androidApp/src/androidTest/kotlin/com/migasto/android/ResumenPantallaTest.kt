@@ -5,12 +5,12 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.migasto.android.resumen.OpcionDeMes
 import com.migasto.android.resumen.ResumenContenido
 import com.migasto.android.resumen.ResumenUi
 import com.migasto.android.tema.MiGastoTheme
 import com.migasto.domain.AvisoDeConfiguracion
 import com.migasto.domain.MesElegido
+import com.migasto.domain.OpcionDeMes
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

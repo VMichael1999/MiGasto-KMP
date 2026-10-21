@@ -5,14 +5,14 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.performScrollTo
 import com.migasto.android.movimientos.GrupoUi
 import com.migasto.android.movimientos.MovimientosUi
-import com.migasto.android.resumen.FilaDeMovimiento
-import com.migasto.android.resumen.PresupuestoUi
 import com.migasto.android.resumen.ResumenUi
 import com.migasto.domain.Categoria
 import com.migasto.domain.EstadoDelPresupuesto
+import com.migasto.domain.FilaDeMovimiento
 import com.migasto.domain.FiltroDeTipo
 import com.migasto.domain.FiltrosDeMovimientos
 import com.migasto.domain.PaymentSource
+import com.migasto.domain.PresupuestoDelResumen
 
 /** Los datos del diseño (`docs/diseno/migasto-kmp.html`), ya armados como los entrega `shared` a la vista. */
 object Muestras {
@@ -28,7 +28,7 @@ object Muestras {
         gastos = "S/ 144.70",
         porConfirmarTexto = "2 ingresos",
         porConfirmarMonto = "+ S/ 230.00",
-        presupuesto = if (presupuesto) PresupuestoUi(EstadoDelPresupuesto.Bien, "Gastos: vas bien", "10 % de S/ 1,500", 0.1f) else null,
+        presupuesto = if (presupuesto) PresupuestoDelResumen(EstadoDelPresupuesto.Bien, "Gastos: vas bien", "10 % de S/ 1,500", 0.1f) else null,
         hoy = listOf(carlos, ana, barberia, minimarket),
         oculto = oculto,
     )
