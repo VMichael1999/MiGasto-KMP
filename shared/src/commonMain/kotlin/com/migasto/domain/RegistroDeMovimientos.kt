@@ -206,6 +206,65 @@ class RegistroDeMovimientos(
         movimientos.guardar(movimiento)
     }
 
+    /**
+     * Cambia la categoría de un movimiento. Con [recordar] (solo en gastos) se aprende para los pagos futuros a
+     * ese comercio y se aplica a los demás gastos del mismo comercio; una categoría propia ([propia]) se aplica
+     * pero no se aprende. Elegir una de siempre ([propia] = `null`) quita la propia.
+     */
+    fun cambiarCategoria(id: String, categoria: Categoria, recordar: Boolean = false, propia: String? = null) {
+        val actual = movimientos.todos().firstOrNull { it.id == id } ?: return
+        movimientos.guardar(actual.copiar(category = categoria, categoriaPropia = propia))
+        if (!recordar || actual.esIngreso) return
+
+        if (propia == null) ajustes.guardarAprendida(actual.merchant, categoria)
+        val clave = actual.merchant.lowercase().trim()
+        movimientos.todos()
+            .filter {
+                it.esGasto && it.id != id && it.merchant.lowercase().trim() == clave &&
+                    (it.category != categoria || it.categoriaPropia != propia)
+            }
+            .forEach { movimientos.guardar(it.copiar(category = categoria, categoriaPropia = propia)) }
+    }
+
+    /**
+     * Edita monto, comercio y nota. [monto] es el texto escrito (acepta coma decimal). Devuelve `false`, sin
+     * cambiar nada, si el monto no es mayor que cero, el comercio está vacío o el movimiento ya no existe.
+     */
+    fun editar(id: String, monto: String, comercio: String, notas: String): Boolean {
+        val valor = parsearMonto(monto)
+        if (valor == null || valor <= 0 || comercio.isBlank()) return false
+        val actual = movimientos.todos().firstOrNull { it.id == id } ?: return false
+        // `copiar` no puede vaciar un campo, así que la nota se arma con el constructor.
+        movimientos.guardar(
+            Movimiento(
+                id = actual.id, amount = valor, merchant = comercio.trim(), category = actual.category,
+                source = actual.source, date = actual.date, notes = notas.trim(), tipo = actual.tipo, canal = actual.canal,
+                estado = actual.estado, tarjeta = actual.tarjeta, latitud = actual.latitud, longitud = actual.longitud,
+                precision = actual.precision, lugar = actual.lugar, textoOriginal = actual.textoOriginal,
+                categoriaPropia = actual.categoriaPropia,
+            ),
+        )
+        return true
+    }
+
+    /** Guarda dónde se hizo el pago (solo cuando el usuario lo pide). */
+    fun ponerUbicacion(id: String, latitud: Double, longitud: Double, precision: Double?, lugar: String?) {
+        val actual = movimientos.todos().firstOrNull { it.id == id } ?: return
+        movimientos.guardar(actual.copiar(latitud = latitud, longitud = longitud, precision = precision, lugar = lugar))
+    }
+
+    /** Quita la ubicación de un solo movimiento. */
+    fun quitarUbicacion(id: String) {
+        val actual = movimientos.todos().firstOrNull { it.id == id } ?: return
+        movimientos.guardar(actual.copiar(quitarUbicacion = true))
+    }
+
+    /** Borra todas las ubicaciones; los movimientos se mantienen. */
+    fun quitarTodasLasUbicaciones() {
+        movimientos.todos().filter { it.tieneUbicacion || it.lugar != null }
+            .forEach { movimientos.guardar(it.copiar(quitarUbicacion = true)) }
+    }
+
     private fun categoriaPara(tipo: TipoMovimiento, texto: String, comercio: String): Categoria {
         if (tipo == TipoMovimiento.Ingreso) return clasificador.clasificarIngreso(texto, comercio)
         // 1. Categoría aprendida de los cambios del usuario para este comercio.
