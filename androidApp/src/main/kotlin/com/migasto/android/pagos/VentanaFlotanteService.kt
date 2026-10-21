@@ -170,7 +170,12 @@ class VentanaFlotanteService : Service(), LifecycleOwner, SavedStateRegistryOwne
         runCatching {
             val vibrador = getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
             if (!vibrador.hasVibrator()) return
-            vibrador.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrador.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION") // en Android 7 no hay VibrationEffect
+                vibrador.vibrate(25)
+            }
         }
     }
 
