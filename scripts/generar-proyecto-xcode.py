@@ -12,7 +12,9 @@ import os
 RAIZ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "iosApp")
 NOMBRE = "MiGasto"
 BUNDLE = "com.migasto.ios"
-DESPLIEGUE = "17.0"
+# La app es para iOS 26: la barra de pestañas con Liquid Glass y la API Tab son de esa versión. Las pods siguen en 17.
+DESPLIEGUE = "26.0"
+
 
 
 def uid(texto):
