@@ -11,6 +11,7 @@ import com.migasto.domain.FilaDeMovimiento
 import com.migasto.domain.FiltroDeTipo
 import com.migasto.domain.FiltrosDeMovimientos
 import com.migasto.domain.GrupoDeMovimientos
+import com.migasto.domain.OpcionDeTipo
 import com.migasto.domain.PaymentSource
 import com.migasto.domain.PresupuestoDelResumen
 
@@ -43,7 +44,16 @@ object Muestras {
         hayFiltro: Boolean = false,
         oculto: Boolean = false,
         filtros: FiltrosDeMovimientos = FiltrosDeMovimientos(tipo = tipo, busqueda = busqueda),
-    ) = MovimientosUi(tipo, busqueda, 2, grupos, hayFiltro, oculto, filtros)
+    ) = MovimientosUi(
+        tipo, busqueda, 2, grupos, hayFiltro, oculto, filtros,
+        opcionesDeTipo = listOf(
+            OpcionDeTipo(FiltroDeTipo.Todo, "Todo", false),
+            OpcionDeTipo(FiltroDeTipo.Gastos, "Gastos", false),
+            OpcionDeTipo(FiltroDeTipo.Ingresos, "Ingresos", false),
+            OpcionDeTipo(FiltroDeTipo.PorConfirmar, "Por confirmar · 2", true),
+        ),
+        textoSinMovimientos = if (hayFiltro) "No hay movimientos con esos filtros." else "Todavía no hay movimientos.",
+    )
 }
 
 /**

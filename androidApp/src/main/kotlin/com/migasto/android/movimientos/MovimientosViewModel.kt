@@ -8,6 +8,7 @@ import com.migasto.domain.FiltroDeTipo
 import com.migasto.domain.FiltrosDeMovimientos
 import com.migasto.domain.GrupoDeMovimientos
 import com.migasto.domain.Movimiento
+import com.migasto.domain.OpcionDeTipo
 import com.migasto.domain.PaymentSource
 import com.migasto.domain.armarPantallaDeMovimientos
 import com.migasto.domain.conLaHoja
@@ -36,6 +37,8 @@ data class MovimientosUi(
     /** Todos los filtros puestos: la hoja se abre con lo que ya está elegido. */
     val filtros: FiltrosDeMovimientos = FiltrosDeMovimientos(),
     val propias: List<CategoriaPropia> = emptyList(),
+    val opcionesDeTipo: List<OpcionDeTipo> = emptyList(),
+    val textoSinMovimientos: String = "",
 )
 
 class MovimientosViewModel(
@@ -78,6 +81,8 @@ class MovimientosViewModel(
             oculto = ocultar,
             filtros = p.filtros,
             propias = p.propias,
+            opcionesDeTipo = p.opcionesDeTipo,
+            textoSinMovimientos = p.textoSinMovimientos,
         )
     }
 }
