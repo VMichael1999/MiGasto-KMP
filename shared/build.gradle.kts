@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.androidKmpLibrary)
     alias(libs.plugins.kover)
+    alias(libs.plugins.ktlint)
 }
 
 // SQLCipher como librería estática: el SQLite de Apple (libsqlite3.dylib) gana a un framework
@@ -188,5 +189,13 @@ kover {
                 minBound(80)
             }
         }
+    }
+}
+
+// El estilo se revisa solo en el código escrito a mano: lo generado (SQLDelight, ReglasIncluidas) queda fuera.
+ktlint {
+    filter {
+        exclude("**/build/**")
+        exclude("**/generated/**")
     }
 }
