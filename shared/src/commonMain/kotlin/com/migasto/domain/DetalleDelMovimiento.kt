@@ -53,7 +53,44 @@ data class DetalleDelMovimiento(
     val textoDeEliminar: String,
     val preguntaDeEliminar: String,
     val avisoDeEliminado: String,
-)
+) {
+    /** El usuario ya le puso otro nombre a este comercio. */
+    val tieneNombrePropio: Boolean get() = nombre != nombreOriginal
+
+    /** Con lo que se abre «Cambiar nombre»: el nombre puesto o, si no hay, una sugerencia. */
+    val nombreParaEditar: String get() = if (tieneNombrePropio) nombre else sugerenciaDeAlias(nombreOriginal)
+}
+
+object TextosDelDetalle {
+    const val EDITAR = "Editar"
+    const val CANCELAR = "Cancelar"
+    const val GUARDAR = "Guardar"
+    const val ELIMINAR = "Eliminar"
+    const val FECHA = "Fecha"
+    const val CATEGORIA = "Categoría"
+    const val REGISTRADO = "Registrado"
+    const val NOTA = "Nota"
+    const val TEXTO_ORIGINAL = "Texto original"
+    const val POR_CONFIRMAR = "Por confirmar"
+    const val CAMBIAR_NOMBRE = "Cambiar nombre"
+    const val NOMBRE = "Nombre"
+    const val QUITAR_NOMBRE = "Quitar nombre"
+    const val MONTO = "Monto"
+    const val NOTA_OPCIONAL = "Nota (opcional)"
+    const val GUARDAR_CAMBIOS = "Guardar cambios"
+    const val ERROR_DE_EDICION = "Pon un monto mayor que cero y un nombre."
+
+    /** [tipoTexto] es `Gasto` o `Ingreso`. */
+    fun tituloDeEdicion(tipoTexto: String) = "Editar ${tipoTexto.lowercase()}"
+
+    fun etiquetaDelComercio(esIngreso: Boolean) = if (esIngreso) "De quién" else "Comercio"
+
+    fun aplicarATodos(nombre: String) = "Aplicar a todos los pagos a $nombre"
+
+    fun quitarUbicacion(tipoTexto: String) = "Quitar la ubicación de este ${tipoTexto.lowercase()}"
+
+    fun explicacionDelNombre(nombreOriginal: String) = "Así verás a \"$nombreOriginal\" en toda la app. Es solo cómo se ve: el pago no cambia."
+}
 
 private const val REGISTRO_MANUAL = "Registro manual"
 
