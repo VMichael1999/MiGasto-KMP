@@ -44,6 +44,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.migasto.android.ajustes.AjustesPantalla
 import com.migasto.android.detalle.DetallePantalla
+import com.migasto.android.donde.DondePagastePantalla
 import com.migasto.android.movimientos.MovimientosPantalla
 import com.migasto.android.nuevo.NuevoMovimientoPantalla
 import com.migasto.android.reportes.ReportesPantalla
@@ -71,10 +72,14 @@ fun MiGastoNavegacion() {
     var sesionNuevo by rememberSaveable { mutableStateOf(0) }
     var nuevoAbierto by rememberSaveable { mutableStateOf(false) }
     var detalleId by rememberSaveable { mutableStateOf<String?>(null) }
+    var dondeAbierto by rememberSaveable { mutableStateOf(false) }
     val pestana = Pestana.valueOf(actual)
     val c = MiGastoTheme.colores
     val avisos = remember { SnackbarHostState() }
     val ambito = rememberCoroutineScope()
+
+    // Con una pantalla encima (detalle, nuevo, dónde pagaste) el aviso del Scaffold quedaría tapado: se dibuja arriba de todo.
+    val hayCapaAbierta = detalleId != null || nuevoAbierto || dondeAbierto
 
     BackHandler(enabled = nuevoAbierto) { nuevoAbierto = false }
     BackHandler(enabled = detalleId != null && !nuevoAbierto) { detalleId = null }
@@ -83,7 +88,7 @@ fun MiGastoNavegacion() {
     Box(Modifier.fillMaxSize()) {
         Scaffold(
             containerColor = c.fondo,
-            snackbarHost = { SnackbarHost(avisos) },
+            snackbarHost = { if (!hayCapaAbierta) SnackbarHost(avisos) },
             bottomBar = {
                 BarraInferior(pestana, alAgregar = { sesionNuevo++; nuevoAbierto = true }) { actual = it.name; abrirBusqueda = false }
             },
@@ -97,7 +102,7 @@ fun MiGastoNavegacion() {
                     )
                     Pestana.Movimientos -> MovimientosPantalla(abrirBusqueda) { detalleId = it }
                     Pestana.Reportes -> ReportesPantalla()
-                    Pestana.Ajustes -> AjustesPantalla(alAvisar = { mensaje -> ambito.launch { avisos.showSnackbar(mensaje) } })
+                    Pestana.Ajustes -> AjustesPantalla(alAvisar = { mensaje -> ambito.launch { avisos.showSnackbar(mensaje) } }, alVerDondePagaste = { dondeAbierto = true })
                     else -> EnConstruccion(pestana.titulo)
                 }
             }
@@ -118,6 +123,7 @@ fun MiGastoNavegacion() {
                 },
             )
         }
+        if (dondeAbierto) DondePagastePantalla(alCerrar = { dondeAbierto = false })
         if (nuevoAbierto) {
             NuevoMovimientoPantalla(
                 sesion = sesionNuevo,
@@ -128,6 +134,7 @@ fun MiGastoNavegacion() {
                 },
             )
         }
+        if (hayCapaAbierta) SnackbarHost(avisos, Modifier.align(Alignment.BottomCenter).navigationBarsPadding())
     }
 }
 
