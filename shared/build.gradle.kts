@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinCocoapods)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.androidKmpLibrary)
 }
@@ -50,6 +51,35 @@ fun KotlinNativeTarget.enlazarSqlcipher(dir: String, tarea: TaskProvider<Exec>) 
     binaries.all { linkTaskProvider.configure { dependsOn(tarea) } }
 }
 
+// Las reglas (shared/reglas/*.json) son las mismas que usa la app de Flutter. Se incrustan
+// como texto en una clase generada para leerlas igual en Android, iOS y los tests, sin
+// cargar archivos de cada plataforma.
+val generarReglas = tasks.register("generarReglas") {
+    group = "reglas"
+    description = "Genera ReglasIncluidas.kt a partir de shared/reglas/*.json"
+    val entrada = layout.projectDirectory.dir("reglas")
+    val salida = layout.buildDirectory.dir("generated/reglas")
+    inputs.dir(entrada)
+    outputs.dir(salida)
+    doLast {
+        fun texto(nombre: String): String {
+            val t = entrada.file(nombre).asFile.readText()
+            check("\"\"\"" !in t && '$' !in t) { "$nombre no puede llevar \"\"\" ni \$" }
+            return t
+        }
+        val archivo = salida.get().asFile.resolve("com/migasto/domain/reglas/ReglasIncluidas.kt")
+        archivo.parentFile.mkdirs()
+        archivo.writeText(
+            "package com.migasto.domain.reglas\n\n" +
+                "// Generado por la tarea generarReglas. No editar: cambia shared/reglas/*.json.\n" +
+                "object ReglasIncluidas {\n" +
+                "    val lector: String = \"\"\"${texto("reader_rules.json")}\"\"\"\n\n" +
+                "    val categorias: String = \"\"\"${texto("category_rules.json")}\"\"\"\n" +
+                "}\n",
+        )
+    }
+}
+
 kotlin {
     androidLibrary {
         namespace = "com.migasto.shared"
@@ -83,8 +113,12 @@ kotlin {
     }
 
     sourceSets {
+        commonMain {
+            kotlin.srcDir(generarReglas)
+        }
         commonMain.dependencies {
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

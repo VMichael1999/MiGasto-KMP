@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "_nota": "Reglas del lector de pagos. Las leen Kotlin (notificaciones) y Dart (capturas y pruebas). Los patrones no distinguen mayúsculas y usan solo sintaxis común a Java y Dart.",
+  "providers": [
+    {
+      "id": "yape",
+      "keywords": [
+        "yape",
+        "yapeaste",
+        "yapeó",
+        "yapeo",
+        "yapearon"
+      ]
+    },
+    {
+      "id": "plin",
+      "keywords": [
+        "plin"
+      ],
+      "wordBoundary": true
+    },
+    {
+      "id": "googlePay",
+      "keywords": [
+        "google wallet",
+        "google pay",
+        "googlepay",
+        "gpay"
+      ]
+    }
+  ],
+  "amount": "s/\\.?\\s*(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?)",
+  "screenReceipt": "datos de la transacci[oó]n",
+  "operationStamp": "\\d{1,2}\\s+\\p{L}{3,5}\\.?\\s+\\d{4}\\s+\\d{1,2}:\\d{2}\\s*[ap]\\.?\\s*m\\.?",
+  "operationId": "(?:n(?:ro|º|°|o)\\.?|número|numero)\\s+de\\s+operaci[oó]n\\s*:?\\s*(\\d{5,})",
+  "income": [
+    "te yap(?:e|eó|eo|earon)(?![\\p{L}\\p{N}])",
+    "te plin(?:eó|eo|earon)",
+    "has recibido",
+    "recibiste",
+    "te (?:envió|envio|transfirió|transfirio|depositó|deposito|pagó|pago)(?![\\p{L}\\p{N}])",
+    "te (?:han|ha) (?:enviado|transferido|depositado)",
+    "abono (?:en|a) tu cuenta",
+    "depósito recibido",
+    "deposito recibido"
+  ],
+  "expense": [
+    "yapeaste",
+    "pagaste",
+    "enviaste",
+    "transferiste",
+    "plineaste",
+    "compra (?:por|de|en)",
+    "pago (?:de|con|en)",
+    "consumo",
+    "¡yapeaste!",
+    "pago exitoso"
+  ],
+  "defaultTypeByProvider": {
+    "googlePay": "gasto"
+  },
+  "peerPrepositions": [
+    "a",
+    "de",
+    "en",
+    "por",
+    "para",
+    "con"
+  ],
+  "cleanPhrases": [
+    "has recibido un yape de",
+    "has recibido un plin de",
+    "has recibido",
+    "compra por",
+    "compra de",
+    "pago de",
+    "pago con tarjeta",
+    "pago exitoso",
+    "yapeaste el servicio",
+    "te yapeó",
+    "te yapeo",
+    "te yapearon",
+    "te plineó",
+    "te plineo",
+    "confirmación de pago",
+    "confirmacion de pago",
+    "un pago por",
+    "te envió",
+    "te envio",
+    "te transfirió",
+    "te transfirio",
+    "te depositó",
+    "te deposito",
+    "yapeaste",
+    "plineaste",
+    "yapeó",
+    "yapeo",
+    "enviaste",
+    "transferiste",
+    "recibiste",
+    "pagaste",
+    "envió",
+    "envio",
+    "yape",
+    "plin",
+    "google wallet",
+    "google pay",
+    "googlepay",
+    "gpay"
+  ],
+  "peerStopWords": [
+    " con tu ",
+    " con la ",
+    " desde ",
+    " el día ",
+    " el dia ",
+    " - "
+  ],
+  "unknownPeer": "Desconocido"
+}

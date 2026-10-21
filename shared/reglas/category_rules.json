@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "_nota": "Categorías por palabras clave. Las leen Kotlin (ventana flotante) y Dart. Se busca la palabra o frase completa, sin distinguir mayúsculas; el orden de los grupos decide cuando hay varias coincidencias.",
+  "gasto": [
+    {
+      "category": "alimentacion",
+      "keywords": [
+        "rappi",
+        "didi food",
+        "pedidosya",
+        "starbucks",
+        "restaurante",
+        "restaurantes",
+        "rustica",
+        "pardos",
+        "chifa",
+        "kfc",
+        "burger",
+        "bembos",
+        "pollería",
+        "polleria",
+        "cafe",
+        "café",
+        "cafetería",
+        "cafeteria",
+        "snack",
+        "sandwich",
+        "mcdonald's",
+        "mcdonalds",
+        "dunkin",
+        "norky's",
+        "norkys",
+        "menú",
+        "menu"
+      ]
+    },
+    {
+      "category": "transporte",
+      "keywords": [
+        "uber",
+        "cabify",
+        "indrive",
+        "yango",
+        "taxi",
+        "gasolinera",
+        "grifo",
+        "repsol",
+        "primax",
+        "pecsa",
+        "petroperu",
+        "colectivo",
+        "peaje",
+        "didi"
+      ]
+    },
+    {
+      "category": "entretenimiento",
+      "keywords": [
+        "netflix",
+        "spotify",
+        "disney",
+        "cineplanet",
+        "cinemark",
+        "cine",
+        "prime video",
+        "hbo",
+        "apple music",
+        "playstation",
+        "steam"
+      ]
+    },
+    {
+      "category": "servicios",
+      "keywords": [
+        "luz del sur",
+        "recibo de luz",
+        "pago de luz",
+        "enel",
+        "sedapal",
+        "recibo de agua",
+        "pago de agua",
+        "movistar",
+        "claro",
+        "entel",
+        "bitel",
+        "google storage",
+        "cloud",
+        "directv",
+        "internet",
+        "recarga",
+        "recibo",
+        "yapeaste el servicio",
+        "pago de servicio",
+        "pago de cuotas",
+        "cuotas"
+      ]
+    },
+    {
+      "category": "compras",
+      "keywords": [
+        "metro",
+        "tottus",
+        "plaza vea",
+        "wong",
+        "tambo",
+        "oxxo",
+        "mass",
+        "makro",
+        "supermercado",
+        "bodega",
+        "minimarket",
+        "inkafarma",
+        "mifarma",
+        "farmacia",
+        "botica",
+        "ripley",
+        "saga",
+        "falabella",
+        "linio",
+        "mercado libre",
+        "amazon",
+        "h&m",
+        "zara",
+        "mall",
+        "tienda",
+        "regalo"
+      ]
+    }
+  ],
+  "ingreso": [
+    {
+      "category": "sueldo",
+      "keywords": [
+        "sueldo",
+        "haberes",
+        "planilla",
+        "remuneración",
+        "remuneracion",
+        "nómina",
+        "nomina"
+      ]
+    },
+    {
+      "category": "venta",
+      "keywords": [
+        "venta",
+        "vendiste",
+        "cobro"
+      ]
+    }
+  ],
+  "gastoDefault": "otros",
+  "ingresoDefault": "transferenciaRecibida"
+}
