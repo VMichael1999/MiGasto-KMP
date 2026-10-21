@@ -3,7 +3,6 @@ package com.migasto.android
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.performScrollTo
-import com.migasto.android.movimientos.GrupoUi
 import com.migasto.android.movimientos.MovimientosUi
 import com.migasto.android.resumen.ResumenUi
 import com.migasto.domain.Categoria
@@ -11,6 +10,7 @@ import com.migasto.domain.EstadoDelPresupuesto
 import com.migasto.domain.FilaDeMovimiento
 import com.migasto.domain.FiltroDeTipo
 import com.migasto.domain.FiltrosDeMovimientos
+import com.migasto.domain.GrupoDeMovimientos
 import com.migasto.domain.PaymentSource
 import com.migasto.domain.PresupuestoDelResumen
 
@@ -36,9 +36,9 @@ object Muestras {
     fun movimientos(
         tipo: FiltroDeTipo = FiltroDeTipo.Todo,
         busqueda: String = "",
-        grupos: List<GrupoUi> = listOf(
-            GrupoUi("Hoy, jueves 1", "S/ 114.20 en gastos", listOf(carlos, ana, barberia, minimarket)),
-            GrupoUi("Ayer, miércoles 30", null, listOf(carlos.copy(id = "otro"))),
+        grupos: List<GrupoDeMovimientos> = listOf(
+            GrupoDeMovimientos("Hoy, jueves 1", "S/ 114.20 en gastos", listOf(carlos, ana, barberia, minimarket)),
+            GrupoDeMovimientos("Ayer, miércoles 30", null, listOf(carlos.copy(id = "otro"))),
         ),
         hayFiltro: Boolean = false,
         oculto: Boolean = false,
