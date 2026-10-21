@@ -9,6 +9,7 @@ import com.migasto.domain.FormularioNuevoMovimiento
 import com.migasto.domain.PaymentSource
 import com.migasto.domain.RegistroDeMovimientos
 import com.migasto.domain.TipoMovimiento
+import com.migasto.domain.guardarNuevoMovimiento
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,14 +65,9 @@ class NuevoMovimientoViewModel(
         if (!f.puedeGuardar || _guardando.value) return
         _guardando.value = true
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                registro.await().agregarManual(
-                    tipo = f.tipo, monto = f.monto, comercio = f.conceptoLimpio,
-                    categoria = f.categoria, categoriaPropia = f.categoriaPropia, fuente = f.fuente,
-                )
-            }
+            val mensaje = withContext(Dispatchers.IO) { guardarNuevoMovimiento(registro.await(), f) }
             _guardando.value = false
-            alTerminar(f.mensajeAlGuardar)
+            if (mensaje != null) alTerminar(mensaje)
         }
     }
 }

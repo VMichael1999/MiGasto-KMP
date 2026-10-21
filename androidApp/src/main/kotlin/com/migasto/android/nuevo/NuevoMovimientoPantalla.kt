@@ -75,6 +75,7 @@ import com.migasto.domain.Categoria
 import com.migasto.domain.CategoriaPropia
 import com.migasto.domain.FormularioNuevoMovimiento
 import com.migasto.domain.PaymentSource
+import com.migasto.domain.TextosDeNuevoMovimiento
 import com.migasto.domain.TipoMovimiento
 import com.migasto.domain.clavesDeIconosPropios
 import com.migasto.domain.etiqueta
@@ -117,7 +118,6 @@ fun NuevoMovimientoContenido(
     var eligiendoFuente by remember { mutableStateOf(false) }
     var creandoCategoria by remember { mutableStateOf(false) }
     val acento = if (f.esIngreso) c.ingreso else c.tinta
-    val propiasDelTipo = propias.filter { it.tipo == f.tipo }
 
     Column(Modifier.fillMaxSize().background(c.fondo).statusBarsPadding().navigationBarsPadding()) {
         Column(
@@ -130,13 +130,12 @@ fun NuevoMovimientoContenido(
             CampoDelConcepto(f, alEscribirConcepto)
             CampoDeLaFuente(f) { eligiendoFuente = true }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Categoria.paraTipo(f.tipo).forEach { cat ->
-                    ChipDeCategoria(cat.etiqueta, iconoDeCategoria(cat), f.categoriaPropia == null && f.categoria == cat, f.esIngreso) { alElegirCategoria(cat) }
+                f.chipsDeCategoria(propias).forEach { o ->
+                    ChipDeCategoria(o.etiqueta, o.propia?.let { iconoPropio(it.icono) } ?: iconoDeCategoria(o.categoria), o.elegido, f.esIngreso) {
+                        if (o.propia != null) alElegirPropia(o.propia!!) else alElegirCategoria(o.categoria)
+                    }
                 }
-                propiasDelTipo.forEach { p ->
-                    ChipDeCategoria(p.nombre, iconoPropio(p.icono), f.categoriaPropia == p.id, f.esIngreso) { alElegirPropia(p) }
-                }
-                ChipDeCategoria("Nueva", androidx.compose.material.icons.Icons.Outlined.Add, false, f.esIngreso) { creandoCategoria = true }
+                ChipDeCategoria(TextosDeNuevoMovimiento.NUEVA, androidx.compose.material.icons.Icons.Outlined.Add, false, f.esIngreso) { creandoCategoria = true }
             }
         }
         Column(Modifier.padding(horizontal = Espacio.xl).padding(bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -181,7 +180,7 @@ private fun Cabecera(alCerrar: () -> Unit) {
                 .semantics { contentDescription = "Cerrar" },
             contentAlignment = Alignment.Center,
         ) { Icon(Icons.Outlined.Close, contentDescription = null, tint = c.tinta) }
-        Text("Nuevo movimiento", style = MaterialTheme.typography.titleLarge, color = c.tinta, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center, maxLines = 1)
+        Text(TextosDeNuevoMovimiento.TITULO, style = MaterialTheme.typography.titleLarge, color = c.tinta, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center, maxLines = 1)
         Spacer(Modifier.width(Tamano.botonDeIcono))
     }
 }
@@ -264,7 +263,7 @@ private fun CampoDeLaFuente(f: FormularioNuevoMovimiento, alTocar: () -> Unit) {
     ) {
         Box(Modifier.size(10.dp).background(colorDeLaFuente(f.fuente), CircleShape))
         Text("${f.prefijoDeLaFuente} $etiqueta", style = MaterialTheme.typography.bodyLarge, color = c.tinta, modifier = Modifier.weight(1f).padding(start = 10.dp))
-        Text("Cambiar", style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp), color = c.apagado)
+        Text(TextosDeNuevoMovimiento.CAMBIAR, style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp), color = c.apagado)
         Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = c.apagado, modifier = Modifier.size(18.dp))
     }
 }
@@ -345,13 +344,13 @@ fun HojaDeCategoriaNueva(alCerrar: () -> Unit, alCrear: (String, String) -> Unit
     var icono by remember { mutableStateOf(clavesDeIconosPropios.first()) }
     ModalBottomSheet(onDismissRequest = alCerrar, containerColor = c.superficie) {
         Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 16.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Nueva categoría", style = MaterialTheme.typography.titleLarge, color = c.tinta)
+            Text(TextosDeNuevoMovimiento.NUEVA_CATEGORIA, style = MaterialTheme.typography.titleLarge, color = c.tinta)
             Row(
                 Modifier.fillMaxWidth().height(50.dp).clip(RoundedCornerShape(Radio.campo)).background(c.fondo).padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(Modifier.weight(1f)) {
-                    if (nombre.isEmpty()) Text("Nombre", style = MaterialTheme.typography.bodyLarge, color = c.apagado)
+                    if (nombre.isEmpty()) Text(TextosDeNuevoMovimiento.NOMBRE, style = MaterialTheme.typography.bodyLarge, color = c.apagado)
                     BasicTextField(
                         value = nombre, onValueChange = { nombre = limitarNombreDeCategoria(it) }, singleLine = true,
                         textStyle = MaterialTheme.typography.bodyLarge.copy(color = c.tinta), cursorBrush = SolidColor(c.marcaTinta),
@@ -381,7 +380,7 @@ fun HojaDeCategoriaNueva(alCerrar: () -> Unit, alCrear: (String, String) -> Unit
                     .background(if (puede) ColoresMiGasto.VerdeNeon else c.linea)
                     .clickable(enabled = puede) { alCrear(nombre, icono) },
                 contentAlignment = Alignment.Center,
-            ) { Text("Crear categoría", style = MaterialTheme.typography.titleLarge, color = if (puede) ColoresMiGasto.TintaSobreVerde else c.apagado) }
+            ) { Text(TextosDeNuevoMovimiento.CREAR_CATEGORIA, style = MaterialTheme.typography.titleLarge, color = if (puede) ColoresMiGasto.TintaSobreVerde else c.apagado) }
         }
     }
 }
