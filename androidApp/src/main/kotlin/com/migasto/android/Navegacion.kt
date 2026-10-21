@@ -41,7 +41,12 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.migasto.android.movimientos.MovimientosPantalla
+import com.migasto.android.detalle.DetallePantalla
 import com.migasto.android.nuevo.NuevoMovimientoPantalla
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import com.migasto.android.resumen.ResumenPantalla
 import com.migasto.android.tema.ColoresMiGasto
@@ -63,12 +68,15 @@ fun MiGastoNavegacion() {
     var abrirBusqueda by rememberSaveable { mutableStateOf(false) }
     var sesionNuevo by rememberSaveable { mutableStateOf(0) }
     var nuevoAbierto by rememberSaveable { mutableStateOf(false) }
+    var detalleId by rememberSaveable { mutableStateOf<String?>(null) }
     val pestana = Pestana.valueOf(actual)
     val c = MiGastoTheme.colores
     val avisos = remember { SnackbarHostState() }
     val ambito = rememberCoroutineScope()
 
     BackHandler(enabled = nuevoAbierto) { nuevoAbierto = false }
+    BackHandler(enabled = detalleId != null && !nuevoAbierto) { detalleId = null }
+    val app = androidx.compose.ui.platform.LocalContext.current.applicationContext as com.migasto.android.MiGastoApp
 
     Box(Modifier.fillMaxSize()) {
     Scaffold(
@@ -83,11 +91,28 @@ fun MiGastoNavegacion() {
                 Pestana.Resumen -> ResumenPantalla(
                     alVerTodos = { abrirBusqueda = false; actual = Pestana.Movimientos.name },
                     alBuscar = { abrirBusqueda = true; actual = Pestana.Movimientos.name },
+                    alAbrir = { detalleId = it },
                 )
-                Pestana.Movimientos -> MovimientosPantalla(abrirBusqueda)
+                Pestana.Movimientos -> MovimientosPantalla(abrirBusqueda) { detalleId = it }
                 else -> EnConstruccion(pestana.titulo)
             }
         }
+    }
+    detalleId?.let { id ->
+        DetallePantalla(
+            id = id,
+            alCerrar = { detalleId = null },
+            alAvisar = { mensaje -> ambito.launch { avisos.showSnackbar(mensaje) } },
+            alEliminado = { mensaje, original ->
+                detalleId = null
+                ambito.launch {
+                    val resultado = avisos.showSnackbar(mensaje, actionLabel = "Deshacer", duration = SnackbarDuration.Long)
+                    if (resultado == SnackbarResult.ActionPerformed) {
+                        withContext(Dispatchers.IO) { app.registro.await().restaurar(original) }
+                    }
+                }
+            },
+        )
     }
     if (nuevoAbierto) {
         NuevoMovimientoPantalla(
