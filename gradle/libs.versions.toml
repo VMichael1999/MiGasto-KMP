@@ -11,6 +11,7 @@ vico = "3.3.1"
 ktlint = "14.2.0"
 espresso = "3.7.0"
 biometric = "1.1.0"
+mapsCompose = "9.0.1"
 activityCompose = "1.13.0"
 lifecycle = "2.11.0"
 agp = "9.3.3"
@@ -48,6 +49,7 @@ vico-compose-m3 = { module = "com.patrykandpatrick.vico:compose-m3", version.ref
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
