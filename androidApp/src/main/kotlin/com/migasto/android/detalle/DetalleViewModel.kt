@@ -9,6 +9,7 @@ import com.migasto.domain.DetalleDelMovimiento
 import com.migasto.domain.Movimiento
 import com.migasto.domain.RegistroDeMovimientos
 import com.migasto.domain.TipoMovimiento
+import com.migasto.domain.UbicacionCapturada
 import com.migasto.domain.construirDetalle
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -84,6 +85,8 @@ class DetalleViewModel(
         base.ajustes.establecerAlias(comercio, alias)
         refresco.update { it + 1 }
     }
+
+    fun ponerUbicacion(ubicacion: UbicacionCapturada) = hacer { _, registro -> registro.ponerUbicacion(id, ubicacion) }
 
     fun quitarUbicacion() = hacer { _, registro -> registro.quitarUbicacion(id) }
 

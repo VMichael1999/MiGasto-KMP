@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +62,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.migasto.android.MiGastoApp
+import com.migasto.android.mapa.MapaChico
 import com.migasto.android.nuevo.HojaDeCategoriaNueva
 import com.migasto.android.resumen.BotonDeIcono
 import com.migasto.android.resumen.OCULTO
@@ -72,13 +75,19 @@ import com.migasto.android.tema.Espacio
 import com.migasto.android.tema.MiGastoTheme
 import com.migasto.android.tema.Radio
 import com.migasto.android.tema.Tamano
+import com.migasto.android.ubicacion.abrirAjustesDeLaApp
+import com.migasto.android.ubicacion.hayClaveDeMapas
+import com.migasto.android.ubicacion.rememberAgregarUbicacion
 import com.migasto.domain.Categoria
 import com.migasto.domain.CategoriaPropia
 import com.migasto.domain.DetalleDelMovimiento
+import com.migasto.domain.MotivoDeFallo
 import com.migasto.domain.Movimiento
+import com.migasto.domain.TextosDeUbicacion
 import com.migasto.domain.TipoMovimiento
 import com.migasto.domain.etiqueta
 import com.migasto.domain.formatearMonto
+import com.migasto.domain.mensajeDeFallo
 import com.migasto.domain.sugerenciaDeAlias
 
 /**
@@ -123,6 +132,13 @@ private fun DetalleContenido(
     var eligiendoCategoria by remember { mutableStateOf(false) }
     var confirmandoEliminar by remember { mutableStateOf(false) }
     var verTexto by remember { mutableStateOf(false) }
+    var ubicacionBloqueada by remember { mutableStateOf(false) }
+    val contexto = androidx.compose.ui.platform.LocalContext.current
+    val hayMapa = remember { hayClaveDeMapas(contexto) }
+    val agregarUbicacion = rememberAgregarUbicacion(
+        alCapturar = vm::ponerUbicacion,
+        alFallar = { motivo -> if (motivo.ofreceAbrirAjustes) ubicacionBloqueada = true else alAvisar(mensajeDeFallo(motivo)) },
+    )
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = Espacio.xl).padding(top = 6.dp, bottom = 24.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -190,15 +206,43 @@ private fun DetalleContenido(
             ) { Text(d.textoDeConfirmar, style = MaterialTheme.typography.titleLarge, color = if (d.esIngreso) c.fondo else ColoresMiGasto.TintaSobreVerde) }
         }
 
+        Spacer(Modifier.height(16.dp))
         if (d.tieneUbicacion) {
-            Spacer(Modifier.height(16.dp))
-            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(Radio.tarjeta)).background(c.superficie).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.Place, contentDescription = null, tint = c.apagado)
-                Spacer(Modifier.width(12.dp))
-                Text(d.lugar ?: "Ubicación guardada", style = MaterialTheme.typography.titleSmall, color = c.tinta)
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(Radio.tarjeta)).background(c.superficie)) {
+                if (hayMapa && d.latitud != null && d.longitud != null) {
+                    MapaChico(d.latitud!!, d.longitud!!, Modifier.fillMaxWidth().height(120.dp))
+                }
+                Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.Place, contentDescription = null, tint = c.apagado)
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text(d.direccion ?: "Ubicación guardada", style = MaterialTheme.typography.titleSmall, color = c.tinta)
+                        d.textoDeLaUbicacion?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = c.apagado) }
+                    }
+                }
             }
             TextButton(onClick = vm::quitarUbicacion) {
                 Text("Quitar la ubicación de este ${d.tipoTexto.lowercase()}", style = MaterialTheme.typography.labelLarge, color = c.marcaTinta)
+            }
+        } else {
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(Radio.tarjeta)).background(c.superficie)
+                    .clickable(enabled = !agregarUbicacion.capturando, onClick = agregarUbicacion.iniciar)
+                    .semantics { contentDescription = "${TextosDeUbicacion.AGREGAR}. ${TextosDeUbicacion.AGREGAR_DETALLE}" }
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Outlined.Place, contentDescription = null, tint = c.apagado)
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(TextosDeUbicacion.AGREGAR, style = MaterialTheme.typography.titleSmall, color = c.tinta)
+                    Text(TextosDeUbicacion.AGREGAR_DETALLE, style = MaterialTheme.typography.bodySmall, color = c.apagado)
+                }
+                if (agregarUbicacion.capturando) {
+                    CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = c.apagado)
+                } else {
+                    Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = c.apagado)
+                }
             }
         }
 
@@ -222,6 +266,20 @@ private fun DetalleContenido(
         }
     }
 
+    if (ubicacionBloqueada) {
+        AlertDialog(
+            onDismissRequest = { ubicacionBloqueada = false },
+            containerColor = c.superficie,
+            text = { Text(mensajeDeFallo(MotivoDeFallo.DenegadaParaSiempre), color = c.tinta) },
+            dismissButton = { TextButton({ ubicacionBloqueada = false }) { Text("Cancelar", color = c.marcaTinta) } },
+            confirmButton = {
+                TextButton({
+                    ubicacionBloqueada = false
+                    abrirAjustesDeLaApp(contexto)
+                }) { Text(TextosDeUbicacion.ABRIR_AJUSTES, color = c.marcaTinta) }
+            },
+        )
+    }
     if (confirmandoEliminar) {
         AlertDialog(
             onDismissRequest = { confirmandoEliminar = false },
