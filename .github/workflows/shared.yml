@@ -10,6 +10,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Estilo del código (ktlint) y cobertura de la lógica compartida. Corre en la JVM: es lo más rápido.
+  calidad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Estilo (ktlint) de shared y androidApp
+        run: ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck --no-daemon
+      - name: Verificar el esquema y las migraciones de la base
+        run: ./gradlew :shared:verifyCommonMainMiGastoDbMigration --no-daemon
+      - name: Cobertura de la lógica compartida (mínimo 80 %)
+        run: ./gradlew :shared:koverVerify :shared:koverHtmlReport --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: shared/build/reports/kover/html
+
   # Tests de `shared` en el simulador de iPhone (necesita macOS).
   ios:
     runs-on: macos-latest
@@ -33,10 +55,11 @@ jobs:
           name: reporte-ios
           path: shared/build/reports/tests
 
-  # Tests de `shared` en un emulador de Android (con KVM, en Linux) y verificación del esquema.
+  # La app de Android: compila las dos versiones y corre los tests de `shared` y las pruebas de interfaz
+  # en un emulador (con KVM, en Linux).
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -44,14 +67,8 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
-      - name: Verificar el esquema y las migraciones de la base
-        run: ./gradlew :shared:verifyCommonMainMiGastoDbMigration --no-daemon
-      - name: Cobertura de la lógica compartida (mínimo 80 %)
-        run: ./gradlew :shared:koverVerify :shared:koverHtmlReport --no-daemon
-      - uses: actions/upload-artifact@v4
-        with:
-          name: cobertura
-          path: shared/build/reports/kover/html
+      - name: Compilar la app (depuración y producción)
+        run: ./gradlew :androidApp:assembleDebug :androidApp:assembleRelease --no-daemon
       - name: Permitir KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -64,9 +81,11 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          script: ./gradlew :shared:connectedAndroidDeviceTest --no-daemon
+          script: ./gradlew :shared:connectedAndroidDeviceTest :androidApp:connectedDebugAndroidTest --no-daemon
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: reporte-android
-          path: shared/build/reports
+          path: |
+            shared/build/reports
+            androidApp/build/reports
