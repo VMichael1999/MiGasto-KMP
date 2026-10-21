@@ -3,6 +3,7 @@ package com.migasto.android.resumen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.migasto.db.BaseMiGasto
+import com.migasto.domain.ClaveDePausa
 import com.migasto.domain.EstadoDelPresupuesto
 import com.migasto.domain.EstadoMovimiento
 import com.migasto.domain.Movimiento
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
@@ -41,6 +43,9 @@ data class ResumenUi(
     val presupuesto: PresupuestoUi?,
     val hoy: List<FilaDeMovimiento>,
     val oculto: Boolean,
+    /** Cuándo tocó «Ahora no» en cada aviso de configuración (para esconderlo 7 días). */
+    val bateriaPospuestaEn: Instant? = null,
+    val avisosPospuestosEn: Instant? = null,
 )
 
 data class PresupuestoUi(
@@ -52,19 +57,30 @@ data class PresupuestoUi(
 )
 
 class ResumenViewModel(
-    baseDiferida: Deferred<BaseMiGasto>,
+    private val baseDiferida: Deferred<BaseMiGasto>,
     private val oculto: MutableStateFlow<Boolean>,
     private val reloj: () -> Instant = { Clock.System.now() },
     private val zona: TimeZone = TimeZone.currentSystemDefault(),
 ) : ViewModel() {
+    /** Se cambia para volver a leer lo que no se observa solo (la pausa de los avisos). */
+    private val refresco = MutableStateFlow(0)
+
     val estado: StateFlow<ResumenUi?> = flow {
         val base = baseDiferida.await()
-        emitAll(combine(base.movimientos.observarTodos(), oculto) { movimientos, ocultar -> construir(base, movimientos, ocultar) })
+        emitAll(combine(base.movimientos.observarTodos(), oculto, refresco) { movimientos, ocultar, _ -> construir(base, movimientos, ocultar) })
     }
         .flowOn(Dispatchers.Default) // la base se lee fuera del hilo principal
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun alternarOculto() = oculto.update { !it }
+
+    /** «Ahora no»: esconde ese aviso de configuración 7 días. */
+    fun posponer(clave: ClaveDePausa) {
+        viewModelScope.launch(Dispatchers.IO) {
+            baseDiferida.await().ajustes.posponerAviso(clave, reloj())
+            refresco.update { it + 1 }
+        }
+    }
 
     private fun construir(base: BaseMiGasto, movimientos: List<Movimiento>, ocultar: Boolean): ResumenUi {
         val ahora = reloj()
@@ -99,6 +115,8 @@ class ResumenViewModel(
             },
             hoy = deHoy,
             oculto = ocultar,
+            bateriaPospuestaEn = base.ajustes.avisoPospuestoEn(ClaveDePausa.Bateria),
+            avisosPospuestosEn = base.ajustes.avisoPospuestoEn(ClaveDePausa.Avisos),
         )
     }
 }

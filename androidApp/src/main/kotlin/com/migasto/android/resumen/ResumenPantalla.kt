@@ -1,5 +1,9 @@
 package com.migasto.android.resumen
 
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,8 +33,12 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,18 +50,27 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.migasto.android.MiGastoApp
+import com.migasto.android.pagos.abrirAjusteDelSistema
+import com.migasto.android.pagos.leerSistema
 import com.migasto.android.tema.CifrasTabulares
 import com.migasto.android.tema.Espacio
 import com.migasto.android.tema.MiGastoTheme
 import com.migasto.android.tema.Radio
 import com.migasto.android.tema.Tamano
+import com.migasto.domain.AvisoDeConfiguracion
 import com.migasto.domain.EstadoDelPresupuesto
 import com.migasto.domain.PaymentSource
+import com.migasto.domain.calcularAvisosDeConfiguracion
+import com.migasto.domain.claveDePausa
+import com.migasto.domain.textosDelAvisoDeConfiguracion
+import kotlin.time.Clock
 
 @Composable
 fun ResumenPantalla(alVerTodos: () -> Unit = {}, alBuscar: () -> Unit = {}, alAbrir: (String) -> Unit = {}) {
@@ -62,13 +79,56 @@ fun ResumenPantalla(alVerTodos: () -> Unit = {}, alBuscar: () -> Unit = {}, alAb
         factory = viewModelFactory { initializer { ResumenViewModel(app.base, app.montosOcultos) } },
     )
     val ui by vm.estado.collectAsStateWithLifecycle()
-    ui?.let { ResumenContenido(it, vm::alternarOculto, alVerTodos, alBuscar, alAbrir) }
+    val contexto = LocalContext.current
+    var sistema by remember { mutableStateOf(leerSistema(contexto)) }
+    // Al volver de los ajustes del sistema se vuelve a mirar qué quedó activado.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { sistema = leerSistema(contexto) }
+    val pedirPermisoDeAvisos = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { sistema = leerSistema(contexto) }
+
+    ui?.let { resumen ->
+        val aviso = calcularAvisosDeConfiguracion(
+            esAndroid = true,
+            lecturaActivada = sistema.lectura,
+            bateriaSinRestriccion = sistema.bateria,
+            ahora = Clock.System.now(),
+            avisosActivados = sistema.avisos,
+            avisosPospuestosEn = resumen.avisosPospuestosEn,
+            bateriaPospuestaEn = resumen.bateriaPospuestaEn,
+        ).firstOrNull()
+        ResumenContenido(
+            ui = resumen, alAlternarOculto = vm::alternarOculto, alVerTodos = alVerTodos, alBuscar = alBuscar, alAbrir = alAbrir,
+            aviso = aviso,
+            alActuarSobreAviso = {
+                when (aviso) {
+                    AvisoDeConfiguracion.LecturaApagada -> abrirAjusteDelSistema(contexto, Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                    AvisoDeConfiguracion.AvisosApagados ->
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            pedirPermisoDeAvisos.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            abrirAjusteDelSistema(contexto, Settings.ACTION_APP_NOTIFICATION_SETTINGS, conPaquete = true)
+                        }
+                    AvisoDeConfiguracion.BateriaRestringida -> abrirAjusteDelSistema(contexto, Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                    null -> Unit
+                }
+            },
+            alPosponerAviso = { aviso?.let(::claveDePausa)?.let(vm::posponer) },
+        )
+    }
 }
 
 internal const val OCULTO = "••••"
 
 @Composable
-fun ResumenContenido(ui: ResumenUi, alAlternarOculto: () -> Unit, alVerTodos: () -> Unit, alBuscar: () -> Unit, alAbrir: (String) -> Unit) {
+fun ResumenContenido(
+    ui: ResumenUi,
+    alAlternarOculto: () -> Unit,
+    alVerTodos: () -> Unit,
+    alBuscar: () -> Unit,
+    alAbrir: (String) -> Unit,
+    aviso: AvisoDeConfiguracion? = null,
+    alActuarSobreAviso: () -> Unit = {},
+    alPosponerAviso: () -> Unit = {},
+) {
     val c = MiGastoTheme.colores
     Column(
         Modifier
@@ -80,6 +140,7 @@ fun ResumenContenido(ui: ResumenUi, alAlternarOculto: () -> Unit, alVerTodos: ()
         Column(Modifier.padding(horizontal = Espacio.xl), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Saldo(ui)
             IngresosYGastos(ui)
+            aviso?.let { AvisoDeConfiguracionTarjeta(it, alActuarSobreAviso, alPosponerAviso) }
             ui.porConfirmarTexto?.let { PorConfirmar(it, if (ui.oculto) OCULTO else ui.porConfirmarMonto) }
             ui.presupuesto?.let { Presupuesto(it, ui.oculto) }
             SeccionHoy(ui, alVerTodos, alAbrir)
@@ -166,6 +227,32 @@ private fun Resumencito(
             Text(titulo, style = MaterialTheme.typography.labelMedium, color = c.apagado)
         }
         Text(valor, style = MaterialTheme.typography.titleLarge.copy(fontFeatureSettings = CifrasTabulares), color = c.tinta)
+    }
+}
+
+/** Avisa cuando la lectura de pagos no puede funcionar: permiso apagado o batería restringida. */
+@Composable
+private fun AvisoDeConfiguracionTarjeta(aviso: AvisoDeConfiguracion, alActuar: () -> Unit, alPosponer: () -> Unit) {
+    val c = MiGastoTheme.colores
+    val textos = remember(aviso) { textosDelAvisoDeConfiguracion(aviso) }
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.presupuestoCercaSuave)
+            .padding(start = 12.dp, end = 4.dp, top = 10.dp, bottom = 6.dp)
+            .semantics(mergeDescendants = true) { contentDescription = textos.descripcion },
+    ) {
+        Row(verticalAlignment = Alignment.Top) {
+            Icon(Icons.Outlined.ErrorOutline, contentDescription = null, tint = c.presupuestoCerca, modifier = Modifier.padding(top = 2.dp).size(18.dp))
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f).padding(end = 8.dp)) {
+                Text(textos.titulo, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold), color = c.tinta)
+                Spacer(Modifier.height(2.dp))
+                Text(textos.cuerpo, style = MaterialTheme.typography.bodySmall, color = c.apagado)
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            if (textos.sePuedePosponer) TextButton(onClick = alPosponer) { Text("Ahora no", color = c.marcaTinta) }
+            TextButton(onClick = alActuar) { Text(textos.accion, color = c.marcaTinta) }
+        }
     }
 }
 
