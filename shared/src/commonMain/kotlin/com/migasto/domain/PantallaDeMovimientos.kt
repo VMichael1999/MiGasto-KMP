@@ -22,6 +22,32 @@ class GrupoDeMovimientos(
 /** Un chip del filtro por tipo. */
 class OpcionDeTipo(val tipo: FiltroDeTipo, val texto: String, val esPorConfirmar: Boolean)
 
+/** Una categoría (de siempre o propia) que se puede elegir en la hoja de filtros. */
+data class OpcionDeLaHoja(val clave: String, val etiqueta: String)
+
+class OpcionDeFuente(val fuente: PaymentSource, val etiqueta: String)
+
+/** Lo que ofrece la hoja «Filtrar movimientos», ya armado (Swift no ve las etiquetas, que son extensiones de Kotlin). */
+class OpcionesDeLaHoja(
+    val categorias: List<OpcionDeLaHoja>,
+    val fuentes: List<OpcionDeFuente>,
+    val montoMinimo: Double,
+    val montoMaximo: Double,
+    /** De cuánto en cuánto avanza el deslizador. */
+    val paso: Double,
+)
+
+fun opcionesDeLaHoja(tipo: FiltroDeTipo, propias: List<CategoriaPropia>) = OpcionesDeLaHoja(
+    categorias = OpcionesDeFiltro.categorias(tipo).map { OpcionDeLaHoja(it.clave, it.etiqueta) } +
+        OpcionesDeFiltro.propias(tipo, propias).map { OpcionDeLaHoja(it.id, it.nombre) },
+    fuentes = OpcionesDeFiltro.fuentes.map { OpcionDeFuente(it, it.etiqueta) },
+    montoMinimo = OpcionesDeFiltro.MONTO_MINIMO,
+    montoMaximo = OpcionesDeFiltro.MONTO_MAXIMO,
+    paso = 10.0,
+)
+
+fun textoDelRangoDeLaHoja(desde: Double, hasta: Double): String = OpcionesDeFiltro.textoDelRango(desde, hasta)
+
 object TextosDeMovimientos {
     const val TITULO = "Movimientos"
     const val FILTRAR = "Filtrar movimientos"
@@ -51,6 +77,7 @@ class PantallaDeMovimientos(
     val opcionesDeTipo: List<OpcionDeTipo>,
     /** Lo que se dice cuando no hay nada que mostrar (distinto si hay filtros puestos). */
     val textoSinMovimientos: String,
+    val hoja: OpcionesDeLaHoja,
 )
 
 fun armarPantallaDeMovimientos(
@@ -85,6 +112,7 @@ fun armarPantallaDeMovimientos(
             OpcionDeTipo(FiltroDeTipo.PorConfirmar, "Por confirmar · $porConfirmar", true),
         ),
         textoSinMovimientos = if (filtros.hayAlgunFiltro) "No hay movimientos con esos filtros." else "Todavía no hay movimientos.",
+        hoja = opcionesDeLaHoja(filtros.tipo, propias),
     )
 }
 

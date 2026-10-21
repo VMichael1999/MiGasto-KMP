@@ -164,6 +164,31 @@ class PantallaDeMovimientosTest {
         assertEquals("3 filtros puestos", TextosDeMovimientos.filtrosPuestos(3))
     }
 
+    @Test
+    fun laHojaOfreceLasCategoriasDeGastoLasPropiasYLasFuentes() {
+        val hoja = pantalla().hoja
+        assertEquals("Alimentación", hoja.categorias.first().etiqueta)
+        assertEquals(Categoria.gastos.size + 1, hoja.categorias.size)
+        assertEquals(OpcionDeLaHoja("c1", "Barbería"), hoja.categorias.last())
+        assertEquals(listOf("Yape", "Plin", "Google Wallet", "Tarjeta", "Efectivo", "Manual"), hoja.fuentes.map { it.etiqueta })
+        assertEquals(PaymentSource.Yape, hoja.fuentes.first().fuente)
+        assertEquals(0.0, hoja.montoMinimo)
+        assertEquals(500.0, hoja.montoMaximo)
+        assertEquals(10.0, hoja.paso)
+    }
+
+    @Test
+    fun conIngresosLaHojaOfreceLasCategoriasDeIngreso() {
+        val hoja = pantalla(filtros = filtrosVacios().conTipo(FiltroDeTipo.Ingresos)).hoja
+        assertEquals(Categoria.ingresos.size, hoja.categorias.size)
+        assertEquals(Categoria.ingresos.map { it.clave }, hoja.categorias.map { it.clave })
+    }
+
+    @Test
+    fun elTextoDelRangoSaleDeLosExtremosElegidos() {
+        assertEquals("S/ 40 – S/ 120", textoDelRangoDeLaHoja(40.0, 120.0))
+    }
+
     private val fabrica = fabricaDePrueba()
     private val nombre = "prueba-pantalla-movimientos.db"
 
