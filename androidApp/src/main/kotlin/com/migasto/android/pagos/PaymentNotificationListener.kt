@@ -7,8 +7,8 @@ import android.util.Log
 import com.migasto.android.MiGastoApp
 import com.migasto.domain.OrigenDeLectura
 import com.migasto.domain.ResultadoDeLectura
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Lee las notificaciones de las apps de pago y escribe el pago directo en `shared`: sin cola ni lector propio.
@@ -16,7 +16,6 @@ import kotlinx.coroutines.launch
  * `ProcesadorDePagos`; aquí solo se entrega el texto y se avisa al usuario.
  */
 class PaymentNotificationListener : NotificationListenerService() {
-
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null || sbn.packageName !in PaquetesDePago.leidos) return
         val extras = sbn.notification?.extras ?: return

@@ -11,15 +11,6 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.core.app.NotificationManagerCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
-import com.migasto.android.pagos.AvisoDePago
-import com.migasto.android.pagos.ServicioDeAccesibilidad
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.BatteryChargingFull
-import androidx.compose.material.icons.outlined.Sms
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,12 +30,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.BatteryChargingFull
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Label
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.outlined.Sms
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
@@ -78,11 +73,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.migasto.android.MiGastoApp
+import com.migasto.android.pagos.AvisoDePago
+import com.migasto.android.pagos.ServicioDeAccesibilidad
 import com.migasto.android.resumen.iconoPropio
 import com.migasto.android.tema.ColoresMiGasto
 import com.migasto.android.tema.Espacio
@@ -99,10 +99,10 @@ import com.migasto.domain.presupuestoParaEditar
 import com.migasto.domain.textoDeRestauracion
 import com.migasto.domain.textoDelPresupuestoEnAjustes
 import com.migasto.domain.validarContrasenaDeRespaldo
-import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Clock
 
 @Composable
 fun AjustesPantalla(alAvisar: (String) -> Unit) {
@@ -380,8 +380,13 @@ private fun Separador() = Box(Modifier.fillMaxWidth().height(1.dp).background(Mi
 
 @Composable
 private fun FilaDeAjuste(
-    icono: ImageVector, titulo: String, subtitulo: String? = null, textoFinal: String? = null,
-    interruptor: Boolean? = null, alCambiar: (() -> Unit)? = null, alTocar: (() -> Unit)? = null,
+    icono: ImageVector,
+    titulo: String,
+    subtitulo: String? = null,
+    textoFinal: String? = null,
+    interruptor: Boolean? = null,
+    alCambiar: (() -> Unit)? = null,
+    alTocar: (() -> Unit)? = null,
     estado: Pair<Boolean, String>? = null,
 ) {
     val c = MiGastoTheme.colores
@@ -471,8 +476,12 @@ private fun DialogoDePresupuesto(actual: Double, alCerrar: () -> Unit, alGuardar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HojaDeLista(
-    titulo: String, explicacion: String, vacio: String, alCerrar: () -> Unit,
-    pie: Pair<String, () -> Unit>? = null, filas: @Composable () -> Unit,
+    titulo: String,
+    explicacion: String,
+    vacio: String,
+    alCerrar: () -> Unit,
+    pie: Pair<String, () -> Unit>? = null,
+    filas: @Composable () -> Unit,
 ) {
     val c = MiGastoTheme.colores
     ModalBottomSheet(onDismissRequest = alCerrar, containerColor = c.superficie) {

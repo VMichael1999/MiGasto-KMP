@@ -13,8 +13,6 @@ import com.migasto.domain.agruparPorDia
 import com.migasto.domain.etiquetaDelDia
 import com.migasto.domain.filtrarMovimientos
 import com.migasto.domain.formatearSoles
-import kotlin.time.Clock
-import kotlin.time.Instant
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +26,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 data class GrupoUi(
     val etiqueta: String,

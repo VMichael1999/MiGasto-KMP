@@ -7,8 +7,6 @@ import com.migasto.domain.ModoDeReporte
 import com.migasto.domain.Reporte
 import com.migasto.domain.SeleccionDeReporte
 import com.migasto.domain.calcularReporte
-import kotlin.time.Clock
-import kotlin.time.Instant
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +21,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 data class ReporteUi(
     val reporte: Reporte,

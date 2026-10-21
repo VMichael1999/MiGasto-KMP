@@ -9,8 +9,11 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,8 +44,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -53,15 +54,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.isSystemInDarkTheme
 import com.migasto.android.resumen.colorDeLaFuente
 import com.migasto.android.tema.CifrasTabulares
 import com.migasto.android.tema.ColoresMiGasto
 import com.migasto.android.tema.MiGastoTheme
 import com.migasto.domain.AccionDeVentana
 import com.migasto.domain.SesionDeVentana
-import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 /** La ventana «Pago detectado». Dibuja lo que decide [SesionDeVentana] y avisa de cada toque. */
 @Composable
@@ -200,8 +200,14 @@ private fun BotonCallado(texto: String, modifier: Modifier, alTocar: () -> Unit)
 /** El botón principal: con cuenta regresiva se vacía de color fuerte a tenue. */
 @Composable
 private fun BotonPrincipal(
-    texto: String, esIngreso: Boolean, conCuenta: Boolean, progreso: Float, oscuro: Boolean, descripcion: String,
-    modifier: Modifier, alTocar: () -> Unit,
+    texto: String,
+    esIngreso: Boolean,
+    conCuenta: Boolean,
+    progreso: Float,
+    oscuro: Boolean,
+    descripcion: String,
+    modifier: Modifier,
+    alTocar: () -> Unit,
 ) {
     val fuerte = if (esIngreso) (if (oscuro) Color(0xFF7FB6FF) else Color(0xFF86B4F5)) else ColoresMiGasto.VerdeNeon
     val tenue = if (esIngreso) (if (oscuro) Color(0xFF4A7DB8) else Color(0xFFD5E4FB)) else (if (oscuro) Color(0xFF4F8A4C) else Color(0xFFD7F3D4))

@@ -1,6 +1,5 @@
 package com.migasto.android.nuevo
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -79,8 +78,8 @@ import com.migasto.domain.PaymentSource
 import com.migasto.domain.TipoMovimiento
 import com.migasto.domain.clavesDeIconosPropios
 import com.migasto.domain.etiqueta
-import com.migasto.domain.limitarNombreDeCategoria
 import com.migasto.domain.formatearHora
+import com.migasto.domain.limitarNombreDeCategoria
 
 @Composable
 fun NuevoMovimientoPantalla(sesion: Int, alCerrar: () -> Unit, alGuardar: (String) -> Unit) {
@@ -203,7 +202,13 @@ private fun SelectorDeTipo(tipo: TipoMovimiento, alCambiar: (TipoMovimiento) -> 
             ) {
                 Text(
                     texto, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = if (!elegido) c.apagado else if (t == TipoMovimiento.Ingreso) c.ingreso else c.tinta,
+                    color = if (!elegido) {
+                        c.apagado
+                    } else if (t == TipoMovimiento.Ingreso) {
+                        c.ingreso
+                    } else {
+                        c.tinta
+                    },
                 )
             }
         }
@@ -291,7 +296,15 @@ private fun Teclado(alPresionar: (Char) -> Unit) {
                     Box(
                         Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(Radio.campo)).background(c.superficie)
                             .clickable { alPresionar(tecla) }
-                            .semantics { contentDescription = if (tecla == '<') "Borrar" else if (tecla == '.') "Punto" else tecla.toString() },
+                            .semantics {
+                                contentDescription = if (tecla == '<') {
+                                    "Borrar"
+                                } else if (tecla == '.') {
+                                    "Punto"
+                                } else {
+                                    tecla.toString()
+                                }
+                            },
                         contentAlignment = Alignment.Center,
                     ) {
                         if (tecla == '<') {

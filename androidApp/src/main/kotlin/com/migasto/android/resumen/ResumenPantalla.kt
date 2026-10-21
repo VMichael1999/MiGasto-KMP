@@ -150,7 +150,11 @@ private fun IngresosYGastos(ui: ResumenUi) {
 
 @Composable
 private fun Resumencito(
-    titulo: String, valor: String, icono: androidx.compose.ui.graphics.vector.ImageVector, tinte: Color, modifier: Modifier,
+    titulo: String,
+    valor: String,
+    icono: androidx.compose.ui.graphics.vector.ImageVector,
+    tinte: Color,
+    modifier: Modifier,
 ) {
     val c = MiGastoTheme.colores
     Column(

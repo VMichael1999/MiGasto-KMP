@@ -3,37 +3,31 @@ package com.migasto.android.resumen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.migasto.db.BaseMiGasto
-import com.migasto.domain.Categoria
 import com.migasto.domain.EstadoDelPresupuesto
 import com.migasto.domain.EstadoMovimiento
 import com.migasto.domain.Movimiento
-import com.migasto.domain.PaymentSource
 import com.migasto.domain.calcularResumenDelMes
-import com.migasto.domain.etiqueta
-import com.migasto.domain.formatearHora
 import com.migasto.domain.formatearMonto
 import com.migasto.domain.formatearSoles
-import com.migasto.domain.formatearSolesConSigno
 import com.migasto.domain.nombreDelMes
-import com.migasto.domain.nombreVisible
 import com.migasto.domain.textoDelEstadoDelPresupuesto
 import com.migasto.domain.textoDelPresupuestoUsado
 import com.migasto.domain.textoPorConfirmar
-import kotlin.time.Clock
-import kotlin.time.Instant
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 data class ResumenUi(
     val mes: String,

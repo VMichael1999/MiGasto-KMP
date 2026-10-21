@@ -2,16 +2,16 @@ package com.migasto.android.resumen
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalance
-import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.BeachAccess
+import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Brush
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Celebration
-import androidx.compose.material.icons.outlined.ChildCare
 import androidx.compose.material.icons.outlined.Checkroom
+import androidx.compose.material.icons.outlined.ChildCare
 import androidx.compose.material.icons.outlined.Computer
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.CreditCard
@@ -56,8 +56,8 @@ import androidx.compose.material.icons.outlined.SportsSoccer
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material.icons.outlined.SwapHoriz
-import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material.icons.outlined.TrendingUp
+import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material.icons.outlined.TwoWheeler
 import androidx.compose.material.icons.outlined.VolunteerActivism
 import androidx.compose.material.icons.outlined.WaterDrop
