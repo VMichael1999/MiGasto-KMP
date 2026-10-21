@@ -1,5 +1,6 @@
 package com.migasto.android
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,10 +23,14 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,6 +41,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.migasto.android.movimientos.MovimientosPantalla
+import com.migasto.android.nuevo.NuevoMovimientoPantalla
+import kotlinx.coroutines.launch
 import com.migasto.android.resumen.ResumenPantalla
 import com.migasto.android.tema.ColoresMiGasto
 import com.migasto.android.tema.MiGastoTheme
@@ -54,12 +61,22 @@ private enum class Pestana(val titulo: String, val icono: ImageVector) {
 fun MiGastoNavegacion() {
     var actual by rememberSaveable { mutableStateOf(Pestana.Resumen.name) }
     var abrirBusqueda by rememberSaveable { mutableStateOf(false) }
+    var sesionNuevo by rememberSaveable { mutableStateOf(0) }
+    var nuevoAbierto by rememberSaveable { mutableStateOf(false) }
     val pestana = Pestana.valueOf(actual)
     val c = MiGastoTheme.colores
+    val avisos = remember { SnackbarHostState() }
+    val ambito = rememberCoroutineScope()
 
+    BackHandler(enabled = nuevoAbierto) { nuevoAbierto = false }
+
+    Box(Modifier.fillMaxSize()) {
     Scaffold(
         containerColor = c.fondo,
-        bottomBar = { BarraInferior(pestana) { actual = it.name; abrirBusqueda = false } },
+        snackbarHost = { SnackbarHost(avisos) },
+        bottomBar = {
+            BarraInferior(pestana, alAgregar = { sesionNuevo++; nuevoAbierto = true }) { actual = it.name; abrirBusqueda = false }
+        },
     ) { relleno ->
         Box(Modifier.fillMaxSize().padding(relleno)) {
             when (pestana) {
@@ -72,6 +89,17 @@ fun MiGastoNavegacion() {
             }
         }
     }
+    if (nuevoAbierto) {
+        NuevoMovimientoPantalla(
+            sesion = sesionNuevo,
+            alCerrar = { nuevoAbierto = false },
+            alGuardar = { mensaje ->
+                nuevoAbierto = false
+                ambito.launch { avisos.showSnackbar(mensaje) }
+            },
+        )
+    }
+    }
 }
 
 @Composable
@@ -82,7 +110,7 @@ private fun EnConstruccion(titulo: String) {
 }
 
 @Composable
-private fun BarraInferior(actual: Pestana, alElegir: (Pestana) -> Unit) {
+private fun BarraInferior(actual: Pestana, alAgregar: () -> Unit, alElegir: (Pestana) -> Unit) {
     val c = MiGastoTheme.colores
     Column(Modifier.fillMaxWidth().background(c.superficie).navigationBarsPadding()) {
         Box(Modifier.fillMaxWidth().size(width = 0.dp, height = 1.dp).background(c.linea))
@@ -93,7 +121,7 @@ private fun BarraInferior(actual: Pestana, alElegir: (Pestana) -> Unit) {
         ) {
             Elemento(Pestana.Resumen, actual, alElegir)
             Elemento(Pestana.Movimientos, actual, alElegir)
-            BotonAgregar()
+            BotonAgregar(alAgregar)
             Elemento(Pestana.Reportes, actual, alElegir)
             Elemento(Pestana.Ajustes, actual, alElegir)
         }
@@ -126,12 +154,12 @@ private fun RowScope.Elemento(pestana: Pestana, actual: Pestana, alElegir: (Pest
 }
 
 @Composable
-private fun BotonAgregar() {
+private fun BotonAgregar(alTocar: () -> Unit) {
     Box(
         Modifier
             .size(Tamano.agregar)
             .background(ColoresMiGasto.VerdeNeon, RoundedCornerShape(Radio.agregar))
-            .clickable(role = Role.Button) { /* abre «Nuevo movimiento» (pantalla pendiente) */ }
+            .clickable(role = Role.Button, onClick = alTocar)
             .semantics { contentDescription = "Agregar movimiento" },
         contentAlignment = Alignment.Center,
     ) {

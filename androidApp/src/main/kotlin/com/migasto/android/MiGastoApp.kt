@@ -3,6 +3,9 @@ package com.migasto.android
 import android.app.Application
 import com.migasto.db.BaseMiGasto
 import com.migasto.db.FabricaDeDriverAndroid
+import com.migasto.domain.ClasificadorCategorias
+import com.migasto.domain.RegistroDeMovimientos
+import com.migasto.domain.reglas.ReglasIncluidas
 import com.migasto.seguridad.AlmacenSeguroAndroid
 import com.migasto.seguridad.ClaveDeLaBase
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +25,10 @@ class MiGastoApp : Application() {
     lateinit var base: Deferred<BaseMiGasto>
         private set
 
+    /** Los casos de uso de registrar, confirmar y eliminar movimientos, sobre la misma base. */
+    lateinit var registro: Deferred<RegistroDeMovimientos>
+        private set
+
     /** Si el usuario ocultó los montos (el ojo del Resumen). Vale para todas las pantallas. */
     val montosOcultos = MutableStateFlow(false)
 
@@ -30,6 +37,10 @@ class MiGastoApp : Application() {
         base = ambito.async {
             val clave = ClaveDeLaBase(AlmacenSeguroAndroid(this@MiGastoApp)).obtenerOCrear()
             BaseMiGasto.abrir(FabricaDeDriverAndroid(this@MiGastoApp), "migasto.db", clave).also(SemillaDeEjemplo::aplicar)
+        }
+        registro = ambito.async {
+            val b = base.await()
+            RegistroDeMovimientos(b.movimientos, b.ajustes, ClasificadorCategorias.desdeJson(ReglasIncluidas.categorias))
         }
     }
 }
