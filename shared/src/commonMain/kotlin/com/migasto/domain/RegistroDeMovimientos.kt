@@ -296,6 +296,9 @@ class RegistroDeMovimientos(
         movimientos.guardar(actual.copiar(latitud = latitud, longitud = longitud, precision = precision, lugar = lugar))
     }
 
+    fun ponerUbicacion(id: String, ubicacion: UbicacionCapturada) =
+        ponerUbicacion(id, ubicacion.latitud, ubicacion.longitud, ubicacion.precision, ubicacion.lugar)
+
     /** Quita la ubicación de un solo movimiento. */
     fun quitarUbicacion(id: String) {
         val actual = movimientos.todos().firstOrNull { it.id == id } ?: return
