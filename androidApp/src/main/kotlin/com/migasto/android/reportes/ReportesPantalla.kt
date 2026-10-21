@@ -57,7 +57,9 @@ import com.migasto.android.tema.Radio
 import com.migasto.android.tema.Tamano
 import com.migasto.domain.FilaDeReporte
 import com.migasto.domain.ModoDeReporte
+import com.migasto.domain.OpcionDeModo
 import com.migasto.domain.Reporte
+import com.migasto.domain.TextosDeReportes
 import com.migasto.domain.formatearMonto
 import com.migasto.domain.formatearSoles
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
@@ -94,9 +96,9 @@ private fun ReportesContenido(ui: ReporteUi, vm: ReportesViewModel) {
     var eligiendoRango by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = Espacio.xl).padding(top = 6.dp, bottom = 18.dp)) {
-        Text("Reportes", style = MaterialTheme.typography.headlineMedium, color = c.tinta)
+        Text(TextosDeReportes.TITULO, style = MaterialTheme.typography.headlineMedium, color = c.tinta)
         Spacer(Modifier.height(14.dp))
-        SelectorDeModo(ui.seleccion.modo, vm::elegirModo)
+        SelectorDeModo(ui.opcionesDeModo, ui.seleccion.modo, vm::elegirModo)
         Spacer(Modifier.height(10.dp))
         BarraDelPeriodo(ui, r, vm::desplazar) { eligiendoRango = true }
         Spacer(Modifier.height(14.dp))
@@ -123,9 +125,9 @@ private fun ReportesContenido(ui: ReporteUi, vm: ReportesViewModel) {
                         vm.elegirRango(fechaDe(desde), fechaDe(hasta))
                         eligiendoRango = false
                     }
-                }) { Text("Aceptar", color = c.marcaTinta) }
+                }) { Text(TextosDeReportes.ACEPTAR, color = c.marcaTinta) }
             },
-            dismissButton = { TextButton(onClick = { eligiendoRango = false }) { Text("Cancelar", color = c.marcaTinta) } },
+            dismissButton = { TextButton(onClick = { eligiendoRango = false }) { Text(TextosDeReportes.CANCELAR, color = c.marcaTinta) } },
         ) { DateRangePicker(estado, modifier = Modifier.height(500.dp)) }
     }
 }
@@ -134,10 +136,10 @@ private fun fechaDe(milisegundos: Long) =
     kotlin.time.Instant.fromEpochMilliseconds(milisegundos).toLocalDateTime(TimeZone.UTC).date
 
 @Composable
-private fun SelectorDeModo(modo: ModoDeReporte, alElegir: (ModoDeReporte) -> Unit) {
+private fun SelectorDeModo(opciones: List<OpcionDeModo>, modo: ModoDeReporte, alElegir: (ModoDeReporte) -> Unit) {
     val c = MiGastoTheme.colores
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(Radio.campo)).background(c.superficie).padding(3.dp)) {
-        listOf(ModoDeReporte.Mes to "Mes", ModoDeReporte.Anio to "Año", ModoDeReporte.Rango to "Rango").forEach { (m, texto) ->
+        opciones.map { it.modo to it.texto }.forEach { (m, texto) ->
             val elegido = m == modo
             Box(
                 Modifier.weight(1f).height(Tamano.toqueMinimo - 8.dp).clip(RoundedCornerShape(10.dp))
@@ -165,14 +167,14 @@ private fun BarraDelPeriodo(ui: ReporteUi, r: Reporte, alDesplazar: (Int) -> Uni
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(r.etiquetaDelPeriodo, style = MaterialTheme.typography.bodyLarge, color = c.tinta, modifier = Modifier.weight(1f))
-            Text("Cambiar", style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp), color = c.apagado)
+            Text(TextosDeReportes.CAMBIAR, style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp), color = c.apagado)
             Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = c.apagado, modifier = Modifier.size(18.dp))
         }
     } else {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-            Flecha(Icons.Outlined.KeyboardArrowLeft, "Período anterior", true) { alDesplazar(-1) }
+            Flecha(Icons.Outlined.KeyboardArrowLeft, TextosDeReportes.PERIODO_ANTERIOR, true) { alDesplazar(-1) }
             Text(r.etiquetaDelPeriodo, style = MaterialTheme.typography.titleMedium, color = c.tinta)
-            Flecha(Icons.Outlined.KeyboardArrowRight, "Período siguiente", ui.puedeAvanzar) { alDesplazar(1) }
+            Flecha(Icons.Outlined.KeyboardArrowRight, TextosDeReportes.PERIODO_SIGUIENTE, ui.puedeAvanzar) { alDesplazar(1) }
         }
     }
 }
@@ -219,7 +221,7 @@ private fun Saldo(r: Reporte, oculto: Boolean) {
 private fun Leyenda() {
     val c = MiGastoTheme.colores
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        listOf(c.ingreso to "Ingresos", c.barraDeGastos to "Gastos").forEach { (color, texto) ->
+        listOf(c.ingreso to TextosDeReportes.INGRESOS, c.barraDeGastos to TextosDeReportes.GASTOS).forEach { (color, texto) ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(10.dp).background(color, RoundedCornerShape(3.dp)))
                 Spacer(Modifier.width(6.dp))
