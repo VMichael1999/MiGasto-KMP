@@ -112,9 +112,19 @@ adb shell cmd notification allow_listener com.migasto/com.migasto.android.pagos.
 adb shell "cmd notification post -S bigtext -t 'Yape' prueba1 'Yapeaste S/ 32.00 a Cafe Central'"
 ```
 
+### Mapa (opcional)
+
+Para ver el mapa de «Dónde pagaste» y el mapa chico del detalle, pon tu clave de Google Maps (de [Google Cloud](https://console.cloud.google.com), con «Maps SDK for Android» activado) en `local.properties`, que no se sube al repositorio:
+
+```properties
+GOOGLE_MAPS_API_KEY=tu-clave
+```
+
+También sirve la variable de entorno `GOOGLE_MAPS_API_KEY`. Sin clave todo lo demás funciona.
+
 ## Qué falta
 
 - **iPhone completo** (`iosApp`): SwiftUI, la barra Liquid Glass, la extensión para compartir capturas con Vision, App Intents y el widget.
-- **Android:** mapa y «agregar ubicación».
+- **Mapa de Google sin probar:** «Agregar ubicación» y «Dónde pagaste» están hechos y probados en el emulador, pero el mapa solo se dibuja con una clave de Google Maps (ver «Cómo correrlo») y no tengo una para probarlo: sin clave la app lo explica en vez de mostrar un mapa en blanco.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
