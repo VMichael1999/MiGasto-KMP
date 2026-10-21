@@ -40,3 +40,46 @@ fun calcularAvisosDeConfiguracion(
         if (!bateriaSinRestriccion && !pospuesto(bateriaPospuestaEn)) add(AvisoDeConfiguracion.BateriaRestringida)
     }
 }
+
+/** El texto de un aviso de configuración, como se ve en el Resumen. */
+data class TextosDelAvisoDeConfiguracion(
+    val titulo: String,
+    val cuerpo: String,
+    /** Lo que dice el botón que lleva a arreglarlo. */
+    val accion: String,
+    /** «Ahora no» esconde el aviso 7 días; la lectura apagada no se puede esconder. */
+    val sePuedePosponer: Boolean,
+) {
+    val descripcion: String get() = "$titulo. $cuerpo"
+}
+
+fun textosDelAvisoDeConfiguracion(aviso: AvisoDeConfiguracion): TextosDelAvisoDeConfiguracion = when (aviso) {
+    AvisoDeConfiguracion.LecturaApagada -> TextosDelAvisoDeConfiguracion(
+        "La lectura de pagos está apagada",
+        "MiGasto no está viendo tus pagos de Yape, Plin ni Wallet. Actívala en Acceso a notificaciones.",
+        "Activar",
+        sePuedePosponer = false,
+    )
+    AvisoDeConfiguracion.AvisosApagados -> TextosDelAvisoDeConfiguracion(
+        "Activa los avisos de MiGasto",
+        "Con la pantalla apagada o bloqueada, solo así sabrás qué pago se detectó.",
+        "Activar",
+        sePuedePosponer = true,
+    )
+    AvisoDeConfiguracion.BateriaRestringida -> TextosDelAvisoDeConfiguracion(
+        "Evita que el teléfono cierre la lectura",
+        "Entra a Batería y elige «No restringido» («Sin restricciones» en otras marcas). " +
+            "Si no, el teléfono puede dormir la app y se pierden pagos.",
+        "Ajustar",
+        sePuedePosponer = true,
+    )
+}
+
+/** Cada aviso que se puede posponer tiene su propia pausa de 7 días. */
+enum class ClaveDePausa { Bateria, Avisos }
+
+fun claveDePausa(aviso: AvisoDeConfiguracion): ClaveDePausa? = when (aviso) {
+    AvisoDeConfiguracion.BateriaRestringida -> ClaveDePausa.Bateria
+    AvisoDeConfiguracion.AvisosApagados -> ClaveDePausa.Avisos
+    AvisoDeConfiguracion.LecturaApagada -> null
+}
