@@ -108,11 +108,11 @@ import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 
 @Composable
-fun AjustesPantalla(alAvisar: (String) -> Unit) {
+fun AjustesPantalla(alAvisar: (String) -> Unit, alVerDondePagaste: () -> Unit = {}) {
     val app = LocalContext.current.applicationContext as MiGastoApp
     val vm: AjustesViewModel = viewModel(factory = viewModelFactory { initializer { AjustesViewModel(app.base, app.registro, app.bloqueoActivado) } })
     val ui by vm.estado.collectAsStateWithLifecycle()
-    ui?.let { AjustesContenido(it, vm, alAvisar) }
+    ui?.let { AjustesContenido(it, vm, alAvisar, alVerDondePagaste) }
 }
 
 private enum class Hoja { Presupuesto, Aprendidas, Propias, Alias, BorrarUbicaciones }
@@ -125,7 +125,7 @@ private sealed interface DialogoDeRespaldo {
 }
 
 @Composable
-private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (String) -> Unit) {
+private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (String) -> Unit, alVerDondePagaste: () -> Unit) {
     val c = MiGastoTheme.colores
     val contexto = LocalContext.current
     val ambito = rememberCoroutineScope()
@@ -233,6 +233,8 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
 
         Etiqueta("Dónde pagaste")
         Caja {
+            FilaDeAjuste(Icons.Outlined.Place, "Dónde pagaste", subtitulo = "Tus pagos con ubicación, por zona", alTocar = alVerDondePagaste)
+            Separador()
             FilaDeAjuste(Icons.Outlined.Place, "Borrar todas las ubicaciones", subtitulo = "Los movimientos se mantienen", alTocar = { hoja = Hoja.BorrarUbicaciones })
         }
 
