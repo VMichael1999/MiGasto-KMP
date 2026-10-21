@@ -42,17 +42,22 @@ data class ResumenDelMes(
         }
 }
 
-/** Solo suma lo confirmado del mes de [ahora] (en la hora local de [zona]); lo pendiente va aparte. */
+/**
+ * Solo suma lo confirmado del [mes] (por defecto el de [ahora], en la hora local de [zona]); lo pendiente va
+ * aparte y cuenta de todos los meses. En un mes ya terminado, el mes pasó por completo.
+ */
 fun calcularResumenDelMes(
     movimientos: Iterable<Movimiento>,
     presupuesto: Double,
     ahora: Instant,
     zona: TimeZone = TimeZone.currentSystemDefault(),
+    mes: MesElegido? = null,
 ): ResumenDelMes {
     val hoy = ahora.toLocalDateTime(zona).date
+    val elegido = mes ?: MesElegido(hoy.year, hoy.month.ordinal + 1)
     fun fecha(m: Movimiento) = m.date.toLocalDateTime(zona).date
 
-    val delMes = movimientos.filter { it.isConfirmed && fecha(it).let { f -> f.year == hoy.year && f.month == hoy.month } }
+    val delMes = movimientos.filter { it.isConfirmed && fecha(it).let { f -> f.year == elegido.anio && f.month.ordinal + 1 == elegido.mes } }
     val gastos = delMes.filter { it.esGasto }.sumOf { it.amount }
     val ingresos = delMes.filter { it.esIngreso }.sumOf { it.amount }
     val pendientes = movimientos.filter { it.estado == EstadoMovimiento.Pendiente }
@@ -64,7 +69,7 @@ fun calcularResumenDelMes(
         porConfirmar = pendientes.filter { it.esIngreso }.sumOf { it.amount },
         cantidadPorConfirmar = pendientes.size,
         presupuesto = presupuesto,
-        fraccionDelMes = (hoy.day.toDouble() / diasDelMes(hoy)).coerceIn(0.0, 1.0),
+        fraccionDelMes = if (elegido.esAnteriorA(hoy)) 1.0 else (hoy.day.toDouble() / diasDelMes(hoy)).coerceIn(0.0, 1.0),
     )
 }
 
