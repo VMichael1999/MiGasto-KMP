@@ -8,6 +8,12 @@ struct MiGastoApp: App {
         WindowGroup {
             RaizView()
                 .environment(aplicacion)
+                .tint(Paleta.marcaTinta)
+                .task {
+                    #if DEBUG
+                    DatosDeEjemplo.aplicar(aplicacion)
+                    #endif
+                }
         }
     }
 }

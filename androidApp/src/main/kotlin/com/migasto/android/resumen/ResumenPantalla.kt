@@ -68,8 +68,10 @@ import com.migasto.android.tema.Radio
 import com.migasto.android.tema.Tamano
 import com.migasto.domain.AvisoDeConfiguracion
 import com.migasto.domain.EstadoDelPresupuesto
+import com.migasto.domain.FilaDeMovimiento
 import com.migasto.domain.MesElegido
 import com.migasto.domain.PaymentSource
+import com.migasto.domain.PresupuestoDelResumen
 import com.migasto.domain.calcularAvisosDeConfiguracion
 import com.migasto.domain.claveDePausa
 import com.migasto.domain.textosDelAvisoDeConfiguracion
@@ -312,7 +314,7 @@ private fun PorConfirmar(texto: String, monto: String) {
 }
 
 @Composable
-private fun Presupuesto(p: PresupuestoUi, oculto: Boolean) {
+private fun Presupuesto(p: PresupuestoDelResumen, oculto: Boolean) {
     val c = MiGastoTheme.colores
     val color = when (p.estado) {
         EstadoDelPresupuesto.Bien -> c.presupuestoBien
