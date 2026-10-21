@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MiGasto-KMP"
 include(":shared")
+include(":androidApp")

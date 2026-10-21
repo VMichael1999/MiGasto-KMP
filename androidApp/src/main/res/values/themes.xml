@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sin barra del sistema propia: toda la interfaz es de Compose. -->
+    <style name="Theme.MiGasto" parent="android:Theme.DeviceDefault.NoActionBar" />
+</resources>
