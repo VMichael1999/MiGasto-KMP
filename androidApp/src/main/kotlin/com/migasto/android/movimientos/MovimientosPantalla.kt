@@ -39,6 +39,7 @@ import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -256,7 +257,12 @@ private fun HojaDeFiltros(
     var rango by remember { mutableStateOf(ui.filtros.rangoDeLaHoja) }
     val rangoVisible = rango ?: (OpcionesDeFiltro.MONTO_MINIMO..OpcionesDeFiltro.MONTO_MAXIMO)
 
-    ModalBottomSheet(onDismissRequest = alCerrar, containerColor = c.superficie) {
+    // Abre completa: a media altura, en pantallas bajas, dejaba los últimos filtros fuera de la vista.
+    ModalBottomSheet(
+        onDismissRequest = alCerrar,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = c.superficie,
+    ) {
         Column(
             Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 18.dp).padding(bottom = 18.dp).navigationBarsPadding(),
         ) {
