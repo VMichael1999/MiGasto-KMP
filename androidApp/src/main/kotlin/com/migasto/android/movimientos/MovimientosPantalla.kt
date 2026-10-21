@@ -75,6 +75,7 @@ import com.migasto.android.tema.Radio
 import com.migasto.domain.FiltroDeTipo
 import com.migasto.domain.OpcionesDeFiltro
 import com.migasto.domain.PaymentSource
+import com.migasto.domain.TextosDeMovimientos
 import com.migasto.domain.etiqueta
 import com.migasto.domain.rangoDeLaHoja
 
@@ -108,13 +109,13 @@ fun MovimientosContenido(
             Modifier.fillMaxWidth().padding(start = Espacio.xl, end = 10.dp, top = 6.dp, bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Movimientos", style = MaterialTheme.typography.headlineMedium, color = c.tinta, modifier = Modifier.weight(1f))
+            Text(TextosDeMovimientos.TITULO, style = MaterialTheme.typography.headlineMedium, color = c.tinta, modifier = Modifier.weight(1f))
             BotonDeIcono(Icons.Outlined.Search, if (buscando) "Cerrar la búsqueda" else "Buscar movimientos") {
                 buscando = !buscando
                 if (!buscando) alBuscar("")
             }
             Box {
-                BotonDeIcono(Icons.Outlined.FilterList, "Filtrar movimientos") { hojaAbierta = true }
+                BotonDeIcono(Icons.Outlined.FilterList, TextosDeMovimientos.FILTRAR) { hojaAbierta = true }
                 val activos = ui.filtros.cantidadDeFiltrosActivos
                 if (activos > 0) {
                     Text(
@@ -123,7 +124,7 @@ fun MovimientosContenido(
                         color = ColoresMiGasto.TintaSobreVerde,
                         modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp).size(16.dp)
                             .background(ColoresMiGasto.VerdeNeon, CircleShape).wrapContentSize(Alignment.Center)
-                            .semantics { contentDescription = "$activos filtros puestos" },
+                            .semantics { contentDescription = TextosDeMovimientos.filtrosPuestos(activos) },
                     )
                 }
             }
@@ -195,17 +196,11 @@ private fun CampoDeBusqueda(texto: String, alCambiar: (String) -> Unit) {
 
 @Composable
 private fun Chips(ui: MovimientosUi, alElegir: (FiltroDeTipo) -> Unit) {
-    val opciones = listOf(
-        FiltroDeTipo.Todo to "Todo",
-        FiltroDeTipo.Gastos to "Gastos",
-        FiltroDeTipo.Ingresos to "Ingresos",
-        FiltroDeTipo.PorConfirmar to "Por confirmar · ${ui.cantidadPorConfirmar}",
-    )
     LazyRow(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = Espacio.xl),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        items(opciones) { (tipo, texto) -> Chip(texto, ui.tipo == tipo, tipo == FiltroDeTipo.PorConfirmar) { alElegir(tipo) } }
+        items(ui.opcionesDeTipo) { o -> Chip(o.texto, ui.tipo == o.tipo, o.esPorConfirmar) { alElegir(o.tipo) } }
     }
 }
 
@@ -231,13 +226,13 @@ private fun Vacio(ui: MovimientosUi, alLimpiar: () -> Unit) {
     val c = MiGastoTheme.colores
     Column(Modifier.fillMaxSize().padding(Espacio.xxl), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text(
-            if (ui.hayFiltro) "No hay movimientos con esos filtros." else "Todavía no hay movimientos.",
+            ui.textoSinMovimientos,
             style = MaterialTheme.typography.bodyLarge, color = c.apagado,
         )
         if (ui.hayFiltro) {
             Text(
-                "Quitar filtros", style = MaterialTheme.typography.labelLarge, color = c.marcaTinta,
-                modifier = Modifier.clickable(onClick = alLimpiar).padding(12.dp).semantics { contentDescription = "Quitar filtros" },
+                TextosDeMovimientos.QUITAR_FILTROS, style = MaterialTheme.typography.labelLarge, color = c.marcaTinta,
+                modifier = Modifier.clickable(onClick = alLimpiar).padding(12.dp).semantics { contentDescription = TextosDeMovimientos.QUITAR_FILTROS },
             )
         }
     }
@@ -266,20 +261,20 @@ private fun HojaDeFiltros(
         Column(
             Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 18.dp).padding(bottom = 18.dp).navigationBarsPadding(),
         ) {
-            Text("Filtrar movimientos", style = MaterialTheme.typography.titleLarge, color = c.tinta)
-            Seccion("Categoría")
+            Text(TextosDeMovimientos.FILTRAR, style = MaterialTheme.typography.titleLarge, color = c.tinta)
+            Seccion(TextosDeMovimientos.CATEGORIA)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Chip("Todas", categoria == null, false) { categoria = null }
+                Chip(TextosDeMovimientos.TODAS, categoria == null, false) { categoria = null }
                 OpcionesDeFiltro.categorias(ui.tipo).forEach { cat -> Chip(cat.etiqueta, categoria == cat.clave, false) { categoria = cat.clave } }
                 OpcionesDeFiltro.propias(ui.tipo, ui.propias).forEach { p -> Chip(p.nombre, categoria == p.id, false) { categoria = p.id } }
             }
-            Seccion("Fuente")
+            Seccion(TextosDeMovimientos.FUENTE)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Chip("Todas", fuente == null, false) { fuente = null }
+                Chip(TextosDeMovimientos.TODAS, fuente == null, false) { fuente = null }
                 OpcionesDeFiltro.fuentes.forEach { f -> Chip(f.etiqueta, fuente == f, false) { fuente = f } }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.weight(1f)) { Seccion("Rango de monto") }
+                Box(Modifier.weight(1f)) { Seccion(TextosDeMovimientos.RANGO) }
                 Text(
                     OpcionesDeFiltro.textoDelRango(rangoVisible.start, rangoVisible.endInclusive),
                     style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = CifrasTabulares), color = c.apagado,
@@ -299,9 +294,9 @@ private fun HojaDeFiltros(
                 Modifier.fillMaxWidth().height(54.dp).clip(RoundedCornerShape(Radio.boton)).background(ColoresMiGasto.VerdeNeon)
                     .clickable { alAplicar(categoria, fuente, rango); alCerrar() },
                 contentAlignment = Alignment.Center,
-            ) { Text("Aplicar", style = MaterialTheme.typography.titleLarge, color = ColoresMiGasto.TintaSobreVerde) }
+            ) { Text(TextosDeMovimientos.APLICAR, style = MaterialTheme.typography.titleLarge, color = ColoresMiGasto.TintaSobreVerde) }
             TextButton(onClick = { alLimpiar(); alCerrar() }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text("Limpiar filtros", color = c.marcaTinta)
+                Text(TextosDeMovimientos.LIMPIAR_FILTROS, color = c.marcaTinta)
             }
         }
     }

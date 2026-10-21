@@ -5,7 +5,7 @@ struct RaizView: View {
     var body: some View {
         TabView {
             Tab("Resumen", systemImage: "house") { ResumenView() }
-            Tab("Movimientos", systemImage: "list.bullet") { EnConstruccion(titulo: "Movimientos") }
+            Tab("Movimientos", systemImage: "list.bullet") { MovimientosView() }
             Tab("Reportes", systemImage: "chart.bar") { EnConstruccion(titulo: "Reportes") }
             Tab("Ajustes", systemImage: "gearshape") { EnConstruccion(titulo: "Ajustes") }
         }

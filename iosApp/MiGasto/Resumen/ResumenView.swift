@@ -12,15 +12,15 @@ struct ResumenView: View {
                 if let p = modelo.pantalla {
                     VStack(alignment: .leading, spacing: 14) {
                         TituloConMeses(pantalla: p) { modelo.mes = $0 }
-                        Saldo(pantalla: p, oculto: modelo.oculto)
-                        IngresosYGastos(pantalla: p, oculto: modelo.oculto)
+                        Saldo(pantalla: p, oculto: aplicacion.montosOcultos)
+                        IngresosYGastos(pantalla: p, oculto: aplicacion.montosOcultos)
                         if let texto = p.porConfirmarTexto {
-                            PorConfirmar(texto: texto, monto: modelo.oculto ? "••••" : p.porConfirmarMonto)
+                            PorConfirmar(texto: texto, monto: aplicacion.montosOcultos ? "••••" : p.porConfirmarMonto)
                         }
                         if let presupuesto = p.presupuesto {
-                            PresupuestoView(presupuesto: presupuesto, oculto: modelo.oculto)
+                            PresupuestoView(presupuesto: presupuesto, oculto: aplicacion.montosOcultos)
                         }
-                        ListaDelDia(pantalla: p, oculto: modelo.oculto)
+                        ListaDelDia(pantalla: p, oculto: aplicacion.montosOcultos)
                     }
                     .padding(.horizontal, 18)
                     .padding(.bottom, 24)
@@ -30,11 +30,11 @@ struct ResumenView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        modelo.oculto.toggle()
+                        aplicacion.montosOcultos.toggle()
                     } label: {
-                        Image(systemName: modelo.oculto ? "eye.slash" : "eye")
+                        Image(systemName: aplicacion.montosOcultos ? "eye.slash" : "eye")
                     }
-                    .accessibilityLabel(modelo.oculto ? "Mostrar montos" : "Ocultar montos")
+                    .accessibilityLabel(aplicacion.montosOcultos ? "Mostrar montos" : "Ocultar montos")
                 }
             }
             .toolbarTitleDisplayMode(.inline)

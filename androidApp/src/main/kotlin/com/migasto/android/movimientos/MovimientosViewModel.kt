@@ -4,19 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.migasto.db.BaseMiGasto
 import com.migasto.domain.CategoriaPropia
-import com.migasto.domain.EstadoMovimiento
-import com.migasto.domain.FilaDeMovimiento
 import com.migasto.domain.FiltroDeTipo
 import com.migasto.domain.FiltrosDeMovimientos
+import com.migasto.domain.GrupoDeMovimientos
 import com.migasto.domain.Movimiento
+import com.migasto.domain.OpcionDeTipo
 import com.migasto.domain.PaymentSource
-import com.migasto.domain.agruparPorDia
+import com.migasto.domain.armarPantallaDeMovimientos
 import com.migasto.domain.conLaHoja
-import com.migasto.domain.crearFila
-import com.migasto.domain.etiquetaDelDia
-import com.migasto.domain.filtrarMovimientos
-import com.migasto.domain.formatearSoles
-import com.migasto.domain.sinLoDeLaHoja
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,27 +24,21 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Instant
-
-data class GrupoUi(
-    val etiqueta: String,
-    /** `S/ 144.70 en gastos`, o `null` si ese día no hubo gastos confirmados. */
-    val totalDeGastos: String?,
-    val filas: List<FilaDeMovimiento>,
-)
 
 data class MovimientosUi(
     val tipo: FiltroDeTipo,
     val busqueda: String,
     val cantidadPorConfirmar: Int,
-    val grupos: List<GrupoUi>,
+    val grupos: List<GrupoDeMovimientos>,
     val hayFiltro: Boolean,
     val oculto: Boolean,
     /** Todos los filtros puestos: la hoja se abre con lo que ya está elegido. */
     val filtros: FiltrosDeMovimientos = FiltrosDeMovimientos(),
     val propias: List<CategoriaPropia> = emptyList(),
+    val opcionesDeTipo: List<OpcionDeTipo> = emptyList(),
+    val textoSinMovimientos: String = "",
 )
 
 class MovimientosViewModel(
@@ -82,26 +71,18 @@ class MovimientosViewModel(
     fun limpiarFiltrosDeLaHoja() = filtros.update { it.sinLoDeLaHoja() }
 
     private fun construir(base: BaseMiGasto, todos: List<Movimiento>, f: FiltrosDeMovimientos, ocultar: Boolean): MovimientosUi {
-        val ahora = reloj()
-        val alias = base.ajustes.aliases()
-        val propias = base.categoriasPropias.todas()
-        val hoy = ahora.toLocalDateTime(zona).date
-        val grupos = agruparPorDia(filtrarMovimientos(todos, f, alias, propias), ahora, zona).map { g ->
-            GrupoUi(
-                etiqueta = etiquetaDelDia(g.dia, hoy),
-                totalDeGastos = g.totalGastos.takeIf { it > 0 }?.let { "${formatearSoles(it)} en gastos" },
-                filas = g.movimientos.map { crearFila(it, alias, propias, zona) },
-            )
-        }
+        val p = armarPantallaDeMovimientos(todos, f, base.ajustes.aliases(), base.categoriasPropias.todas(), reloj(), zona)
         return MovimientosUi(
-            tipo = f.tipo,
-            busqueda = f.busqueda,
-            cantidadPorConfirmar = todos.count { it.estado == EstadoMovimiento.Pendiente },
-            grupos = grupos,
-            hayFiltro = f.hayAlgunFiltro,
+            tipo = p.tipo,
+            busqueda = p.busqueda,
+            cantidadPorConfirmar = p.cantidadPorConfirmar,
+            grupos = p.grupos,
+            hayFiltro = p.hayFiltro,
             oculto = ocultar,
-            filtros = f,
-            propias = propias,
+            filtros = p.filtros,
+            propias = p.propias,
+            opcionesDeTipo = p.opcionesDeTipo,
+            textoSinMovimientos = p.textoSinMovimientos,
         )
     }
 }
