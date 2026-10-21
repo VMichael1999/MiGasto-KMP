@@ -177,6 +177,31 @@ class RegistroDeMovimientos(
         return PagoGuardado(movimiento, guardado)
     }
 
+    /** La categoría que se muestra en la ventana flotante: la aprendida, o la de las reglas. */
+    fun categoriaSugerida(pago: PagoLeido, texto: String): Categoria =
+        categoriaPara(if (pago.esIngreso) TipoMovimiento.Ingreso else TipoMovimiento.Gasto, texto, pago.peer)
+
+    /** Arma la ventana de un pago nuevo; ve si el usuario pidió guardar los ingresos solos. */
+    fun nuevaSesionDeVentana(pago: PagoLeido, texto: String): SesionDeVentana =
+        SesionDeVentana(pago, texto, categoriaSugerida(pago, texto), guardarSolo = !pago.esIngreso || ajustes.guardarIngresosAutomaticamente())
+
+    /** Hace lo que decidió la ventana. Devuelve el movimiento guardado, o `null` si se descartó. */
+    fun aplicar(accion: AccionDeVentana, pago: PagoLeido, texto: String): Movimiento? {
+        val confirmado = when (accion) {
+            AccionDeVentana.Descartar -> return null
+            AccionDeVentana.GuardarConfirmado -> true
+            AccionDeVentana.DejarPendiente, AccionDeVentana.DejarPendienteYAbrirLaApp -> false
+        }
+        return registrarPagoNativo(
+            PagoNativo(
+                amount = pago.amount, peer = pago.peer, provider = pago.provider.clave,
+                tipo = if (pago.esIngreso) TipoMovimiento.Ingreso else TipoMovimiento.Gasto,
+                textoOriginal = texto, confirmado = confirmado, en = reloj(), canal = CanalMovimiento.Notificacion,
+                id = nuevoId(), desdeAndroid = true,
+            ),
+        )
+    }
+
     /** Confirma el aviso que se estaba mostrando: lo guarda y aprende la categoría que eligió el usuario. */
     fun confirmarPendiente(pendiente: Movimiento, categoriaFinal: Categoria, notas: String): Movimiento {
         val confirmado = pendiente.copiar(category = categoriaFinal, notes = notas, estado = EstadoMovimiento.Confirmado)

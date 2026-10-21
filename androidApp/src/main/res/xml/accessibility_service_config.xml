@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeNotificationStateChanged|typeWindowStateChanged|typeWindowContentChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows"
+    android:packageNames="com.bcp.innovacxion.yapeapp,com.google.android.apps.walletnfcrel,com.bbva.bbvacontigo,pe.com.interbank.mobilebanking,pe.com.scotiabank.blpm.android.client,com.banbif.plin"
+    android:canRetrieveWindowContent="true"
+    android:canRequestFilterKeyEvents="false"
+    android:notificationTimeout="100"
+    android:description="@string/accessibility_service_description" />

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MiGasto</string>
+    <string name="accessibility_service_description">MiGasto lee la constancia de Yape y Plin en pantalla para registrar los pagos que envías. El texto se lee en tu teléfono y no sale de él.</string>
 </resources>
