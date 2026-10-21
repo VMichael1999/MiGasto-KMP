@@ -6,27 +6,39 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,6 +58,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -53,10 +66,16 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.migasto.android.MiGastoApp
 import com.migasto.android.resumen.BotonDeIcono
 import com.migasto.android.resumen.FilaDelMovimiento
+import com.migasto.android.tema.CifrasTabulares
+import com.migasto.android.tema.ColoresMiGasto
 import com.migasto.android.tema.Espacio
 import com.migasto.android.tema.MiGastoTheme
 import com.migasto.android.tema.Radio
 import com.migasto.domain.FiltroDeTipo
+import com.migasto.domain.OpcionesDeFiltro
+import com.migasto.domain.PaymentSource
+import com.migasto.domain.etiqueta
+import com.migasto.domain.rangoDeLaHoja
 
 @Composable
 fun MovimientosPantalla(abrirBusqueda: Boolean = false, alAbrir: (String) -> Unit = {}) {
@@ -65,7 +84,7 @@ fun MovimientosPantalla(abrirBusqueda: Boolean = false, alAbrir: (String) -> Uni
         factory = viewModelFactory { initializer { MovimientosViewModel(app.base, app.montosOcultos) } },
     )
     val ui by vm.estado.collectAsStateWithLifecycle()
-    ui?.let { MovimientosContenido(it, abrirBusqueda, vm::elegirTipo, vm::buscar, vm::limpiar, alAbrir) }
+    ui?.let { MovimientosContenido(it, abrirBusqueda, vm::elegirTipo, vm::buscar, vm::limpiar, alAbrir, vm::aplicarFiltros, vm::limpiarFiltrosDeLaHoja) }
 }
 
 @Composable
@@ -76,8 +95,11 @@ fun MovimientosContenido(
     alBuscar: (String) -> Unit,
     alLimpiar: () -> Unit,
     alAbrir: (String) -> Unit,
+    alAplicarFiltros: (String?, PaymentSource?, ClosedFloatingPointRange<Double>?) -> Unit = { _, _, _ -> },
+    alLimpiarLaHoja: () -> Unit = {},
 ) {
     val c = MiGastoTheme.colores
+    var hojaAbierta by remember { mutableStateOf(false) }
     var buscando by rememberSaveable(abrirBusqueda) { mutableStateOf(abrirBusqueda || ui.busqueda.isNotEmpty()) }
 
     Column(Modifier.fillMaxSize()) {
@@ -90,6 +112,23 @@ fun MovimientosContenido(
                 buscando = !buscando
                 if (!buscando) alBuscar("")
             }
+            Box {
+                BotonDeIcono(Icons.Outlined.FilterList, "Filtrar movimientos") { hojaAbierta = true }
+                val activos = ui.filtros.cantidadDeFiltrosActivos
+                if (activos > 0) {
+                    Text(
+                        activos.toString(),
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                        color = ColoresMiGasto.TintaSobreVerde,
+                        modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp).size(16.dp)
+                            .background(ColoresMiGasto.VerdeNeon, CircleShape).wrapContentSize(Alignment.Center)
+                            .semantics { contentDescription = "$activos filtros puestos" },
+                    )
+                }
+            }
+        }
+        if (hojaAbierta) {
+            HojaDeFiltros(ui, alCerrar = { hojaAbierta = false }, alAplicarFiltros, alLimpiarLaHoja)
         }
         if (buscando) CampoDeBusqueda(ui.busqueda, alBuscar)
         Chips(ui, alElegirTipo)
@@ -201,4 +240,71 @@ private fun Vacio(ui: MovimientosUi, alLimpiar: () -> Unit) {
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+private fun HojaDeFiltros(
+    ui: MovimientosUi,
+    alCerrar: () -> Unit,
+    alAplicar: (String?, PaymentSource?, ClosedFloatingPointRange<Double>?) -> Unit,
+    alLimpiar: () -> Unit,
+) {
+    val c = MiGastoTheme.colores
+    var categoria by remember { mutableStateOf(ui.filtros.categoria) }
+    var fuente by remember { mutableStateOf(ui.filtros.fuente) }
+    var rango by remember { mutableStateOf(ui.filtros.rangoDeLaHoja) }
+    val rangoVisible = rango ?: (OpcionesDeFiltro.MONTO_MINIMO..OpcionesDeFiltro.MONTO_MAXIMO)
+
+    ModalBottomSheet(onDismissRequest = alCerrar, containerColor = c.superficie) {
+        Column(
+            Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 18.dp).padding(bottom = 18.dp).navigationBarsPadding(),
+        ) {
+            Text("Filtrar movimientos", style = MaterialTheme.typography.titleLarge, color = c.tinta)
+            Seccion("Categoría")
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Chip("Todas", categoria == null, false) { categoria = null }
+                OpcionesDeFiltro.categorias(ui.tipo).forEach { cat -> Chip(cat.etiqueta, categoria == cat.clave, false) { categoria = cat.clave } }
+                OpcionesDeFiltro.propias(ui.tipo, ui.propias).forEach { p -> Chip(p.nombre, categoria == p.id, false) { categoria = p.id } }
+            }
+            Seccion("Fuente")
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Chip("Todas", fuente == null, false) { fuente = null }
+                OpcionesDeFiltro.fuentes.forEach { f -> Chip(f.etiqueta, fuente == f, false) { fuente = f } }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f)) { Seccion("Rango de monto") }
+                Text(
+                    OpcionesDeFiltro.textoDelRango(rangoVisible.start, rangoVisible.endInclusive),
+                    style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = CifrasTabulares), color = c.apagado,
+                )
+            }
+            RangeSlider(
+                value = rangoVisible.start.toFloat()..rangoVisible.endInclusive.toFloat(),
+                onValueChange = { rango = it.start.toDouble()..it.endInclusive.toDouble() },
+                valueRange = OpcionesDeFiltro.MONTO_MINIMO.toFloat()..OpcionesDeFiltro.MONTO_MAXIMO.toFloat(),
+                steps = OpcionesDeFiltro.PASOS_INTERMEDIOS,
+                colors = SliderDefaults.colors(
+                    thumbColor = ColoresMiGasto.VerdeNeon, activeTrackColor = ColoresMiGasto.VerdeNeon, inactiveTrackColor = c.linea,
+                ),
+            )
+            Spacer(Modifier.height(8.dp))
+            Box(
+                Modifier.fillMaxWidth().height(54.dp).clip(RoundedCornerShape(Radio.boton)).background(ColoresMiGasto.VerdeNeon)
+                    .clickable { alAplicar(categoria, fuente, rango); alCerrar() },
+                contentAlignment = Alignment.Center,
+            ) { Text("Aplicar", style = MaterialTheme.typography.titleLarge, color = ColoresMiGasto.TintaSobreVerde) }
+            TextButton(onClick = { alLimpiar(); alCerrar() }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text("Limpiar filtros", color = c.marcaTinta)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Seccion(texto: String) {
+    Text(
+        texto, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MiGastoTheme.colores.apagado,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+    )
 }

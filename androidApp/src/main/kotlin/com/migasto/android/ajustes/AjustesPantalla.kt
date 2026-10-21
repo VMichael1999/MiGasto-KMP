@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -73,7 +72,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -81,8 +79,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.migasto.android.MiGastoApp
-import com.migasto.android.pagos.AvisoDePago
-import com.migasto.android.pagos.ServicioDeAccesibilidad
+import com.migasto.android.pagos.abrirAjusteDelSistema
+import com.migasto.android.pagos.leerSistema
 import com.migasto.android.resumen.iconoPropio
 import com.migasto.android.tema.ColoresMiGasto
 import com.migasto.android.tema.Espacio
@@ -110,25 +108,6 @@ fun AjustesPantalla(alAvisar: (String) -> Unit) {
     val vm: AjustesViewModel = viewModel(factory = viewModelFactory { initializer { AjustesViewModel(app.base, app.registro) } })
     val ui by vm.estado.collectAsStateWithLifecycle()
     ui?.let { AjustesContenido(it, vm, alAvisar) }
-}
-
-private data class EstadoDelSistema(val lectura: Boolean, val avisos: Boolean, val bateria: Boolean, val accesibilidad: Boolean, val ventana: Boolean)
-
-private fun leerSistema(contexto: Context): EstadoDelSistema = EstadoDelSistema(
-    lectura = NotificationManagerCompat.getEnabledListenerPackages(contexto).contains(contexto.packageName),
-    avisos = AvisoDePago.puedeAvisar(contexto),
-    bateria = (contexto.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(contexto.packageName),
-    accesibilidad = Settings.Secure.getString(contexto.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
-        ?.contains("${contexto.packageName}/${ServicioDeAccesibilidad::class.java.name}") == true,
-    ventana = Settings.canDrawOverlays(contexto),
-)
-
-private fun abrirAjusteDelSistema(contexto: Context, accion: String, conPaquete: Boolean = false) {
-    val intent = Intent(accion).apply {
-        if (conPaquete) putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
-    runCatching { contexto.startActivity(intent) }
 }
 
 private enum class Hoja { Presupuesto, Aprendidas, Propias, Alias, BorrarUbicaciones }

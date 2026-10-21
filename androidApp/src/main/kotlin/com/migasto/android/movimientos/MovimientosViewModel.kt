@@ -5,14 +5,18 @@ import androidx.lifecycle.viewModelScope
 import com.migasto.android.resumen.FilaDeMovimiento
 import com.migasto.android.resumen.crearFila
 import com.migasto.db.BaseMiGasto
+import com.migasto.domain.CategoriaPropia
 import com.migasto.domain.EstadoMovimiento
 import com.migasto.domain.FiltroDeTipo
 import com.migasto.domain.FiltrosDeMovimientos
 import com.migasto.domain.Movimiento
+import com.migasto.domain.PaymentSource
 import com.migasto.domain.agruparPorDia
+import com.migasto.domain.conLaHoja
 import com.migasto.domain.etiquetaDelDia
 import com.migasto.domain.filtrarMovimientos
 import com.migasto.domain.formatearSoles
+import com.migasto.domain.sinLoDeLaHoja
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +47,9 @@ data class MovimientosUi(
     val grupos: List<GrupoUi>,
     val hayFiltro: Boolean,
     val oculto: Boolean,
+    /** Todos los filtros puestos: la hoja se abre con lo que ya está elegido. */
+    val filtros: FiltrosDeMovimientos = FiltrosDeMovimientos(),
+    val propias: List<CategoriaPropia> = emptyList(),
 )
 
 class MovimientosViewModel(
@@ -68,6 +75,12 @@ class MovimientosViewModel(
 
     fun limpiar() = filtros.update { FiltrosDeMovimientos() }
 
+    /** Aplica lo elegido en la hoja «Filtrar movimientos». */
+    fun aplicarFiltros(categoria: String?, fuente: PaymentSource?, rango: ClosedFloatingPointRange<Double>?) =
+        filtros.update { it.conLaHoja(categoria, fuente, rango) }
+
+    fun limpiarFiltrosDeLaHoja() = filtros.update { it.sinLoDeLaHoja() }
+
     private fun construir(base: BaseMiGasto, todos: List<Movimiento>, f: FiltrosDeMovimientos, ocultar: Boolean): MovimientosUi {
         val ahora = reloj()
         val alias = base.ajustes.aliases()
@@ -87,6 +100,8 @@ class MovimientosViewModel(
             grupos = grupos,
             hayFiltro = f.hayAlgunFiltro,
             oculto = ocultar,
+            filtros = f,
+            propias = propias,
         )
     }
 }
