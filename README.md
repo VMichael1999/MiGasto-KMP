@@ -14,8 +14,8 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 375 tests y 98 % de cobertura de líneas |
-| `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 49 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 385 tests y 98 % de cobertura de líneas |
+| `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 52 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **Todavía no empieza** |
 
 La versión original en Flutter sigue en [su repo](https://github.com/VMichael1999/MiGasto) y es la referencia de comportamiento: la lógica de aquí se portó de allí, con los tests primero.
@@ -93,8 +93,8 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **375 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
-- **49 pruebas de interfaz** en `androidApp`: Resumen, Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
+- **385 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **52 pruebas de interfaz** en `androidApp`: Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
 
 ## Cómo correrlo
@@ -115,6 +115,6 @@ adb shell "cmd notification post -S bigtext -t 'Yape' prueba1 'Yapeaste S/ 32.00
 ## Qué falta
 
 - **iPhone completo** (`iosApp`): SwiftUI, la barra Liquid Glass, la extensión para compartir capturas con Vision, App Intents y el widget.
-- **Android:** bienvenida, mapa y «agregar ubicación», elegir el mes en el Resumen e ícono de la app.
+- **Android:** bienvenida, mapa y «agregar ubicación», e ícono de la app.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
