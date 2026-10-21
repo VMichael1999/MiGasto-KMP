@@ -10,4 +10,111 @@ Esta versión reparte el trabajo así:
 
 Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y los mismos textos), pero cada una usa los controles de su sistema.
 
-**Estado:** en desarrollo por fases: primero la lógica compartida, después Android completo y al final iPhone. La versión original en Flutter sigue en su repo.
+## Estado
+
+| Parte | Estado |
+|---|---|
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 347 tests y 98 % de cobertura de líneas |
+| `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 34 pruebas de interfaz; faltan algunas pantallas secundarias (ver abajo) |
+| `iosApp` (SwiftUI) | **Todavía no empieza** |
+
+La versión original en Flutter sigue en [su repo](https://github.com/VMichael1999/MiGasto) y es la referencia de comportamiento: la lógica de aquí se portó de allí, con los tests primero.
+
+## Android
+
+Capturas del emulador con los datos de ejemplo del diseño (`docs/diseno/migasto-kmp.html`); los montos cuadran: ingresos S/ 2,800.00, gastos S/ 144.70, quedan S/ 2,655.30, por confirmar S/ 230.00 y presupuesto S/ 1,500 con el 10 % usado.
+
+| Resumen | Movimientos | Nuevo movimiento | Detalle |
+|---|---|---|---|
+| ![Resumen](docs/comparacion/android-mg-01-resumen-claro.png) | ![Movimientos](docs/comparacion/android-mg-02-movimientos-claro.png) | ![Nuevo gasto](docs/comparacion/android-mg-03-nuevo-gasto.png) | ![Detalle](docs/comparacion/android-mg-04-detalle.png) |
+
+| Reportes | Ajustes | Ventana flotante | Aviso de pago |
+|---|---|---|---|
+| ![Reportes](docs/comparacion/android-mg-05-reportes-mes.png) | ![Ajustes](docs/comparacion/android-mg-06-ajustes.png) | ![Ventana flotante](docs/comparacion/android-mg-07-ventana-flotante-gasto.png) | ![Aviso](docs/comparacion/android-mg-07-aviso-de-pago.png) |
+
+También hay capturas en oscuro, con los montos ocultos y de cada hoja y diálogo en [`docs/comparacion/`](docs/comparacion).
+
+### Cómo entra un pago
+
+```text
+notificación de Yape/Plin/Wallet ──► PaymentNotificationListener ──┐
+pantalla de la constancia de Yape ─► ServicioDeAccesibilidad ──────┤
+                                                                   ▼
+                                                   ProcesadorDePagos  (shared)
+                                  lee el texto · ¿proveedor activo? · ¿constancia ya leída?
+                                                · ¿mismo pago por otra vía en 2 min?
+                                                                   ▼
+                              teléfono en uso ──► ventana flotante (4 s en «Guardar»)
+                              pantalla apagada ─► se guarda y avisa con «Guardar» / «Ignorar»
+                                                                   ▼
+                                              RegistroDeMovimientos ► base cifrada
+```
+
+Lo que en la app de Flutter eran dos lectores de reglas (Dart y Kotlin) y una cola de JSON ahora es un solo código en `shared`: el código nativo de Android solo entrega el texto y dibuja.
+
+## Arquitectura
+
+```text
+MiGasto-KMP/
+├── shared/            Kotlin Multiplataforma (Android, iOS y JVM para probar)
+│   ├── commonMain/    dominio, reglas, repositorios, casos de uso, respaldo y CSV
+│   ├── androidMain/   base con SQLCipher y almacén de la clave en el Keystore
+│   ├── iosMain/       base con SQLCipher y almacén de la clave en el Keychain
+│   └── reglas/        reader_rules.json y category_rules.json (los mismos que usa Flutter)
+├── androidApp/        Jetpack Compose, ViewModels con StateFlow y la capa nativa
+├── iosApp/            (pendiente) SwiftUI
+└── docs/              diseño de referencia, capturas y notas de compatibilidad
+```
+
+- **Las vistas no calculan nada.** Cada pantalla recibe el texto ya armado: el saldo y los porcentajes (`ResumenDelMes`), los días y filtros (`ListaDeMovimientos`), la boleta (`DetalleDelMovimiento`), los reportes (`Reporte`), el formulario (`FormularioNuevoMovimiento`) y la ventana flotante (`SesionDeVentana`). Android e iPhone muestran lo mismo.
+- **Base cifrada.** SQLDelight con SQLCipher en Android e iOS, con esquema versionado (`shared/schemas`) y la primera migración real (v1 → v2). La clave se genera en el teléfono y vive en el Keystore o el Keychain.
+- **Respaldo `.mgb` compatible byte a byte con Flutter** (AES-256-GCM, PBKDF2 de 210 000 vueltas), probado en las dos direcciones. Ver [`docs/compatibilidad-respaldo.md`](docs/compatibilidad-respaldo.md).
+- **Sin servidor ni cuentas.** Todo queda en el teléfono.
+
+### Decisiones y dependencias
+
+| Tema | Elección |
+|---|---|
+| Base de datos | SQLDelight 2.4 + SQLCipher (en iOS se compila desde Gradle para que gane al SQLite de Apple) |
+| Fechas, JSON, corrutinas | kotlinx-datetime, kotlinx-serialization, kotlinx-coroutines |
+| Cifrado del respaldo | [cryptography-kotlin](https://github.com/whyoleg/cryptography-kotlin) 0.6 (aprobada aparte: no está en la tabla inicial) |
+| Interfaz de Android | Compose (BOM 2026.09), Material 3, ViewModel, Vico 3 para los gráficos |
+| Tipografía | Outfit empaquetada, licencia OFL en [`docs/licencias`](docs/licencias) |
+| Calidad | ktlint, Kover (mínimo 80 % en `shared`), Compose Testing |
+
+## Pruebas y calidad
+
+```bash
+./gradlew :shared:jvmTest                       # tests de la lógica compartida, en el computador
+./gradlew :shared:iosSimulatorArm64Test         # los mismos, en el simulador de iPhone
+./gradlew :shared:connectedAndroidDeviceTest    # los mismos, en un emulador o teléfono Android
+./gradlew :androidApp:connectedDebugAndroidTest # pruebas de interfaz con Compose Testing
+./gradlew :shared:koverVerify                   # cobertura de shared (mínimo 80 %)
+./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
+```
+
+- **347 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **34 pruebas de interfaz** en `androidApp`: Resumen, Movimientos, Nuevo movimiento (con el teclado) y la ventana flotante (botones, cuenta regresiva, pausa y deslizar).
+- La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
+
+## Cómo correrlo
+
+Se necesita JDK 21 o más nuevo, el SDK de Android (`ANDROID_HOME`) y, para iOS, Xcode y CocoaPods.
+
+```bash
+./gradlew :androidApp:installDebug
+```
+
+La versión de depuración trae datos de ejemplo (los del diseño) si la base está vacía; la de producción (`assembleRelease`) arranca vacía. Para probar la lectura de pagos sin Yape, la versión de depuración también lee las notificaciones del shell:
+
+```bash
+adb shell cmd notification allow_listener com.migasto/com.migasto.android.pagos.PaymentNotificationListener
+adb shell "cmd notification post -S bigtext -t 'Yape' prueba1 'Yapeaste S/ 32.00 a Cafe Central'"
+```
+
+## Qué falta
+
+- **iPhone completo** (`iosApp`): SwiftUI, la barra Liquid Glass, la extensión para compartir capturas con Vision, App Intents y el widget.
+- **Android:** bienvenida, hoja de filtros de Movimientos, mapa y «agregar ubicación», bloqueo con huella o PIN, el aviso de configuración en el Resumen e ícono de la app.
+- **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
+- **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
