@@ -4,6 +4,7 @@ sqldelight = "2.4.1"
 kotlinxDatetime = "0.7.1"
 kotlinxSerialization = "1.11.0"
 kotlinxCoroutines = "1.11.0"
+cryptographyKotlin = "0.6.0"
 agp = "9.3.3"
 sqlcipherAndroid = "4.19.1"
 androidxSqlite = "2.7.1"
@@ -22,6 +23,8 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "cryptographyKotlin" }
+cryptography-provider-optimal = { module = "dev.whyoleg.cryptography:cryptography-provider-optimal", version.ref = "cryptographyKotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 [plugins]

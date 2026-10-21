@@ -121,6 +121,8 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.sqldelight.coroutines)
+            implementation(libs.cryptography.core)
+            implementation(libs.cryptography.provider.optimal)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
