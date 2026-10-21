@@ -4,14 +4,14 @@ import com.migasto.domain.Categoria
 import com.migasto.domain.claveDeAlias
 import com.migasto.domain.fechaIsoUtc
 import com.migasto.domain.leerFechaIso
-import kotlin.time.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlin.time.Instant
 
 /**
  * Los ajustes del usuario, en la misma base cifrada. Reemplaza el uso de SharedPreferences de

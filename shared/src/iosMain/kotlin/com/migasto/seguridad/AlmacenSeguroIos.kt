@@ -45,7 +45,6 @@ import platform.Security.kSecValueData
  */
 @OptIn(ExperimentalForeignApi::class)
 class AlmacenSeguroIos(private val servicio: String = "com.migasto") : AlmacenSeguro {
-
     override fun leer(nombre: String): String? = memScoped {
         val consulta = consultaBase(nombre)
         CFDictionaryAddValue(consulta, kSecReturnData, kCFBooleanTrue)

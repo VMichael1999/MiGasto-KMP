@@ -1,10 +1,10 @@
 package com.migasto.domain
 
+import kotlinx.datetime.TimeZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.time.Instant
-import kotlinx.datetime.TimeZone
 
 // Port de los textos y validaciones de lib/presentation/settings/settings_screen.dart que no dependen
 // de la pantalla: contraseña del respaldo, resumen al restaurar, presupuesto, categorías aprendidas.

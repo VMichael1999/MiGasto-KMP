@@ -10,10 +10,10 @@ import com.migasto.domain.PaymentSource
 import com.migasto.domain.TipoMovimiento
 import com.migasto.domain.categoriaAlmacenada
 import com.migasto.domain.leerCategoriaAlmacenada
-import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlin.time.Instant
 
 /** Guarda y lee los movimientos. Reemplaza a `DatabaseManager` de la app de Flutter. */
 class RepositorioMovimientos internal constructor(private val db: MiGastoDb) {

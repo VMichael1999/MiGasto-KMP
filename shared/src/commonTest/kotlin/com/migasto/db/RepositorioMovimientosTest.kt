@@ -7,6 +7,8 @@ import com.migasto.domain.Movimiento
 import com.migasto.domain.PaymentSource
 import com.migasto.domain.TipoMovimiento
 import com.migasto.domain.fecha
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,8 +16,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runTest
 
 // Portado de test/encrypted_database_test.dart («DatabaseManager sobre Drift» y la base cifrada) y
 // del último test de test/categoria_propia_test.dart. Que el archivo no sea legible y que SQLCipher

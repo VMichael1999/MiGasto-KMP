@@ -1,9 +1,5 @@
 package com.migasto.domain
 
-import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.max
-import kotlin.time.Instant
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -12,6 +8,10 @@ import kotlinx.datetime.daysUntil
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.time.Instant
 
 // Port de la lógica de lib/presentation/reports/reports_screen.dart: períodos, comparación con el período
 // anterior, barras por mes y tablas por categoría. Las pantallas solo dibujan.

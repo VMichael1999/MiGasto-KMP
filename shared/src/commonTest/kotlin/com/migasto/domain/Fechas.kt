@@ -1,9 +1,9 @@
 package com.migasto.domain
 
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import kotlin.time.Instant
 
 /** Fecha de ejemplo para los tests, equivalente a `DateTime(2026, 9, 27, 12, 41)` de Dart. */
 fun fecha(

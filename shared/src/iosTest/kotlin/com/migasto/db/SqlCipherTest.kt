@@ -1,13 +1,13 @@
 package com.migasto.db
 
 import app.cash.sqldelight.db.QueryResult
+import com.migasto.domain.TipoMovimiento
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import platform.Foundation.NSData
 import platform.Foundation.dataWithContentsOfFile
 import platform.posix.memcpy
-import com.migasto.domain.TipoMovimiento
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertNotEquals

@@ -1,12 +1,12 @@
 package com.migasto.domain
 
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
 
 // Port de la lógica de lib/presentation/reports/reports_screen.dart (períodos, comparación, barras por
 // mes y tablas por categoría). Los datos son los del diseño (mg-05): octubre deja S/ 2,655.30, que son
@@ -19,8 +19,14 @@ class ReporteTest {
     private val propias = listOf(CategoriaPropia("c1", "Barbería", "scissors", TipoMovimiento.Gasto))
 
     private fun mov(
-        id: String, monto: Double, mes: Int, tipo: TipoMovimiento = TipoMovimiento.Gasto, dia: Int = 10,
-        categoria: Categoria = Categoria.Otros, propia: String? = null, estado: EstadoMovimiento = EstadoMovimiento.Confirmado,
+        id: String,
+        monto: Double,
+        mes: Int,
+        tipo: TipoMovimiento = TipoMovimiento.Gasto,
+        dia: Int = 10,
+        categoria: Categoria = Categoria.Otros,
+        propia: String? = null,
+        estado: EstadoMovimiento = EstadoMovimiento.Confirmado,
         anio: Int = 2026,
     ) = Movimiento(id, monto, id, categoria, PaymentSource.Manual, fecha(dia = dia, mes = mes, anio = anio), tipo = tipo, estado = estado, categoriaPropia = propia)
 

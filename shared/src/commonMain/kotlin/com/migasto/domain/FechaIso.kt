@@ -1,10 +1,10 @@
 package com.migasto.domain
 
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 // La app de Flutter guarda las fechas como `DateTime.toIso8601String()`: hora local sin zona
 // (`2026-09-27T12:41:00.000`) o UTC con `Z`. Estas funciones hacen lo mismo para que los

@@ -150,7 +150,7 @@ class ProcesadorDePagosTest {
     }
 
     @Test
-    fun losLeidosSobrevivenAlReabrirYSeGuardan200()  {
+    fun losLeidosSobrevivenAlReabrirYSeGuardan200() {
         abrir().use { base ->
             val leidos = LeidosEnAjustes(base.ajustes)
             assertTrue(leidos.marcarComoLeido("a"))

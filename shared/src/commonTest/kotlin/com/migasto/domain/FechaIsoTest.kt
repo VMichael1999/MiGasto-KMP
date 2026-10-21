@@ -1,9 +1,9 @@
 package com.migasto.domain
 
+import kotlinx.datetime.TimeZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Instant
-import kotlinx.datetime.TimeZone
 
 // Las fechas de la app de Flutter se guardan como `DateTime.toIso8601String()`: hora local sin
 // zona (`2026-09-27T12:41:00.000`) o UTC con `Z`. Hay que leer y escribir las dos.
