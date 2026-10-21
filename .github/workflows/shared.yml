@@ -46,6 +46,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Verificar el esquema y las migraciones de la base
         run: ./gradlew :shared:verifyCommonMainMiGastoDbMigration --no-daemon
+      - name: Cobertura de la lógica compartida (mínimo 80 %)
+        run: ./gradlew :shared:koverVerify :shared:koverHtmlReport --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: shared/build/reports/kover/html
       - name: Permitir KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

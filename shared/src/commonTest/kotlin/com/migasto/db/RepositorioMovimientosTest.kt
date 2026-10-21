@@ -101,6 +101,7 @@ class RepositorioMovimientosTest {
     }
 
     @Test
+    @SoloConSqlCipher
     fun conOtraClaveNoAbre() {
         abrir().use { it.movimientos.guardar(movimiento("u1")) }
         assertFailsWith<Throwable> {

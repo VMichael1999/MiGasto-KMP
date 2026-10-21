@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.androidKmpLibrary)
+    alias(libs.plugins.kover)
 }
 
 // SQLCipher como librería estática: el SQLite de Apple (libsqlite3.dylib) gana a un framework
@@ -93,6 +94,10 @@ kotlin {
         }
     }
 
+    // Destino JVM: corre en el computador los tests de la lógica compartida (sin emulador) y es
+    // donde Kover mide la cobertura. No se publica ni lo usa ninguna app.
+    jvm()
+
     iosArm64 { enlazarSqlcipher("iosArm64", sqlcipherDevice) }
     iosSimulatorArm64 { enlazarSqlcipher("iosSimulatorArm64", sqlcipherSim) }
 
@@ -139,6 +144,9 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
         }
+        jvmTest.dependencies {
+            implementation(libs.sqldelight.sqlite.driver)
+        }
         iosMain.dependencies {
             implementation(libs.sqldelight.native.driver)
         }
@@ -152,6 +160,33 @@ sqldelight {
             // Foto de cada versión del esquema: sirve para comprobar las migraciones (.sqm).
             schemaOutputDirectory.set(file("schemas"))
             verifyMigrations.set(true)
+        }
+    }
+}
+
+// Cobertura de la lógica compartida (commonMain), medida con los tests en la JVM. Kover no mide
+// Kotlin/Native ni las pruebas instrumentadas, así que el código de androidMain e iosMain queda fuera.
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "com.migasto.db.MiGastoDb*",
+                    "com.migasto.db.Movimientos*",
+                    "com.migasto.db.Categorias_propias*",
+                    "com.migasto.db.*Queries*",
+                    "com.migasto.db.shared.*",
+                    "com.migasto.domain.reglas.*",
+                    // Código de plataforma que solo se prueba en el teléfono (Kover no mide eso).
+                    "com.migasto.db.FabricaDeDriverAndroid",
+                    "com.migasto.seguridad.AlmacenSeguroAndroid",
+                )
+            }
+        }
+        verify {
+            rule("Líneas de la lógica compartida") {
+                minBound(80)
+            }
         }
     }
 }
