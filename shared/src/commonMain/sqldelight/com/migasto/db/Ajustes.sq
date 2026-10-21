@@ -1,0 +1,15 @@
+-- Ajustes del usuario como pares clave/valor de texto. Las claves son las de la app de Flutter
+-- (SharedPreferences). Los mapas se guardan como JSON.
+CREATE TABLE ajustes (
+    clave TEXT NOT NULL PRIMARY KEY,
+    valor TEXT NOT NULL
+);
+
+valor:
+SELECT valor FROM ajustes WHERE clave = ?;
+
+guardar:
+INSERT OR REPLACE INTO ajustes (clave, valor) VALUES (?, ?);
+
+borrar:
+DELETE FROM ajustes WHERE clave = ?;
