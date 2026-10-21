@@ -3,9 +3,22 @@ package com.migasto.android.ajustes
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import com.migasto.android.pagos.AvisoDePago
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.BatteryChargingFull
+import androidx.compose.material.icons.outlined.Sms
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -98,6 +111,22 @@ fun AjustesPantalla(alAvisar: (String) -> Unit) {
     ui?.let { AjustesContenido(it, vm, alAvisar) }
 }
 
+private data class EstadoDelSistema(val lectura: Boolean, val avisos: Boolean, val bateria: Boolean)
+
+private fun leerSistema(contexto: Context): EstadoDelSistema = EstadoDelSistema(
+    lectura = NotificationManagerCompat.getEnabledListenerPackages(contexto).contains(contexto.packageName),
+    avisos = AvisoDePago.puedeAvisar(contexto),
+    bateria = (contexto.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(contexto.packageName),
+)
+
+private fun abrirAjusteDelSistema(contexto: Context, accion: String, conPaquete: Boolean = false) {
+    val intent = Intent(accion).apply {
+        if (conPaquete) putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    runCatching { contexto.startActivity(intent) }
+}
+
 private enum class Hoja { Presupuesto, Aprendidas, Propias, Alias, BorrarUbicaciones }
 
 private sealed interface DialogoDeRespaldo {
@@ -115,6 +144,10 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
     var hoja by remember { mutableStateOf<Hoja?>(null) }
     var dialogo by remember { mutableStateOf<DialogoDeRespaldo?>(null) }
     var respaldoListo by remember { mutableStateOf<ByteArray?>(null) }
+    var sistema by remember { mutableStateOf(leerSistema(contexto)) }
+    // Al volver de los ajustes del sistema se vuelve a mirar qué quedó activado.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { sistema = leerSistema(contexto) }
+    val pedirPermisoDeAvisos = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { sistema = leerSistema(contexto) }
 
     val guardarArchivo = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
         val bytes = respaldoListo
@@ -148,6 +181,36 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
         Etiqueta("Registro automático")
         Caja {
             FilaDeAjuste(
+                Icons.Outlined.Sms, "Lectura de pagos", subtitulo = "Lee las notificaciones de Yape, Plin y Google Wallet",
+                estado = sistema.lectura to (if (sistema.lectura) "Activa" else "Activar"),
+                alTocar = { abrirAjusteDelSistema(contexto, Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS) },
+            )
+            Separador()
+            FilaDeAjuste(
+                Icons.Outlined.Notifications, "Avisos de pagos", subtitulo = "Una notificación cuando detecta un pago con la pantalla bloqueada",
+                estado = sistema.avisos to (if (sistema.avisos) "Activos" else "Activar"),
+                alTocar = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !sistema.avisos) {
+                        pedirPermisoDeAvisos.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        abrirAjusteDelSistema(contexto, Settings.ACTION_APP_NOTIFICATION_SETTINGS, conPaquete = true)
+                    }
+                },
+            )
+            Separador()
+            FilaDeAjuste(
+                Icons.Outlined.Lock, "Monto en pantalla bloqueada",
+                subtitulo = if (ui.montoEnPantallaBloqueada) "Visible: el aviso muestra el monto y el nombre" else "Oculto: solo dice «Pago detectado»",
+                interruptor = ui.montoEnPantallaBloqueada, alCambiar = { vm.alternarMontoEnPantallaBloqueada() },
+            )
+            Separador()
+            FilaDeAjuste(
+                Icons.Outlined.BatteryChargingFull, "Batería sin restricciones", subtitulo = "Evita que el teléfono duerma la lectura y se pierdan pagos",
+                estado = sistema.bateria to (if (sistema.bateria) "Activa" else "Configurar"),
+                alTocar = { abrirAjusteDelSistema(contexto, Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS) },
+            )
+            Separador()
+            FilaDeAjuste(
                 Icons.Outlined.Lock, "Guardar ingresos automáticamente",
                 subtitulo = if (ui.ingresosAutomaticos) "Los ingresos se guardan solos, como los gastos." else "Apagado: cada ingreso espera tu confirmación.",
                 interruptor = ui.ingresosAutomaticos, alCambiar = { vm.alternarIngresosAutomaticos() },
@@ -159,7 +222,7 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
             }
         }
         Text(
-            "La lectura de pagos, los avisos y la ventana flotante se activan en la siguiente parte de la app.",
+            "La ventana flotante con cuenta regresiva se activa en la siguiente parte de la app.",
             style = MaterialTheme.typography.bodySmall, color = c.apagado, modifier = Modifier.padding(start = 4.dp, top = 8.dp),
         )
 
@@ -301,6 +364,7 @@ private fun Separador() = Box(Modifier.fillMaxWidth().height(1.dp).background(Mi
 private fun FilaDeAjuste(
     icono: ImageVector, titulo: String, subtitulo: String? = null, textoFinal: String? = null,
     interruptor: Boolean? = null, alCambiar: (() -> Unit)? = null, alTocar: (() -> Unit)? = null,
+    estado: Pair<Boolean, String>? = null,
 ) {
     val c = MiGastoTheme.colores
     Row(
@@ -320,8 +384,18 @@ private fun FilaDeAjuste(
             if (subtitulo != null) Text(subtitulo, style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp), color = c.apagado)
         }
         textoFinal?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = c.apagado, modifier = Modifier.padding(end = 4.dp)) }
+        estado?.let { (activo, texto) ->
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 8.dp)) {
+                if (activo) Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = c.presupuestoBien, modifier = Modifier.size(16.dp).padding(end = 0.dp))
+                Text(
+                    if (activo) " $texto" else texto,
+                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
+                    color = if (activo) c.presupuestoBien else c.marcaTinta,
+                )
+            }
+        }
         if (interruptor != null) Interruptor(interruptor, titulo, alCambiar ?: {})
-        if (alTocar != null && textoFinal == null) Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = c.apagado, modifier = Modifier.size(18.dp))
+        if (alTocar != null && textoFinal == null && estado == null) Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = c.apagado, modifier = Modifier.size(18.dp))
     }
 }
 

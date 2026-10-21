@@ -32,6 +32,7 @@ import kotlinx.coroutines.withContext
 data class AjustesUi(
     val presupuesto: Double,
     val ingresosAutomaticos: Boolean,
+    val montoEnPantallaBloqueada: Boolean,
     val proveedores: Map<String, Boolean>,
     val subtituloDelRespaldo: String,
     val aprendidas: List<CategoriaAprendida>,
@@ -52,6 +53,7 @@ class AjustesViewModel(
                 AjustesUi(
                     presupuesto = base.ajustes.presupuesto(),
                     ingresosAutomaticos = base.ajustes.guardarIngresosAutomaticamente(),
+                    montoEnPantallaBloqueada = base.ajustes.mostrarMontoEnPantallaBloqueada(),
                     proveedores = base.ajustes.proveedoresActivos(),
                     subtituloDelRespaldo = subtituloDelRespaldo(base.ajustes.ultimoRespaldo()),
                     aprendidas = aprendidasOrdenadas(base.ajustes.aprendidas()),
@@ -72,6 +74,8 @@ class AjustesViewModel(
     fun guardarPresupuesto(monto: Double) = cambiar { it.ajustes.guardarPresupuesto(monto) }
 
     fun alternarIngresosAutomaticos() = cambiar { it.ajustes.establecerGuardarIngresosAutomaticamente(!it.ajustes.guardarIngresosAutomaticamente()) }
+
+    fun alternarMontoEnPantallaBloqueada() = cambiar { it.ajustes.establecerMostrarMontoEnPantallaBloqueada(!it.ajustes.mostrarMontoEnPantallaBloqueada()) }
 
     fun alternarProveedor(clave: String) = cambiar { it.ajustes.guardarProveedoresActivos(it.ajustes.proveedoresActivos() + (clave to !(it.ajustes.proveedoresActivos()[clave] ?: false))) }
 
