@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.vico.compose.m3)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.biometric)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     debugImplementation(libs.compose.ui.tooling)
