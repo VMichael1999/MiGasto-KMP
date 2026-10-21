@@ -8,11 +8,10 @@ import com.migasto.domain.Movimiento
 import com.migasto.domain.PaymentSource
 import com.migasto.domain.TipoMovimiento
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
@@ -57,5 +56,12 @@ object SemillaDeEjemplo {
         mov("ej-cafe", 18.5, "Café Central", Categoria.Alimentacion, PaymentSource.Yape, enElMes(1, 13),
             canal = CanalMovimiento.Notificacion)
         mov("ej-taxi", 12.0, "Taxi", Categoria.Transporte, PaymentSource.Efectivo, enElMes(1, 18))
+        // Los tres meses anteriores, para que Reportes tenga con qué comparar (el diseño muestra Jul a Oct).
+        listOf(Triple(3, 621.0, "jul"), Triple(2, 906.0, "ago"), Triple(1, 925.4, "sep")).forEach { (atras, gastos, nombre) ->
+            val mes = hoy.minus(atras, DateTimeUnit.MONTH)
+            fun enMes(dia: Int, h: Int) = LocalDateTime(mes.year, mes.month, dia, h, 0).toInstant(zona)
+            mov("ej-sueldo-$nombre", 2800.0, "Sueldo", Categoria.Sueldo, PaymentSource.Manual, enMes(1, 8), TipoMovimiento.Ingreso)
+            mov("ej-gastos-$nombre", gastos, "Gastos del mes", Categoria.Compras, PaymentSource.Efectivo, enMes(15, 12))
+        }
     }
 }
