@@ -112,6 +112,31 @@ class DetalleDelMovimientoTest {
     }
 
     @Test
+    fun laUbicacionTraeLasCoordenadasLaDireccionYLaPrecisionParaElMapa() {
+        val d = detalle(mov().copiar(latitud = -12.09, longitud = -77.03, precision = 15.0, lugar = "Av. Arequipa 3120, San Isidro"))
+        assertEquals(-12.09, d.latitud)
+        assertEquals(-77.03, d.longitud)
+        assertEquals("Av. Arequipa 3120, San Isidro", d.direccion)
+        assertEquals("Ubicación del teléfono · precisión ±15 m", d.textoDeLaUbicacion)
+    }
+
+    @Test
+    fun sinDireccionElDetalleMuestraLasCoordenadas() {
+        val d = detalle(mov().copiar(latitud = -12.09, longitud = -77.03))
+        assertEquals("-12.09000, -77.03000", d.direccion)
+        assertEquals("Ubicación del teléfono", d.textoDeLaUbicacion)
+    }
+
+    @Test
+    fun sinUbicacionNoHayCoordenadasNiTextos() {
+        val d = detalle(mov())
+        assertNull(d.latitud)
+        assertNull(d.longitud)
+        assertNull(d.direccion)
+        assertNull(d.textoDeLaUbicacion)
+    }
+
+    @Test
     fun elTextoOriginalSoloSiHay() {
         assertEquals("texto", detalle(mov()).textoOriginal)
         assertNull(construirDetalle(Movimiento("x", 1.0, "x", Categoria.Otros, PaymentSource.Manual, fecha()), emptyMap(), emptyList(), utc).textoOriginal)

@@ -40,6 +40,12 @@ data class DetalleDelMovimiento(
     val nota: String?,
     val tieneUbicacion: Boolean,
     val lugar: String?,
+    val latitud: Double?,
+    val longitud: Double?,
+    /** La dirección, o las coordenadas si no se pudo resolver; `null` sin ubicación. */
+    val direccion: String?,
+    /** `Ubicación del teléfono · precisión ±15 m`; `null` sin ubicación. */
+    val textoDeLaUbicacion: String?,
     /** La notificación o el texto leído de la captura; `null` si no hay. */
     val textoOriginal: String?,
     val textoDeConfirmar: String,
@@ -102,6 +108,10 @@ fun construirDetalle(
         nota = m.notes.takeIf { it.isNotEmpty() && it != REGISTRO_MANUAL },
         tieneUbicacion = m.tieneUbicacion,
         lugar = m.lugar,
+        latitud = m.latitud.takeIf { m.tieneUbicacion },
+        longitud = m.longitud.takeIf { m.tieneUbicacion },
+        direccion = if (m.tieneUbicacion) direccionParaMostrar(m) else null,
+        textoDeLaUbicacion = if (m.tieneUbicacion) textoDeLaPrecision(m) else null,
         textoOriginal = m.textoOriginal.takeIf { it.isNotEmpty() },
         textoDeConfirmar = if (m.esIngreso) "Guardar ingreso" else "Guardar gasto",
         avisoDeGuardado = if (m.esIngreso) "Ingreso guardado" else "Gasto guardado",
