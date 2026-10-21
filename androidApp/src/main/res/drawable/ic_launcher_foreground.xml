@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El logo de ic_logo.xml sin el fondo y más chico: los íconos adaptativos recortan los bordes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <group
+        android:pivotX="256"
+        android:pivotY="256"
+        android:scaleX="0.75"
+        android:scaleY="0.75">
+        <group
+            android:pivotX="256"
+            android:pivotY="256"
+            android:rotation="10">
+            <group
+                android:translateX="22"
+                android:translateY="-4">
+                <path
+                    android:fillColor="#4F8A4C"
+                    android:pathData="M182,82H330A36,36 0 0 1 366,118V372A36,36 0 0 1 330,408H182A36,36 0 0 1 146,372V118A36,36 0 0 1 182,82Z" />
+            </group>
+        </group>
+        <group
+            android:pivotX="256"
+            android:pivotY="256"
+            android:rotation="-7">
+            <path
+                android:fillColor="#8CE885"
+                android:pathData="M146,118A36,36 0 0 1 182,82H330A36,36 0 0 1 366,118V412A22,22 0 0 0 322,412A22,22 0 0 0 278,412A22,22 0 0 0 234,412A22,22 0 0 0 190,412A22,22 0 0 0 146,412Z" />
+            <group
+                android:pivotX="160"
+                android:pivotY="152"
+                android:scaleX="0.36"
+                android:scaleY="0.36"
+                android:translateX="18"
+                android:translateY="-34">
+                <path
+                    android:pathData="M268,188C252,150 160,150 160,212C160,266 276,246 276,306C276,366 178,366 160,322"
+                    android:strokeColor="#0F0E13"
+                    android:strokeWidth="52"
+                    android:strokeLineCap="round"
+                    android:strokeLineJoin="round" />
+                <path
+                    android:pathData="M388,132L340,380"
+                    android:strokeColor="#0F0E13"
+                    android:strokeWidth="52"
+                    android:strokeLineCap="round"
+                    android:strokeLineJoin="round" />
+            </group>
+            <path
+                android:pathData="M180,262H330"
+                android:strokeColor="#0F0E13"
+                android:strokeWidth="20"
+                android:strokeLineCap="round" />
+            <path
+                android:pathData="M180,304H296"
+                android:strokeColor="#0F0E13"
+                android:strokeAlpha="0.5"
+                android:strokeWidth="20"
+                android:strokeLineCap="round" />
+            <path
+                android:pathData="M180,346H252"
+                android:strokeColor="#0F0E13"
+                android:strokeAlpha="0.5"
+                android:strokeWidth="20"
+                android:strokeLineCap="round" />
+        </group>
+    </group>
+</vector>
