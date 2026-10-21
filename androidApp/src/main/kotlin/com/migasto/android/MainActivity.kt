@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.migasto.android.bienvenida.BienvenidaPantalla
 import com.migasto.android.bloqueo.AutenticadorBiometrico
 import com.migasto.android.bloqueo.LocalAutenticador
 import com.migasto.android.bloqueo.PuertaDeBloqueo
@@ -22,9 +23,15 @@ class MainActivity : FragmentActivity() {
         setContent {
             val autenticador = remember { AutenticadorBiometrico(this) }
             val bloqueo by app.bloqueoActivado.collectAsStateWithLifecycle()
+            val bienvenida by app.bienvenidaCompleta.collectAsStateWithLifecycle()
             MiGastoTheme {
                 CompositionLocalProvider(LocalAutenticador provides autenticador) {
-                    PuertaDeBloqueo(bloqueo, autenticador) { MiGastoNavegacion() }
+                    // Primero la bienvenida (solo la primera vez); luego, si está activado, el bloqueo.
+                    if (bienvenida == false) {
+                        BienvenidaPantalla(alTerminar = app::terminarBienvenida)
+                    } else {
+                        PuertaDeBloqueo(if (bienvenida == null) null else bloqueo, autenticador) { MiGastoNavegacion() }
+                    }
                 }
             }
         }

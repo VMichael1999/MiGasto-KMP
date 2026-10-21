@@ -19,6 +19,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
 class MiGastoApp : Application() {
@@ -49,6 +50,9 @@ class MiGastoApp : Application() {
     /** Si el bloqueo con huella o PIN está activado; `null` mientras se lee de la base. */
     val bloqueoActivado = MutableStateFlow<Boolean?>(null)
 
+    /** Si el usuario ya pasó por la bienvenida; `null` mientras se lee de la base. */
+    val bienvenidaCompleta = MutableStateFlow<Boolean?>(null)
+
     override fun onCreate() {
         super.onCreate()
         base = ambito.async {
@@ -56,6 +60,7 @@ class MiGastoApp : Application() {
             BaseMiGasto.abrir(FabricaDeDriverAndroid(this@MiGastoApp), "migasto.db", clave).also {
                 SemillaDeEjemplo.aplicar(it)
                 bloqueoActivado.value = it.ajustes.bloqueoActivado()
+                bienvenidaCompleta.value = it.ajustes.bienvenidaCompleta()
             }
         }
         procesador = ambito.async {
@@ -70,6 +75,14 @@ class MiGastoApp : Application() {
         registro = ambito.async {
             val b = base.await()
             RegistroDeMovimientos(b.movimientos, b.ajustes, ClasificadorCategorias.desdeJson(ReglasIncluidas.categorias))
+        }
+    }
+
+    /** Marca la bienvenida como vista: no vuelve a salir. */
+    fun terminarBienvenida() {
+        ambito.launch {
+            base.await().ajustes.establecerBienvenidaCompleta()
+            bienvenidaCompleta.value = true
         }
     }
 }
