@@ -53,7 +53,7 @@ class DondePagastePantallaTest {
         mostrar()
         regla.onNodeWithText(TextosDeDondePagaste.TITULO).assertIsDisplayed()
         regla.onNodeWithText("mapa de prueba").assertIsDisplayed()
-        regla.onNodeWithContentDescription("San Isidro, 2 pagos, S/ 105.50. Wong y 1 más").assertIsDisplayed()
+        regla.onNodeWithContentDescription("San Isidro, 2 pagos, S/ 105.50. Wong y 1 más").verEnPantalla()
         regla.onNodeWithText(TextosDeDondePagaste.PIE).assertIsDisplayed()
     }
 
@@ -69,13 +69,13 @@ class DondePagastePantallaTest {
     @Test
     fun sinPagosConUbicacionExplicaComoAgregarla() {
         mostrar(zonas = emptyList())
-        regla.onNodeWithText(TextosDeDondePagaste.VACIO).assertIsDisplayed()
+        regla.onNodeWithText(TextosDeDondePagaste.VACIO).verEnPantalla()
     }
 
     @Test
     fun conLosMontosOcultosNoSeVeElTotal() {
         mostrar(oculto = true)
-        regla.onNodeWithContentDescription("San Isidro, 2 pagos. Wong y 1 más").assertIsDisplayed()
+        regla.onNodeWithContentDescription("San Isidro, 2 pagos. Wong y 1 más").verEnPantalla()
         regla.onNodeWithContentDescription("S/ 105.50", substring = true).assertDoesNotExist()
     }
 

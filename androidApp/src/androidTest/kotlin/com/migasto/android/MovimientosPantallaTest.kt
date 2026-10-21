@@ -110,7 +110,7 @@ class MovimientosPantallaTest {
         regla.onNodeWithText("Filtrar movimientos").assertIsDisplayed()
         regla.onNodeWithText("Compras").assertIsDisplayed()
         regla.onNodeWithText("Google Wallet").assertIsDisplayed()
-        regla.onNodeWithText("Rango de monto").assertIsDisplayed()
+        regla.onNodeWithText("Rango de monto").verEnPantalla()
         regla.onNodeWithText("S/ 0 – S/ 500").assertIsDisplayed()
     }
 
@@ -136,7 +136,7 @@ class MovimientosPantallaTest {
     fun laHojaSeAbreConLoQueYaEstabaElegido() {
         mostrar(Muestras.movimientos(filtros = FiltrosDeMovimientos(montoMinimo = 40.0, montoMaximo = 120.0)))
         regla.onNodeWithContentDescription("Filtrar movimientos").performClick()
-        regla.onNodeWithText("S/ 40 – S/ 120").assertIsDisplayed()
+        regla.onNodeWithText("S/ 40 – S/ 120").verEnPantalla()
     }
 
     @Test

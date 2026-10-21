@@ -1,5 +1,8 @@
 package com.migasto.android
 
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.performScrollTo
 import com.migasto.android.movimientos.GrupoUi
 import com.migasto.android.movimientos.MovimientosUi
 import com.migasto.android.resumen.FilaDeMovimiento
@@ -41,4 +44,13 @@ object Muestras {
         oculto: Boolean = false,
         filtros: FiltrosDeMovimientos = FiltrosDeMovimientos(tipo = tipo, busqueda = busqueda),
     ) = MovimientosUi(tipo, busqueda, 2, grupos, hayFiltro, oculto, filtros)
+}
+
+/**
+ * Comprueba que el elemento se ve, haciendo antes scroll hasta él si está en una lista desplazable: en una pantalla
+ * chica (como el emulador de la CI) lo de abajo queda fuera de la vista aunque la app se pueda desplazar hasta ahí.
+ */
+fun SemanticsNodeInteraction.verEnPantalla(): SemanticsNodeInteraction = apply {
+    runCatching { performScrollTo() }
+    assertIsDisplayed()
 }

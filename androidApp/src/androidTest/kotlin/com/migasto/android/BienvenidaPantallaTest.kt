@@ -58,7 +58,7 @@ class BienvenidaPantallaTest {
     @Test
     fun conLaLecturaActivadaElPasoUnoDiceListoYElBotonCambia() {
         mostrar(nada.copy(lectura = true))
-        regla.onNodeWithContentDescription("Paso 1: Activa la lectura de pagos. Listo").assertIsDisplayed()
+        regla.onNodeWithContentDescription("Paso 1: Activa la lectura de pagos. Listo").verEnPantalla()
         regla.onNodeWithText("Permitir la ventana flotante").assertIsDisplayed()
         regla.onNodeWithText("Terminar después").assertIsDisplayed()
     }

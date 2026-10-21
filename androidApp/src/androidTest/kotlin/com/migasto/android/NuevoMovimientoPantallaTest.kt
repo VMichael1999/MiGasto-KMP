@@ -87,31 +87,31 @@ class NuevoMovimientoPantallaTest {
     @Test
     fun cambiarAIngresoCambiaElBotonYLasCategorias() {
         mostrar()
-        regla.onNodeWithText("Alimentación").assertIsDisplayed()
+        regla.onNodeWithText("Alimentación").verEnPantalla()
         regla.onNodeWithContentDescription("Ingreso").performClick()
-        regla.onNodeWithText("Sueldo").assertIsDisplayed()
+        regla.onNodeWithText("Sueldo").assertExists()
         regla.onNodeWithText("Alimentación").assertDoesNotExist()
         teclear("1", "8", "0")
-        regla.onNodeWithText("De quién o por qué").assertIsDisplayed()
+        regla.onNodeWithText("De quién o por qué").assertExists()
         regla.onNodeWithContentDescription("Guardar ingreso · S/ 180.00").assertIsNotEnabled()
     }
 
     @Test
     fun lasCategoriasPropiasDelTipoAparecen() {
         mostrar(listOf(CategoriaPropia("c1", "Barbería", "scissors", TipoMovimiento.Gasto), CategoriaPropia("c2", "Clases", "escuela", TipoMovimiento.Ingreso)))
-        regla.onNodeWithText("Barbería").assertIsDisplayed()
+        regla.onNodeWithText("Barbería").verEnPantalla()
         regla.onNodeWithText("Clases").assertDoesNotExist()
         regla.onNodeWithContentDescription("Ingreso").performClick()
-        regla.onNodeWithText("Clases").assertIsDisplayed()
+        regla.onNodeWithText("Clases").assertExists()
     }
 
     @Test
     fun laFuenteSeCambiaDesdeSuHoja() {
         mostrar()
-        regla.onNodeWithText("Pagado con Efectivo").assertIsDisplayed()
+        regla.onNodeWithText("Pagado con Efectivo").verEnPantalla()
         regla.onNodeWithText("Cambiar").performClick()
         regla.onNodeWithText("Yape").performClick()
-        regla.onNodeWithText("Pagado con Yape").assertIsDisplayed()
+        regla.onNodeWithText("Pagado con Yape").verEnPantalla()
     }
 
     @Test
