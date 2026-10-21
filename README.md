@@ -14,9 +14,9 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 469 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 484 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
-| `iosApp` (SwiftUI) | **En marcha**: proyecto, base cifrada con Keychain, Resumen, Movimientos y Nuevo movimiento; faltan las demás pantallas |
+| `iosApp` (SwiftUI) | **En marcha**: proyecto, base cifrada con Keychain, Resumen, Movimientos, Nuevo movimiento y Detalle; faltan las demás pantallas |
 
 La versión original en Flutter sigue en [su repo](https://github.com/VMichael1999/MiGasto) y es la referencia de comportamiento: la lógica de aquí se portó de allí, con los tests primero.
 
@@ -54,15 +54,15 @@ Lo que en la app de Flutter eran dos lectores de reglas (Dart y Kotlin) y una co
 
 ## iPhone
 
-El Resumen, Movimientos y Nuevo movimiento de iPhone usan los mismos montos, reglas y textos que Android: los pone `shared` (`PantallaDelResumen`, `PantallaDeMovimientos`, `FormularioNuevoMovimiento`) y SwiftUI solo los dibuja, con la barra de pestañas de iOS 26 (Liquid Glass).
+El Resumen, Movimientos, Nuevo movimiento y Detalle de iPhone usan los mismos montos, reglas y textos que Android: los pone `shared` (`PantallaDelResumen`, `PantallaDeMovimientos`, `FormularioNuevoMovimiento`, `SeguimientoDelDetalle`) y SwiftUI solo los dibuja, con la barra de pestañas de iOS 26 (Liquid Glass).
 
 | Resumen | Resumen oscuro, montos ocultos | Movimientos | Hoja de filtros |
 |---|---|---|---|
 | ![Resumen en iPhone](docs/comparacion/ios-mg-01-resumen-claro.png) | ![Resumen oscuro](docs/comparacion/ios-mg-01-resumen-oscuro-montos-ocultos.png) | ![Movimientos en iPhone](docs/comparacion/ios-mg-02-movimientos-claro.png) | ![Filtros en iPhone](docs/comparacion/ios-mg-02-hoja-de-filtros.png) |
 
-| Nuevo movimiento | Nueva categoría |
-|---|---|
-| ![Nuevo movimiento en iPhone](docs/comparacion/ios-mg-03-nuevo-movimiento.png) | ![Nueva categoría en iPhone](docs/comparacion/ios-mg-03-categoria-nueva.png) |
+| Nuevo movimiento | Nueva categoría | Detalle |
+|---|---|---|
+| ![Nuevo movimiento en iPhone](docs/comparacion/ios-mg-03-nuevo-movimiento.png) | ![Nueva categoría en iPhone](docs/comparacion/ios-mg-03-categoria-nueva.png) | ![Detalle en iPhone](docs/comparacion/ios-mg-04-detalle.png) |
 
 ## Arquitectura
 
@@ -105,7 +105,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **469 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **484 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
 
@@ -149,7 +149,7 @@ También sirve la variable de entorno `GOOGLE_MAPS_API_KEY`. Sin clave todo lo d
 
 ## Qué falta
 
-- **iPhone** (`iosApp`): faltan Detalle, Reportes y Ajustes, la extensión para compartir capturas con Vision, App Intents, el widget y Face ID.
+- **iPhone** (`iosApp`): faltan Reportes y Ajustes, «Agregar ubicación» con mapa en el Detalle, la extensión para compartir capturas con Vision, App Intents, el widget y Face ID.
 - **Mapa de Google sin probar:** «Agregar ubicación» y «Dónde pagaste» están hechos y probados en el emulador, pero el mapa solo se dibuja con una clave de Google Maps (ver «Cómo correrlo») y no tengo una para probarlo: sin clave la app lo explica en vez de mostrar un mapa en blanco.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
