@@ -1,6 +1,7 @@
 package com.migasto.db
 
 import com.migasto.domain.Categoria
+import com.migasto.domain.ClaveDePausa
 import com.migasto.domain.claveDeAlias
 import com.migasto.domain.fechaIsoUtc
 import com.migasto.domain.leerFechaIso
@@ -88,6 +89,18 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
 
     fun guardarIdsLeidos(ids: List<String>) = guardar(CLAVE_LEIDOS, JsonArray(ids.map { JsonPrimitive(it) }).toString())
 
+    // Avisos de configuración pospuestos («Ahora no»)
+
+    fun avisoPospuestoEn(clave: ClaveDePausa): Instant? =
+        leer(claveDeAjuste(clave))?.let { runCatching { leerFechaIso(it) }.getOrNull() }
+
+    fun posponerAviso(clave: ClaveDePausa, cuando: Instant) = guardar(claveDeAjuste(clave), fechaIsoUtc(cuando))
+
+    private fun claveDeAjuste(clave: ClaveDePausa) = when (clave) {
+        ClaveDePausa.Bateria -> CLAVE_BATERIA_POSPUESTA
+        ClaveDePausa.Avisos -> CLAVE_AVISOS_POSPUESTOS
+    }
+
     // Respaldo
 
     /** Cuándo se hizo el último respaldo; `null` si nunca. Se guarda como en Flutter: UTC en ISO 8601. */
@@ -131,6 +144,8 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
         const val CLAVE_ULTIMO_RESPALDO = "migasto_last_backup"
         const val CLAVE_LEIDOS = "migasto_handled_notifications"
         const val CLAVE_MONTO_BLOQUEADO = "migasto_show_amount_locked"
+        const val CLAVE_BATERIA_POSPUESTA = "migasto_battery_banner_dismissed_at"
+        const val CLAVE_AVISOS_POSPUESTOS = "migasto_alerts_banner_dismissed_at"
 
         private val PROVEEDORES_POR_DEFECTO = mapOf("yape" to true, "plin" to true, "googlePay" to true)
     }

@@ -1,6 +1,7 @@
 package com.migasto.db
 
 import com.migasto.domain.Categoria
+import com.migasto.domain.ClaveDePausa
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -132,6 +133,18 @@ class RepositorioAjustesTest {
             assertFalse(base.ajustes.mostrarMontoEnPantallaBloqueada())
             base.ajustes.establecerMostrarMontoEnPantallaBloqueada(true)
             assertTrue(base.ajustes.mostrarMontoEnPantallaBloqueada())
+        }
+    }
+
+    @Test
+    fun laPausaDeLosAvisosDeConfiguracionSeGuardaPorSeparado() {
+        abrir().use { base ->
+            assertNull(base.ajustes.avisoPospuestoEn(ClaveDePausa.Bateria))
+            val ahora = com.migasto.domain.fecha(dia = 21, hora = 10, minuto = 0, mes = 10)
+            base.ajustes.posponerAviso(ClaveDePausa.Bateria, ahora)
+            assertEquals(ahora, base.ajustes.avisoPospuestoEn(ClaveDePausa.Bateria))
+            assertNull(base.ajustes.avisoPospuestoEn(ClaveDePausa.Avisos))
+            assertEquals("2026-10-21T10:00:00.000", base.ajustes.leerCrudo("migasto_battery_banner_dismissed_at")?.let { it.removeSuffix("Z") })
         }
     }
 
