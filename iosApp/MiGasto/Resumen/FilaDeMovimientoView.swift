@@ -42,6 +42,8 @@ struct FilaDeMovimientoView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
+        // Sin esto, solo el texto recibe el toque: el espacio vacío del medio no abría el detalle.
+        .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
     }
 }

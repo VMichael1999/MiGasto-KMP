@@ -83,12 +83,13 @@ import com.migasto.domain.CategoriaPropia
 import com.migasto.domain.DetalleDelMovimiento
 import com.migasto.domain.MotivoDeFallo
 import com.migasto.domain.Movimiento
+import com.migasto.domain.TextosDeNuevoMovimiento
 import com.migasto.domain.TextosDeUbicacion
+import com.migasto.domain.TextosDelDetalle
 import com.migasto.domain.TipoMovimiento
 import com.migasto.domain.etiqueta
 import com.migasto.domain.formatearMonto
 import com.migasto.domain.mensajeDeFallo
-import com.migasto.domain.sugerenciaDeAlias
 
 /**
  * @param alEliminado se llama con el aviso («Gasto de "X" eliminado») y el movimiento original, para «Deshacer».
@@ -144,7 +145,7 @@ private fun DetalleContenido(
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             BotonDeIcono(Icons.AutoMirrored.Outlined.ArrowBack, "Volver", alCerrar)
             Text(d.tipoTexto, style = MaterialTheme.typography.bodySmall, color = c.apagado, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-            TextButton(onClick = { editando = true }) { Text("Editar", style = MaterialTheme.typography.labelLarge, color = c.marcaTinta) }
+            TextButton(onClick = { editando = true }) { Text(TextosDelDetalle.EDITAR, style = MaterialTheme.typography.labelLarge, color = c.marcaTinta) }
         }
         Spacer(Modifier.height(14.dp))
 
@@ -169,7 +170,7 @@ private fun DetalleContenido(
             }
             if (d.porConfirmar) {
                 Text(
-                    "Por confirmar", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = c.porConfirmar,
+                    TextosDelDetalle.POR_CONFIRMAR, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = c.porConfirmar,
                     modifier = Modifier.padding(top = 8.dp).clip(CircleShape).background(c.porConfirmarSuave).padding(horizontal = 9.dp, vertical = 2.dp),
                 )
             }
@@ -179,21 +180,21 @@ private fun DetalleContenido(
                     drawLine(c.linea, Offset(0f, 0f), Offset(size.width, 0f), strokeWidth = 2f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 10f)))
                 },
             )
-            Fila("Fecha") { Texto(d.fecha) }
+            Fila(TextosDelDetalle.FECHA) { Texto(d.fecha) }
             Fila(d.etiquetaDelNombre, alTocar = { cambiandoNombre = true }) { Texto(d.nombre); Chevron() }
             Fila(d.etiquetaDeLaFuente) {
                 Box(Modifier.size(8.dp).background(colorDeLaFuente(d.fuente), CircleShape))
                 Spacer(Modifier.width(6.dp))
                 Texto(d.fuenteTexto)
             }
-            Fila("Categoría", alTocar = { eligiendoCategoria = true }) {
+            Fila(TextosDelDetalle.CATEGORIA, alTocar = { eligiendoCategoria = true }) {
                 Icon(d.iconoPropio?.let { iconoPropio(it) } ?: iconoDeCategoria(d.categoria), contentDescription = null, tint = c.tinta, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Texto(d.categoriaEtiqueta)
                 Chevron()
             }
-            Fila("Registrado") { Texto(d.registrado) }
-            d.nota?.let { Fila("Nota") { Texto(it) } }
+            Fila(TextosDelDetalle.REGISTRADO) { Texto(d.registrado) }
+            d.nota?.let { Fila(TextosDelDetalle.NOTA) { Texto(it) } }
         }
 
         if (d.porConfirmar) {
@@ -222,7 +223,7 @@ private fun DetalleContenido(
                 }
             }
             TextButton(onClick = vm::quitarUbicacion) {
-                Text("Quitar la ubicación de este ${d.tipoTexto.lowercase()}", style = MaterialTheme.typography.labelLarge, color = c.marcaTinta)
+                Text(TextosDelDetalle.quitarUbicacion(d.tipoTexto), style = MaterialTheme.typography.labelLarge, color = c.marcaTinta)
             }
         } else {
             Row(
@@ -249,7 +250,7 @@ private fun DetalleContenido(
         d.textoOriginal?.let { texto ->
             Spacer(Modifier.height(8.dp))
             Row(Modifier.fillMaxWidth().clickable { verTexto = !verTexto }.padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Texto original", style = MaterialTheme.typography.titleSmall, color = c.tinta, modifier = Modifier.weight(1f))
+                Text(TextosDelDetalle.TEXTO_ORIGINAL, style = MaterialTheme.typography.titleSmall, color = c.tinta, modifier = Modifier.weight(1f))
                 Icon(if (verTexto) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown, contentDescription = null, tint = c.apagado)
             }
             if (verTexto) Text(texto, style = MaterialTheme.typography.bodySmall, color = c.apagado, modifier = Modifier.padding(bottom = 12.dp))
@@ -271,7 +272,7 @@ private fun DetalleContenido(
             onDismissRequest = { ubicacionBloqueada = false },
             containerColor = c.superficie,
             text = { Text(mensajeDeFallo(MotivoDeFallo.DenegadaParaSiempre), color = c.tinta) },
-            dismissButton = { TextButton({ ubicacionBloqueada = false }) { Text("Cancelar", color = c.marcaTinta) } },
+            dismissButton = { TextButton({ ubicacionBloqueada = false }) { Text(TextosDelDetalle.CANCELAR, color = c.marcaTinta) } },
             confirmButton = {
                 TextButton({
                     ubicacionBloqueada = false
@@ -286,35 +287,35 @@ private fun DetalleContenido(
             containerColor = c.superficie,
             title = { Text(d.textoDeEliminar, color = c.tinta) },
             text = { Text(d.preguntaDeEliminar, color = c.tinta) },
-            dismissButton = { TextButton({ confirmandoEliminar = false }) { Text("Cancelar", color = c.marcaTinta) } },
+            dismissButton = { TextButton({ confirmandoEliminar = false }) { Text(TextosDelDetalle.CANCELAR, color = c.marcaTinta) } },
             confirmButton = {
                 TextButton({
                     confirmandoEliminar = false
                     vm.eliminar { original -> alEliminado(d.avisoDeEliminado, original) }
-                }) { Text("Eliminar", color = c.presupuestoPasado) }
+                }) { Text(TextosDelDetalle.ELIMINAR, color = c.presupuestoPasado) }
             },
         )
     }
     if (cambiandoNombre) {
-        var texto by remember { mutableStateOf(if (d.nombre != d.nombreOriginal) d.nombre else sugerenciaDeAlias(d.nombreOriginal)) }
-        val tieneAlias = d.nombre != d.nombreOriginal
+        var texto by remember { mutableStateOf(d.nombreParaEditar) }
+        val tieneAlias = d.tieneNombrePropio
         AlertDialog(
             onDismissRequest = { cambiandoNombre = false },
             containerColor = c.superficie,
-            title = { Text("Cambiar nombre", color = c.tinta) },
+            title = { Text(TextosDelDetalle.CAMBIAR_NOMBRE, color = c.tinta) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Así verás a \"${d.nombreOriginal}\" en toda la app. Es solo cómo se ve: el pago no cambia.", style = MaterialTheme.typography.bodySmall, color = c.apagado)
-                    OutlinedTextField(texto, { texto = it }, label = { Text("Nombre") }, singleLine = true)
+                    Text(TextosDelDetalle.explicacionDelNombre(d.nombreOriginal), style = MaterialTheme.typography.bodySmall, color = c.apagado)
+                    OutlinedTextField(texto, { texto = it }, label = { Text(TextosDelDetalle.NOMBRE) }, singleLine = true)
                 }
             },
             dismissButton = {
                 Row {
-                    if (tieneAlias) TextButton({ vm.establecerAlias(d.nombreOriginal, ""); cambiandoNombre = false }) { Text("Quitar nombre", color = c.marcaTinta) }
-                    TextButton({ cambiandoNombre = false }) { Text("Cancelar", color = c.marcaTinta) }
+                    if (tieneAlias) TextButton({ vm.establecerAlias(d.nombreOriginal, ""); cambiandoNombre = false }) { Text(TextosDelDetalle.QUITAR_NOMBRE, color = c.marcaTinta) }
+                    TextButton({ cambiandoNombre = false }) { Text(TextosDelDetalle.CANCELAR, color = c.marcaTinta) }
                 }
             },
-            confirmButton = { TextButton({ vm.establecerAlias(d.nombreOriginal, texto); cambiandoNombre = false }) { Text("Guardar", color = c.marcaTinta) } },
+            confirmButton = { TextButton({ vm.establecerAlias(d.nombreOriginal, texto); cambiandoNombre = false }) { Text(TextosDelDetalle.GUARDAR, color = c.marcaTinta) } },
         )
     }
     if (editando) HojaDeEdicion(d, vm) { editando = false }
@@ -356,16 +357,16 @@ private fun HojaDeEdicion(d: DetalleDelMovimiento, vm: DetalleViewModel, alCerra
     var error by remember { mutableStateOf(false) }
     ModalBottomSheet(onDismissRequest = alCerrar, containerColor = c.superficie) {
         Column(Modifier.padding(horizontal = 18.dp).padding(bottom = 18.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Editar ${d.tipoTexto.lowercase()}", style = MaterialTheme.typography.titleLarge, color = c.tinta)
-            OutlinedTextField(monto, { monto = it; error = false }, label = { Text("Monto") }, prefix = { Text("S/ ") }, singleLine = true, modifier = Modifier.fillMaxWidth(), isError = error)
-            OutlinedTextField(comercio, { comercio = it; error = false }, label = { Text(if (d.esIngreso) "De quién" else "Comercio") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(nota, { nota = it }, label = { Text("Nota (opcional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            if (error) Text("Pon un monto mayor que cero y un nombre.", style = MaterialTheme.typography.bodySmall, color = c.presupuestoPasado)
+            Text(TextosDelDetalle.tituloDeEdicion(d.tipoTexto), style = MaterialTheme.typography.titleLarge, color = c.tinta)
+            OutlinedTextField(monto, { monto = it; error = false }, label = { Text(TextosDelDetalle.MONTO) }, prefix = { Text("S/ ") }, singleLine = true, modifier = Modifier.fillMaxWidth(), isError = error)
+            OutlinedTextField(comercio, { comercio = it; error = false }, label = { Text(TextosDelDetalle.etiquetaDelComercio(d.esIngreso)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(nota, { nota = it }, label = { Text(TextosDelDetalle.NOTA_OPCIONAL) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            if (error) Text(TextosDelDetalle.ERROR_DE_EDICION, style = MaterialTheme.typography.bodySmall, color = c.presupuestoPasado)
             Box(
                 Modifier.fillMaxWidth().height(54.dp).clip(RoundedCornerShape(Radio.boton)).background(ColoresMiGasto.VerdeNeon)
                     .clickable { vm.editar(monto, comercio, nota) { bien -> if (bien) alCerrar() else error = true } },
                 contentAlignment = Alignment.Center,
-            ) { Text("Guardar cambios", style = MaterialTheme.typography.titleLarge, color = ColoresMiGasto.TintaSobreVerde) }
+            ) { Text(TextosDelDetalle.GUARDAR_CAMBIOS, style = MaterialTheme.typography.titleLarge, color = ColoresMiGasto.TintaSobreVerde) }
         }
     }
 }
@@ -378,11 +379,11 @@ private fun HojaDeCategoria(d: DetalleDelMovimiento, tipo: TipoMovimiento, propi
     var creando by remember { mutableStateOf(false) }
     ModalBottomSheet(onDismissRequest = alCerrar, containerColor = c.superficie) {
         Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 16.dp).navigationBarsPadding()) {
-            Text("Categoría", style = MaterialTheme.typography.titleLarge, color = c.tinta, modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp))
+            Text(TextosDelDetalle.CATEGORIA, style = MaterialTheme.typography.titleLarge, color = c.tinta, modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp))
             if (!d.esIngreso) {
                 Row(Modifier.fillMaxWidth().clickable { recordar = !recordar }.padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(recordar, { recordar = it })
-                    Text("Aplicar a todos los pagos a ${d.nombre}", style = MaterialTheme.typography.bodyMedium, color = c.tinta)
+                    Text(TextosDelDetalle.aplicarATodos(d.nombre), style = MaterialTheme.typography.bodyMedium, color = c.tinta)
                 }
             }
             Categoria.paraTipo(tipo).forEach { cat ->
@@ -395,7 +396,7 @@ private fun HojaDeCategoria(d: DetalleDelMovimiento, tipo: TipoMovimiento, propi
                     vm.cambiarCategoria(p.base, recordar, p.id); alCerrar()
                 }
             }
-            OpcionDeCategoria(Icons.Outlined.Add, "Nueva categoría", false) { creando = true }
+            OpcionDeCategoria(Icons.Outlined.Add, TextosDeNuevoMovimiento.NUEVA_CATEGORIA, false) { creando = true }
         }
     }
     if (creando) {

@@ -38,6 +38,7 @@ struct MovimientosView: View {
                     .accessibilityLabel(TextosDeMovimientos.shared.FILTRAR)
                 }
             }
+            .navigationDestination(for: String.self) { DetalleView(id: $0, aplicacion: aplicacion) }
             .sheet(isPresented: $hojaAbierta) {
                 if let p = modelo.pantalla {
                     HojaDeFiltrosView(pantalla: p) { modelo.filtros = $0 }
@@ -117,7 +118,8 @@ private struct GrupoView: View {
             VStack(spacing: 0) {
                 ForEach(Array(grupo.filas.enumerated()), id: \.element.id) { indice, fila in
                     if indice > 0 { Divider().overlay(Paleta.linea) }
-                    FilaDeMovimientoView(fila: fila, oculto: oculto)
+                    NavigationLink(value: fila.id) { FilaDeMovimientoView(fila: fila, oculto: oculto) }
+                        .buttonStyle(.plain)
                 }
             }
             .background(Paleta.superficie, in: RoundedRectangle(cornerRadius: 16))

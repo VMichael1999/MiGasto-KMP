@@ -38,6 +38,7 @@ struct ResumenView: View {
                 }
             }
             .toolbarTitleDisplayMode(.inline)
+            .navigationDestination(for: String.self) { DetalleView(id: $0, aplicacion: aplicacion) }
         }
         // Se vuelve a leer cada vez que cambia el mes elegido; dentro, shared emite cuando cambian los movimientos.
         .task(id: modelo.claveDelMes) { await modelo.observar(aplicacion.base) }
@@ -200,7 +201,8 @@ private struct ListaDelDia: View {
                 VStack(spacing: 0) {
                     ForEach(Array(pantalla.hoy.enumerated()), id: \.element.id) { indice, fila in
                         if indice > 0 { Divider().overlay(Paleta.linea) }
-                        FilaDeMovimientoView(fila: fila, oculto: oculto)
+                        NavigationLink(value: fila.id) { FilaDeMovimientoView(fila: fila, oculto: oculto) }
+                            .buttonStyle(.plain)
                     }
                 }
                 .background(Paleta.superficie, in: RoundedRectangle(cornerRadius: 16))

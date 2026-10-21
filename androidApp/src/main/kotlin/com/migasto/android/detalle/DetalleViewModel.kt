@@ -6,22 +6,23 @@ import com.migasto.db.BaseMiGasto
 import com.migasto.domain.Categoria
 import com.migasto.domain.CategoriaPropia
 import com.migasto.domain.DetalleDelMovimiento
+import com.migasto.domain.EstadoDelDetalle
 import com.migasto.domain.Movimiento
 import com.migasto.domain.RegistroDeMovimientos
+import com.migasto.domain.SeguimientoDelDetalle
 import com.migasto.domain.TipoMovimiento
 import com.migasto.domain.UbicacionCapturada
-import com.migasto.domain.construirDetalle
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -34,69 +35,55 @@ sealed interface DetalleUi {
 
 class DetalleViewModel(
     private val id: String,
-    private val baseDiferida: Deferred<BaseMiGasto>,
-    private val registroDiferido: Deferred<RegistroDeMovimientos>,
+    baseDiferida: Deferred<BaseMiGasto>,
+    registroDiferido: Deferred<RegistroDeMovimientos>,
     private val oculto: MutableStateFlow<Boolean>,
 ) : ViewModel() {
-    /** Se cambia para volver a leer el nombre (alias) y las categorías, que no se observan solos. */
-    private val refresco = MutableStateFlow(0)
+    /** Lo que observa y hace el detalle vive en `shared`; aquí solo se espera a que la base esté abierta. */
+    private val seguimiento: Deferred<SeguimientoDelDetalle> =
+        viewModelScope.async(Dispatchers.IO) { SeguimientoDelDetalle(baseDiferida.await(), registroDiferido.await(), id) }
 
-    val estado: StateFlow<DetalleUi> = flow {
-        val base = baseDiferida.await()
-        emitAll(
-            combine(base.movimientos.observarTodos(), refresco) { todos, _ ->
-                val m = todos.firstOrNull { it.id == id } ?: return@combine DetalleUi.NoExiste
-                val propias = base.categoriasPropias.todas()
-                DetalleUi.Listo(construirDetalle(m, base.ajustes.aliases(), propias), propias, m.tipo)
-            },
-        )
-    }
+    val estado: StateFlow<DetalleUi> = flow { emitAll(seguimiento.await().estado.map { it.aUi() }) }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DetalleUi.Cargando)
 
     val montosOcultos: StateFlow<Boolean> = oculto
 
-    private fun hacer(bloque: suspend (BaseMiGasto, RegistroDeMovimientos) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) { bloque(baseDiferida.await(), registroDiferido.await()) }
+    private fun hacer(bloque: suspend (SeguimientoDelDetalle) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) { bloque(seguimiento.await()) }
     }
 
     fun confirmar(alTerminar: () -> Unit) = viewModelScope.launch {
-        withContext(Dispatchers.IO) { registroDiferido.await().confirmar(id) }
+        withContext(Dispatchers.IO) { seguimiento.await().confirmar() }
         alTerminar()
     }
 
     fun cambiarCategoria(categoria: Categoria, recordar: Boolean, propia: String? = null) =
-        hacer { _, registro -> registro.cambiarCategoria(id, categoria, recordar, propia) }
+        hacer { it.cambiarCategoria(categoria, recordar, propia) }
 
     /** Crea una categoría propia y se la pone al movimiento. */
     fun crearCategoriaYElegirla(nombre: String, icono: String, tipo: TipoMovimiento, recordar: Boolean) =
-        hacer { base, registro ->
-            val creada = base.categoriasPropias.agregar(nombre.trim(), icono, tipo)
-            registro.cambiarCategoria(id, creada.base, recordar, creada.id)
-            refresco.update { it + 1 }
-        }
+        hacer { it.crearCategoriaYElegirla(nombre, icono, tipo, recordar) }
 
     fun editar(monto: String, comercio: String, notas: String, alTerminar: (Boolean) -> Unit) = viewModelScope.launch {
-        val bien = withContext(Dispatchers.IO) { registroDiferido.await().editar(id, monto, comercio, notas) }
+        val bien = withContext(Dispatchers.IO) { seguimiento.await().editar(monto, comercio, notas) }
         alTerminar(bien)
     }
 
-    fun establecerAlias(comercio: String, alias: String) = hacer { base, _ ->
-        base.ajustes.establecerAlias(comercio, alias)
-        refresco.update { it + 1 }
-    }
+    fun establecerAlias(comercio: String, alias: String) = hacer { it.establecerAlias(comercio, alias) }
 
-    fun ponerUbicacion(ubicacion: UbicacionCapturada) = hacer { _, registro -> registro.ponerUbicacion(id, ubicacion) }
+    fun ponerUbicacion(ubicacion: UbicacionCapturada) = hacer { it.ponerUbicacion(ubicacion) }
 
-    fun quitarUbicacion() = hacer { _, registro -> registro.quitarUbicacion(id) }
+    fun quitarUbicacion() = hacer { it.quitarUbicacion() }
 
     /** Elimina el movimiento y entrega el original, por si el usuario toca «Deshacer». */
     fun eliminar(alTerminar: (Movimiento) -> Unit) = viewModelScope.launch {
-        val original = withContext(Dispatchers.IO) {
-            val m = baseDiferida.await().movimientos.todos().firstOrNull { it.id == id }
-            if (m != null) registroDiferido.await().eliminar(id)
-            m
-        }
+        val original = withContext(Dispatchers.IO) { seguimiento.await().eliminar() }
         if (original != null) alTerminar(original)
     }
+}
+
+private fun EstadoDelDetalle.aUi(): DetalleUi = when (this) {
+    EstadoDelDetalle.NoExiste -> DetalleUi.NoExiste
+    is EstadoDelDetalle.Listo -> DetalleUi.Listo(detalle, propias, tipo)
 }
