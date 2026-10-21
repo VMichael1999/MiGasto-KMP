@@ -15,6 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.migasto.android.pagos.AvisoDePago
+import com.migasto.android.pagos.ServicioDeAccesibilidad
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.BatteryChargingFull
 import androidx.compose.material.icons.outlined.Sms
@@ -111,12 +112,15 @@ fun AjustesPantalla(alAvisar: (String) -> Unit) {
     ui?.let { AjustesContenido(it, vm, alAvisar) }
 }
 
-private data class EstadoDelSistema(val lectura: Boolean, val avisos: Boolean, val bateria: Boolean)
+private data class EstadoDelSistema(val lectura: Boolean, val avisos: Boolean, val bateria: Boolean, val accesibilidad: Boolean, val ventana: Boolean)
 
 private fun leerSistema(contexto: Context): EstadoDelSistema = EstadoDelSistema(
     lectura = NotificationManagerCompat.getEnabledListenerPackages(contexto).contains(contexto.packageName),
     avisos = AvisoDePago.puedeAvisar(contexto),
     bateria = (contexto.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(contexto.packageName),
+    accesibilidad = Settings.Secure.getString(contexto.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        ?.contains("${contexto.packageName}/${ServicioDeAccesibilidad::class.java.name}") == true,
+    ventana = Settings.canDrawOverlays(contexto),
 )
 
 private fun abrirAjusteDelSistema(contexto: Context, accion: String, conPaquete: Boolean = false) {
@@ -211,6 +215,24 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
             )
             Separador()
             FilaDeAjuste(
+                Icons.Outlined.Sms, "Pagos que envías", subtitulo = "Lee la constancia de Yape al pagar o enviar",
+                estado = sistema.accesibilidad to (if (sistema.accesibilidad) "Activa" else "Activar"),
+                alTocar = { abrirAjusteDelSistema(contexto, Settings.ACTION_ACCESSIBILITY_SETTINGS) },
+            )
+            Separador()
+            FilaDeAjuste(
+                Icons.Outlined.Notifications, "Ventana flotante", subtitulo = "Muestra cada pago para que lo confirmes",
+                estado = sistema.ventana to (if (sistema.ventana) "Activa" else "Activar"),
+                alTocar = {
+                    runCatching {
+                        contexto.startActivity(
+                            Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${contexto.packageName}")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        )
+                    }
+                },
+            )
+            Separador()
+            FilaDeAjuste(
                 Icons.Outlined.Lock, "Guardar ingresos automáticamente",
                 subtitulo = if (ui.ingresosAutomaticos) "Los ingresos se guardan solos, como los gastos." else "Apagado: cada ingreso espera tu confirmación.",
                 interruptor = ui.ingresosAutomaticos, alCambiar = { vm.alternarIngresosAutomaticos() },
@@ -221,10 +243,6 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
                 FilaDeProveedor(nombre, clave, ui.proveedores[clave] == true) { vm.alternarProveedor(clave) }
             }
         }
-        Text(
-            "La ventana flotante con cuenta regresiva se activa en la siguiente parte de la app.",
-            style = MaterialTheme.typography.bodySmall, color = c.apagado, modifier = Modifier.padding(start = 4.dp, top = 8.dp),
-        )
 
         Etiqueta("Dónde pagaste")
         Caja {

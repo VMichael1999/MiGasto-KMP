@@ -39,8 +39,7 @@ class PaymentNotificationListener : NotificationListenerService() {
                 is ResultadoDeLectura.PagoNuevo -> {
                     // No se registra el texto completo: puede traer datos personales.
                     Log.d(TAG, "pago detectado: ${r.pago.tipoTexto} ${r.pago.provider.clave}")
-                    val guardado = app.registro.await().guardarPagoLeido(r.pago, r.texto)
-                    AvisoDePago.mostrar(contexto, app, guardado, r.pago)
+                    EntregaDePago.entregar(app, r)
                 }
                 else -> Log.d(TAG, "descartada: $r")
             }
