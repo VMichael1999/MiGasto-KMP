@@ -79,6 +79,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.migasto.android.MiGastoApp
+import com.migasto.android.bloqueo.LocalAutenticador
 import com.migasto.android.pagos.abrirAjusteDelSistema
 import com.migasto.android.pagos.leerSistema
 import com.migasto.android.resumen.iconoPropio
@@ -88,8 +89,12 @@ import com.migasto.android.tema.MiGastoTheme
 import com.migasto.android.tema.Radio
 import com.migasto.android.tema.Tamano
 import com.migasto.domain.ContenidoDeRespaldo
+import com.migasto.domain.DecisionAlActivar
 import com.migasto.domain.ExcepcionDeRespaldo
+import com.migasto.domain.TextosDelBloqueo
 import com.migasto.domain.TipoMovimiento
+import com.migasto.domain.activarSiConfirmo
+import com.migasto.domain.decidirAlActivar
 import com.migasto.domain.mensajeDeRestauracion
 import com.migasto.domain.nombreDelArchivoDeRespaldo
 import com.migasto.domain.parsearPresupuesto
@@ -105,7 +110,7 @@ import kotlin.time.Clock
 @Composable
 fun AjustesPantalla(alAvisar: (String) -> Unit) {
     val app = LocalContext.current.applicationContext as MiGastoApp
-    val vm: AjustesViewModel = viewModel(factory = viewModelFactory { initializer { AjustesViewModel(app.base, app.registro) } })
+    val vm: AjustesViewModel = viewModel(factory = viewModelFactory { initializer { AjustesViewModel(app.base, app.registro, app.bloqueoActivado) } })
     val ui by vm.estado.collectAsStateWithLifecycle()
     ui?.let { AjustesContenido(it, vm, alAvisar) }
 }
@@ -124,6 +129,9 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
     val c = MiGastoTheme.colores
     val contexto = LocalContext.current
     val ambito = rememberCoroutineScope()
+    val autenticador = LocalAutenticador.current
+    val app = contexto.applicationContext as MiGastoApp
+    val bloqueo by app.bloqueoActivado.collectAsStateWithLifecycle()
     var hoja by remember { mutableStateOf<Hoja?>(null) }
     var dialogo by remember { mutableStateOf<DialogoDeRespaldo?>(null) }
     var respaldoListo by remember { mutableStateOf<ByteArray?>(null) }
@@ -249,6 +257,28 @@ private fun AjustesContenido(ui: AjustesUi, vm: AjustesViewModel, alAvisar: (Str
             FilaDeAjuste(Icons.Outlined.Lock, "Respaldo cifrado", subtitulo = ui.subtituloDelRespaldo, alTocar = { dialogo = DialogoDeRespaldo.PedirContrasenaParaCrear })
             Separador()
             FilaDeAjuste(Icons.Outlined.Description, "Restaurar un respaldo", subtitulo = "Desde un archivo .mgb, con tu contraseña", alTocar = { abrirArchivo.launch(arrayOf("*/*")) })
+            Separador()
+            FilaDeAjuste(
+                Icons.Outlined.Lock, "Bloqueo con huella o PIN", subtitulo = "Usa el desbloqueo de tu teléfono",
+                interruptor = bloqueo == true,
+                alCambiar = {
+                    if (bloqueo == true) {
+                        vm.establecerBloqueo(false)
+                    } else {
+                        when (decidirAlActivar(autenticador.disponible())) {
+                            DecisionAlActivar.Explicar -> alAvisar(TextosDelBloqueo.SIN_BLOQUEO_EN_EL_TELEFONO)
+                            DecisionAlActivar.PedirConfirmacion -> ambito.launch {
+                                val correcta = try {
+                                    autenticador.autenticar(TextosDelBloqueo.MOTIVO_AL_ACTIVAR)
+                                } catch (e: Exception) {
+                                    false
+                                }
+                                if (activarSiConfirmo(correcta)) vm.establecerBloqueo(true)
+                            }
+                        }
+                    }
+                },
+            )
         }
         Text("Tus datos se guardan solo en este teléfono.", style = MaterialTheme.typography.bodySmall, color = c.apagado, modifier = Modifier.padding(start = 4.dp, top = 12.dp))
     }

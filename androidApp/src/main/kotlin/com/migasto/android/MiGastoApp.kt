@@ -46,11 +46,17 @@ class MiGastoApp : Application() {
     /** Si el usuario ocultó los montos (el ojo del Resumen). Vale para todas las pantallas. */
     val montosOcultos = MutableStateFlow(false)
 
+    /** Si el bloqueo con huella o PIN está activado; `null` mientras se lee de la base. */
+    val bloqueoActivado = MutableStateFlow<Boolean?>(null)
+
     override fun onCreate() {
         super.onCreate()
         base = ambito.async {
             val clave = ClaveDeLaBase(AlmacenSeguroAndroid(this@MiGastoApp)).obtenerOCrear()
-            BaseMiGasto.abrir(FabricaDeDriverAndroid(this@MiGastoApp), "migasto.db", clave).also(SemillaDeEjemplo::aplicar)
+            BaseMiGasto.abrir(FabricaDeDriverAndroid(this@MiGastoApp), "migasto.db", clave).also {
+                SemillaDeEjemplo.aplicar(it)
+                bloqueoActivado.value = it.ajustes.bloqueoActivado()
+            }
         }
         procesador = ambito.async {
             val b = base.await()

@@ -43,6 +43,7 @@ data class AjustesUi(
 class AjustesViewModel(
     private val baseDiferida: Deferred<BaseMiGasto>,
     private val registroDiferido: Deferred<RegistroDeMovimientos>,
+    private val bloqueoActivado: MutableStateFlow<Boolean?>,
 ) : ViewModel() {
     private val refresco = MutableStateFlow(0)
 
@@ -74,6 +75,14 @@ class AjustesViewModel(
     fun guardarPresupuesto(monto: Double) = cambiar { it.ajustes.guardarPresupuesto(monto) }
 
     fun alternarIngresosAutomaticos() = cambiar { it.ajustes.establecerGuardarIngresosAutomaticamente(!it.ajustes.guardarIngresosAutomaticamente()) }
+
+    /** Activa o apaga el bloqueo; la puerta de bloqueo lo ve al instante. */
+    fun establecerBloqueo(activado: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            baseDiferida.await().ajustes.establecerBloqueoActivado(activado)
+            bloqueoActivado.value = activado
+        }
+    }
 
     fun alternarMontoEnPantallaBloqueada() = cambiar { it.ajustes.establecerMostrarMontoEnPantallaBloqueada(!it.ajustes.mostrarMontoEnPantallaBloqueada()) }
 
