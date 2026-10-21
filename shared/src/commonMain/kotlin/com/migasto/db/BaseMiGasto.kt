@@ -8,6 +8,7 @@ class BaseMiGasto(private val driver: SqlDriver) : AutoCloseable {
 
     val movimientos = RepositorioMovimientos(db)
     val categoriasPropias = RepositorioCategoriasPropias(db)
+    val ajustes = RepositorioAjustes(db)
 
     override fun close() = driver.close()
 

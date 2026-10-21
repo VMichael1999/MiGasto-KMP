@@ -1,0 +1,106 @@
+package com.migasto.db
+
+import com.migasto.domain.Categoria
+import com.migasto.domain.claveDeAlias
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.jsonObject
+
+/**
+ * Los ajustes del usuario, en la misma base cifrada. Reemplaza el uso de SharedPreferences de
+ * `ExpenseRepositoryImpl` y de los providers de la app de Flutter, con las mismas claves.
+ */
+class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
+    private val consultas get() = db.ajustesQueries
+
+    // Presupuesto
+
+    /** 0 = sin definir: no se inventa un presupuesto. */
+    fun presupuesto(): Double = leer(CLAVE_PRESUPUESTO)?.toDoubleOrNull() ?: 0.0
+
+    fun guardarPresupuesto(monto: Double) = guardar(CLAVE_PRESUPUESTO, monto.toString())
+
+    // Categorías aprendidas (comercio en minúsculas -> clave de la categoría)
+
+    fun aprendidas(): Map<String, String> = leerMapa(CLAVE_APRENDIDAS)
+
+    fun categoriaAprendida(comercio: String): Categoria? =
+        aprendidas()[claveDeComercio(comercio)]?.let { Categoria.desdeClave(it) ?: Categoria.Otros }
+
+    fun guardarAprendida(comercio: String, categoria: Categoria) =
+        guardarMapa(CLAVE_APRENDIDAS, aprendidas() + (claveDeComercio(comercio) to categoria.clave))
+
+    fun olvidarAprendida(comercio: String) =
+        guardarMapa(CLAVE_APRENDIDAS, aprendidas() - claveDeComercio(comercio))
+
+    fun olvidarTodasLasAprendidas() = consultas.borrar(CLAVE_APRENDIDAS)
+
+    // Alias (clave normalizada -> nombre)
+
+    fun aliases(): Map<String, String> = leerMapa(CLAVE_ALIAS)
+
+    /** Un alias vacío, o igual al nombre original, quita el nombre guardado. */
+    fun establecerAlias(comercio: String, alias: String) {
+        val limpio = alias.trim()
+        val clave = claveDeAlias(comercio)
+        guardarMapa(CLAVE_ALIAS, if (limpio.isEmpty() || limpio == comercio.trim()) aliases() - clave else aliases() + (clave to limpio))
+    }
+
+    /** Agrega los de un respaldo; si ya tenías uno para el mismo nombre, se queda el tuyo. */
+    fun mezclarAliases(otros: Map<String, String>) = guardarMapa(CLAVE_ALIAS, otros + aliases())
+
+    // Proveedores de pago
+
+    fun proveedoresActivos(): Map<String, Boolean> {
+        val guardado = leer(CLAVE_PROVEEDORES)?.let { texto ->
+            runCatching {
+                Json.parseToJsonElement(texto).jsonObject.mapValues { (it.value as JsonPrimitive).booleanOrNull ?: error("no es booleano") }
+            }.getOrNull()
+        }
+        return guardado ?: PROVEEDORES_POR_DEFECTO
+    }
+
+    fun guardarProveedoresActivos(activos: Map<String, Boolean>) =
+        guardar(CLAVE_PROVEEDORES, JsonObject(activos.mapValues { JsonPrimitive(it.value) }).toString())
+
+    fun proveedorActivo(proveedor: String): Boolean = proveedoresActivos()[proveedor] == true
+
+    // Preferencias
+
+    /** Apagado por defecto: un ingreso detectado espera la confirmación del usuario. */
+    fun guardarIngresosAutomaticamente(): Boolean = leer(CLAVE_INGRESOS_AUTOMATICOS) == "true"
+
+    fun establecerGuardarIngresosAutomaticamente(valor: Boolean) = guardar(CLAVE_INGRESOS_AUTOMATICOS, valor.toString())
+
+    // Interno
+
+    internal fun guardarCrudo(clave: String, valor: String) = guardar(clave, valor)
+
+    private fun leer(clave: String): String? = consultas.valor(clave).executeAsOneOrNull()
+
+    private fun guardar(clave: String, valor: String) = consultas.guardar(clave, valor)
+
+    private fun leerMapa(clave: String): Map<String, String> = leer(clave)?.let { texto ->
+        runCatching {
+            Json.parseToJsonElement(texto).jsonObject.mapValues { (it.value as JsonPrimitive).also { p -> check(p.isString) }.content }
+        }.getOrNull()
+    } ?: emptyMap()
+
+    private fun guardarMapa(clave: String, mapa: Map<String, String>) =
+        guardar(clave, JsonObject(mapa.mapValues { JsonPrimitive(it.value) }).toString())
+
+    private fun claveDeComercio(comercio: String) = comercio.lowercase().trim()
+
+    companion object {
+        // Las mismas claves que usa la app de Flutter.
+        const val CLAVE_PRESUPUESTO = "migasto_monthly_budget_v2"
+        const val CLAVE_PROVEEDORES = "migasto_providers_enabled_v2"
+        const val CLAVE_ALIAS = "migasto_aliases_v1"
+        const val CLAVE_APRENDIDAS = "migasto_category_overrides_v2"
+        const val CLAVE_INGRESOS_AUTOMATICOS = "migasto_auto_save_income"
+
+        private val PROVEEDORES_POR_DEFECTO = mapOf("yape" to true, "plin" to true, "googlePay" to true)
+    }
+}
