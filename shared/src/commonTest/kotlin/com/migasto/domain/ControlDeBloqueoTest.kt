@@ -170,4 +170,11 @@ class ControlDeBloqueoTest {
             assertEquals("true", base.ajustes.leerCrudo("migasto_passcode_enabled"))
         }
     }
+
+    @Test
+    fun elConstructorParaSwiftUsaElRelojDelSistema() {
+        val c = ControlDeBloqueo(activadoAlAbrir = true)
+        assertTrue(c.alAbrir())
+        assertFalse(ControlDeBloqueo(activadoAlAbrir = false).alAbrir())
+    }
 }

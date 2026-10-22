@@ -1,5 +1,6 @@
 package com.migasto.domain
 
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -30,6 +31,9 @@ class ControlDeBloqueo(
     private val gracia: Duration = 30.seconds,
     private val reloj: () -> Instant,
 ) {
+    /** Swift no ve los valores por defecto de Kotlin. */
+    constructor(activadoAlAbrir: Boolean) : this(activadoAlAbrir, 30.seconds, { Clock.System.now() })
+
     private var bloqueada: Boolean = activadoAlAbrir
     private var autenticando = false
     private var pasoAlFondoEn: Instant? = null
