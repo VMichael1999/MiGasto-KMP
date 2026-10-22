@@ -11,6 +11,7 @@ struct AjustesView: View {
     @State private var borrandoUbicaciones = false
     @State private var pidiendoContrasena: ContrasenaPara?
     @State private var eligiendoArchivo = false
+    @State private var verDondePagaste = false
 
     enum Hoja: Identifiable {
         case presupuesto, aprendidas, propias, alias
@@ -73,6 +74,8 @@ struct AjustesView: View {
 
                         Etiqueta(TextosDeLaPantallaDeAjustes.shared.SECCION_UBICACION)
                         Caja {
+                            FilaDeAjuste(simbolo: "map", titulo: "Dónde pagaste", subtitulo: "Tus pagos con ubicación, por zona") { verDondePagaste = true }
+                            Separador()
                             FilaDeAjuste(
                                 simbolo: "mappin.and.ellipse", titulo: "Borrar todas las ubicaciones", subtitulo: "Los movimientos se mantienen"
                             ) { borrandoUbicaciones = true }
@@ -114,6 +117,7 @@ struct AjustesView: View {
             }
             .background(Paleta.fondo)
             .navigationTitle(TextosDeLaPantallaDeAjustes.shared.TITULO)
+            .navigationDestination(isPresented: $verDondePagaste) { DondePagasteView(aplicacion: aplicacion) }
         }
         .task { await modelo.observar() }
         .sheet(item: $hoja) { hoja in
