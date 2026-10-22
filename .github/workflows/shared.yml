@@ -81,11 +81,12 @@ jobs:
         run: |
           ./gradlew :shared:podspec :shared:generateDummyFramework --no-daemon
           cd iosApp && pod install
+      # El framework de Kotlin solo se compila para arm64 (el simulador de este Mac): por eso ARCHS=arm64.
       - name: Compilar la app para el simulador (sin firma)
         run: |
           xcodebuild -workspace iosApp/MiGasto.xcworkspace -scheme MiGasto -configuration Debug \
             -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/ios \
-            CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=YES CODE_SIGNING_ALLOWED=YES build
+            ARCHS=arm64 CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=YES CODE_SIGNING_ALLOWED=YES build
       - name: Comprobar que las extensiones quedaron dentro de la app
         run: |
           app=build/ios/Build/Products/Debug-iphonesimulator/MiGasto.app
