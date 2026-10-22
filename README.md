@@ -14,7 +14,7 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 511 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 516 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **En marcha**: proyecto, base cifrada con Keychain, Resumen, Movimientos, Nuevo movimiento, Detalle y Reportes; faltan las demás pantallas |
 
@@ -72,6 +72,14 @@ El Resumen, Movimientos, Nuevo movimiento, Detalle, Reportes, Ajustes y Dónde p
 |---|---|---|---|
 | ![Ajustes en iPhone](docs/comparacion/ios-mg-06-ajustes.png) | ![Respaldo en iPhone](docs/comparacion/ios-mg-06-ajustes-respaldo.png) | ![Bloqueo en iPhone](docs/comparacion/ios-mg-06-bloqueo-face-id.png) | ![Dónde pagaste en iPhone](docs/comparacion/ios-mg-08-donde-pagaste.png) |
 
+### Compartir capturas (iPhone)
+
+La extensión «Compartir» (`iosApp/MiGastoCompartir`) recibe una captura, lee su texto con Vision en el teléfono y lo deja en una cola de la carpeta compartida de la app (`group.com.migasto.ios`). La extensión nunca toca la base cifrada ni su clave: al abrir MiGasto, la app registra lo pendiente con `RecibidorDeCapturas` de `shared` (las mismas reglas que la lectura de pantalla de Android: solo cuenta la constancia, lo ya leído no se repite y los proveedores apagados se ignoran) y borra el archivo. De cada captura solo se guardan los primeros 1500 caracteres de texto, no la imagen.
+
+| Pago registrado desde una captura |
+|---|
+| ![Captura compartida en iPhone](docs/comparacion/ios-mg-09-captura-compartida.png) |
+
 ## Arquitectura
 
 ```text
@@ -113,7 +121,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **511 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **516 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
 
@@ -157,7 +165,7 @@ También sirve la variable de entorno `GOOGLE_MAPS_API_KEY`. Sin clave todo lo d
 
 ## Qué falta
 
-- **iPhone** (`iosApp`): faltan la extensión para compartir capturas con Vision, App Intents y el widget. «Agregar ubicación», «Dónde pagaste» (con el mapa de Apple, sin clave) y el bloqueo con Face ID ya están, probados en el simulador (ubicación y Face ID simulados), no en un iPhone real.
+- **iPhone** (`iosApp`): faltan App Intents y el widget. «Agregar ubicación», «Dónde pagaste» (con el mapa de Apple, sin clave), el bloqueo con Face ID y compartir capturas con Vision ya están, probados en el simulador (ubicación y Face ID simulados), no en un iPhone real.
 - **Mapa de Google sin probar:** «Agregar ubicación» y «Dónde pagaste» están hechos y probados en el emulador, pero el mapa solo se dibuja con una clave de Google Maps (ver «Cómo correrlo») y no tengo una para probarlo: sin clave la app lo explica en vez de mostrar un mapa en blanco.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).

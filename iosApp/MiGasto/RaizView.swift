@@ -5,6 +5,7 @@ import SwiftUI
 struct RaizView: View {
     @Environment(Aplicacion.self) private var aplicacion
     @State private var nuevoAbierto = false
+    @Environment(\.scenePhase) private var fase
 
     var body: some View {
         TabView {
@@ -49,6 +50,8 @@ struct RaizView: View {
             }
         }
         .animation(.easeInOut(duration: 0.25), value: aplicacion.aviso)
+        .task { aplicacion.registrarCapturasPendientes() }
+        .onChange(of: fase) { _, nueva in if nueva == .active { aplicacion.registrarCapturasPendientes() } }
         .fullScreenCover(isPresented: $nuevoAbierto) { NuevoMovimientoView() }
     }
 }
