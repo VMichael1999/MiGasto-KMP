@@ -32,6 +32,7 @@ class PantallaDeAjustes(
     val ingresosAutomaticos: Boolean,
     val subtituloDeLosIngresosAutomaticos: String,
     val montoEnPantallaBloqueada: Boolean,
+    val bloqueoActivado: Boolean,
     val subtituloDelMontoEnPantallaBloqueada: String,
     val proveedores: List<ProveedorDeAjuste>,
     val subtituloDelRespaldo: String,
@@ -76,6 +77,7 @@ class SeguimientoDeAjustes(
                 "Apagado: cada ingreso espera tu confirmación."
             },
             montoEnPantallaBloqueada = a.mostrarMontoEnPantallaBloqueada(),
+            bloqueoActivado = a.bloqueoActivado(),
             subtituloDelMontoEnPantallaBloqueada = if (a.mostrarMontoEnPantallaBloqueada()) {
                 "Visible: el aviso muestra el monto y el nombre"
             } else {
@@ -109,6 +111,9 @@ class SeguimientoDeAjustes(
 
     fun alternarMontoEnPantallaBloqueada() =
         cambiar { base.ajustes.establecerMostrarMontoEnPantallaBloqueada(!base.ajustes.mostrarMontoEnPantallaBloqueada()) }
+
+    /** Activa o apaga el bloqueo de la app (la autenticación del teléfono la pide cada sistema antes de activarlo). */
+    fun establecerBloqueo(activado: Boolean) = cambiar { base.ajustes.establecerBloqueoActivado(activado) }
 
     fun alternarProveedor(clave: String) = cambiar {
         val activos = base.ajustes.proveedoresActivos()

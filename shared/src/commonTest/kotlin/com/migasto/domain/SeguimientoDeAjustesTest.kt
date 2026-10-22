@@ -186,4 +186,14 @@ class SeguimientoDeAjustesTest {
         assertEquals("Registro automático", TextosDeLaPantallaDeAjustes.SECCION_REGISTRO)
         assertEquals("Tus datos se guardan solo en este teléfono.", TextosDeLaPantallaDeAjustes.PIE)
     }
+
+    @Test
+    fun elBloqueoSeActivaYSeApaga() = probar { base, s ->
+        assertFalse(s.estado.first().bloqueoActivado)
+        s.establecerBloqueo(true)
+        assertTrue(s.estado.first().bloqueoActivado)
+        assertTrue(base.ajustes.bloqueoActivado())
+        s.establecerBloqueo(false)
+        assertFalse(s.estado.first().bloqueoActivado)
+    }
 }
