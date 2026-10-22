@@ -15,6 +15,7 @@ import com.migasto.domain.PaymentSource
 import com.migasto.domain.PeriodoDeUbicaciones
 import com.migasto.domain.TextosDeDondePagaste
 import com.migasto.domain.ZonaDePagos
+import com.migasto.domain.armarPantallaDeDondePagaste
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -39,7 +40,7 @@ class DondePagastePantallaTest {
         regla.setContent {
             MiGastoTheme(oscuro = false) {
                 DondePagasteContenido(
-                    ui = DondePagasteUi(periodo, zonas, emptyMap(), oculto),
+                    ui = DondePagasteUi(armarPantallaDeDondePagaste(zonas, periodo, emptyMap()), oculto),
                     alElegirPeriodo = { periodos += it },
                     alVolver = { volvio++ },
                     mapa = { _, modificador -> Text("mapa de prueba", modificador) },
