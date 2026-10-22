@@ -45,9 +45,23 @@ final class Aplicacion {
         aviso = nil
     }
 
+    private let recibidorDeCapturas: RecibidorDeCapturas
+
+    /// Registra las capturas que el usuario compartió con la extensión «Compartir» y dice qué pasó con cada una.
+    func registrarCapturasPendientes() {
+        let textos = ColaDeCapturas.tomarPendientes()
+        guard !textos.isEmpty else { return }
+        var resultados: [ResultadoDeLaCaptura] = []
+        for texto in textos { resultados.append(recibidorDeCapturas.recibir(texto: texto)) }
+        guard let ultimo = resultados.last else { return }
+        let mensaje = resultados.count == 1 ? ultimo.titulo : "\(resultados.count) capturas: \(ultimo.titulo)"
+        avisar(mensaje, segundos: 5)
+    }
+
     init() {
         base = abrirLaBaseDeLaApp()
         registro = crearRegistroDeMovimientos(base: base)
         bloqueoActivado = base.ajustes.bloqueoActivado()
+        recibidorDeCapturas = RecibidorDeCapturas(base: base, registro: registro)
     }
 }
