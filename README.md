@@ -135,7 +135,7 @@ MiGasto-KMP/
 
 - **526 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
-- La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
+- La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de `shared` en iOS, la compilación de `iosApp` (app y extensiones, para el simulador y sin firma) y los tests de Android en un emulador. El job de `iosApp` se probó en un clon limpio de este Mac con los mismos comandos; en GitHub aún no corrió (no se hizo push), así que depende de que `macos-latest` traiga un Xcode con iOS 26.
 
 ## Cómo correrlo
 
@@ -163,7 +163,7 @@ cd iosApp && pod install
 open MiGasto.xcworkspace
 ```
 
-Al compilar, la pod `shared` construye el framework con Gradle. La versión de depuración trae los datos de ejemplo del diseño si la base está vacía; la de producción no los compila.
+En un clon limpio, antes de `pod install` hace falta `./gradlew :shared:podspec :shared:generateDummyFramework`, y para compilar sin un simulador elegido hay que pasar `ARCHS=arm64` (el framework de Kotlin solo se genera para arm64). Al compilar, la pod `shared` construye el framework con Gradle. La versión de depuración trae los datos de ejemplo del diseño si la base está vacía; la de producción no los compila.
 
 ### Mapa (opcional)
 
