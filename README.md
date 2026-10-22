@@ -14,7 +14,7 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 507 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 511 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **En marcha**: proyecto, base cifrada con Keychain, Resumen, Movimientos, Nuevo movimiento, Detalle y Reportes; faltan las demás pantallas |
 
@@ -54,7 +54,7 @@ Lo que en la app de Flutter eran dos lectores de reglas (Dart y Kotlin) y una co
 
 ## iPhone
 
-El Resumen, Movimientos, Nuevo movimiento, Detalle, Reportes y Ajustes de iPhone usan los mismos montos, reglas y textos que Android: los pone `shared` (`PantallaDelResumen`, `PantallaDeMovimientos`, `FormularioNuevoMovimiento`, `SeguimientoDelDetalle`, `SeguimientoDeReportes`, `SeguimientoDeAjustes`) y SwiftUI solo los dibuja, con la barra de pestañas de iOS 26 (Liquid Glass).
+El Resumen, Movimientos, Nuevo movimiento, Detalle, Reportes, Ajustes y Dónde pagaste de iPhone usan los mismos montos, reglas y textos que Android: los pone `shared` (`PantallaDelResumen`, `PantallaDeMovimientos`, `FormularioNuevoMovimiento`, `SeguimientoDelDetalle`, `SeguimientoDeReportes`, `SeguimientoDeAjustes`, `SeguimientoDeDondePagaste`) y SwiftUI solo los dibuja, con la barra de pestañas de iOS 26 (Liquid Glass).
 
 | Resumen | Resumen oscuro, montos ocultos | Movimientos | Hoja de filtros |
 |---|---|---|---|
@@ -68,9 +68,9 @@ El Resumen, Movimientos, Nuevo movimiento, Detalle, Reportes y Ajustes de iPhone
 |---|---|---|
 | ![Reportes en iPhone](docs/comparacion/ios-mg-05-reportes-mes.png) | ![Reportes por rango en iPhone](docs/comparacion/ios-mg-05-reportes-rango.png) | ![Detalle con ubicación en iPhone](docs/comparacion/ios-mg-04-detalle-con-ubicacion.png) |
 
-| Ajustes | Respaldo cifrado creado | Bloqueo con Face ID |
-|---|---|---|
-| ![Ajustes en iPhone](docs/comparacion/ios-mg-06-ajustes.png) | ![Respaldo en iPhone](docs/comparacion/ios-mg-06-ajustes-respaldo.png) | ![Bloqueo en iPhone](docs/comparacion/ios-mg-06-bloqueo-face-id.png) |
+| Ajustes | Respaldo cifrado creado | Bloqueo con Face ID | Dónde pagaste |
+|---|---|---|---|
+| ![Ajustes en iPhone](docs/comparacion/ios-mg-06-ajustes.png) | ![Respaldo en iPhone](docs/comparacion/ios-mg-06-ajustes-respaldo.png) | ![Bloqueo en iPhone](docs/comparacion/ios-mg-06-bloqueo-face-id.png) | ![Dónde pagaste en iPhone](docs/comparacion/ios-mg-08-donde-pagaste.png) |
 
 ## Arquitectura
 
@@ -113,7 +113,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **507 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **511 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
 
@@ -157,7 +157,7 @@ También sirve la variable de entorno `GOOGLE_MAPS_API_KEY`. Sin clave todo lo d
 
 ## Qué falta
 
-- **iPhone** (`iosApp`): falta «Dónde pagaste» (la pantalla con el mapa de todas las zonas), la extensión para compartir capturas con Vision, App Intents, y el widget. «Agregar ubicación» (con mapa de Apple, sin clave) y el bloqueo con Face ID ya están, probados en el simulador (ubicación y Face ID simulados), no en un iPhone real.
+- **iPhone** (`iosApp`): faltan la extensión para compartir capturas con Vision, App Intents y el widget. «Agregar ubicación», «Dónde pagaste» (con el mapa de Apple, sin clave) y el bloqueo con Face ID ya están, probados en el simulador (ubicación y Face ID simulados), no en un iPhone real.
 - **Mapa de Google sin probar:** «Agregar ubicación» y «Dónde pagaste» están hechos y probados en el emulador, pero el mapa solo se dibuja con una clave de Google Maps (ver «Cómo correrlo») y no tengo una para probarlo: sin clave la app lo explica en vez de mostrar un mapa en blanco.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
