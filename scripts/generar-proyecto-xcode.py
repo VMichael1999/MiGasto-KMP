@@ -31,13 +31,17 @@ def archivos(carpeta, extensiones):
     return sorted(salida)
 
 
-# La extensión «Compartir»: lee con Vision las capturas que el usuario comparte y las deja en una cola de la app.
-EXT = "MiGastoCompartir"
-BUNDLE_EXT = BUNDLE + ".compartir"
+# Extensiones de la app. Cada una vive en su carpeta de iosApp, se embebe en la app y se compila aparte:
+#  - Compartir: lee con Vision las capturas que el usuario comparte y las deja en una cola de la app.
+#  - Widgets: el widget de pantalla de inicio y el control del Centro de control que abren «Nuevo movimiento».
+EXTENSIONES = [
+    # `compartidas`: archivos de la app que también se compilan dentro de la extensión.
+    {"nombre": "MiGastoCompartir", "sufijo": "compartir", "entitlements": True,
+     "compartidas": [os.path.join(NOMBRE, "Compartido", "ColaDeCapturas.swift")]},
+    {"nombre": "MiGastoWidgets", "sufijo": "widgets", "entitlements": False, "compartidas": []},
+]
+
 fuentes = archivos(NOMBRE, (".swift",))
-fuentes_ext = archivos(EXT, (".swift",))
-# Estos archivos están en la app y también se compilan dentro de la extensión.
-compartidas = [os.path.join(NOMBRE, "Compartido", "ColaDeCapturas.swift")]
 recursos = archivos(os.path.join(NOMBRE, "Resources"), (".ttf", ".otf"))
 
 objetos = []  # (id, comentario, cuerpo)
@@ -51,7 +55,11 @@ def q(s):
     return '"' + s.replace('"', '\\"') + '"'
 
 
-# Referencias a archivos
+def lista(ids):
+    return "".join(f"\t\t\t\t{i},\n" for i in ids)
+
+
+# Referencias a archivos de la app
 refs = {}
 for ruta in fuentes:
     refs[ruta] = uid("ref" + ruta)
@@ -65,39 +73,20 @@ ref_assets = uid("ref-assets")
 obj(ref_assets, "Assets.xcassets", "isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = \"<group>\";")
 ref_ent_app = uid("ref-ent-app")
 obj(ref_ent_app, f"{NOMBRE}.entitlements", f"isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = {NOMBRE}.entitlements; sourceTree = \"<group>\";")
-ref_ent_ext = uid("ref-ent-ext")
-obj(ref_ent_ext, f"{EXT}.entitlements", f"isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = {EXT}.entitlements; sourceTree = \"<group>\";")
-ref_info_ext = uid("ref-info-ext")
-obj(ref_info_ext, "Info.plist", "isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = \"<group>\";")
-for ruta in fuentes_ext:
-    refs[ruta] = uid("ref" + ruta)
-    obj(refs[ruta], os.path.basename(ruta), f"isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = {q(os.path.basename(ruta))}; sourceTree = \"<group>\";")
-ref_producto_ext = uid("ref-producto-ext")
-obj(ref_producto_ext, f"{EXT}.appex", f"isa = PBXFileReference; explicitFileType = \"wrapper.app-extension\"; includeInIndex = 0; path = {EXT}.appex; sourceTree = BUILT_PRODUCTS_DIR;")
 ref_producto = uid("ref-producto")
 obj(ref_producto, f"{NOMBRE}.app", f"isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = {NOMBRE}.app; sourceTree = BUILT_PRODUCTS_DIR;")
 
-# Archivos de compilación
+# Archivos de compilación de la app
 build = {}
 for ruta in fuentes + recursos:
     build[ruta] = uid("build" + ruta)
     obj(build[ruta], f"{os.path.basename(ruta)} in " + ("Sources" if ruta in fuentes else "Resources"), f"isa = PBXBuildFile; fileRef = {refs[ruta]};")
-build_ext = {}
-for ruta in fuentes_ext + compartidas:
-    build_ext[ruta] = uid("buildext" + ruta)
-    obj(build_ext[ruta], f"{os.path.basename(ruta)} in Sources", f"isa = PBXBuildFile; fileRef = {refs[ruta]};")
-build_embed = uid("build-embed-ext")
-obj(build_embed, f"{EXT}.appex in Embed Foundation Extensions", f"isa = PBXBuildFile; fileRef = {ref_producto_ext}; settings = {{ATTRIBUTES = (RemoveHeadersOnCopy, ); }};")
 build_assets = uid("build-assets")
 obj(build_assets, "Assets.xcassets in Resources", f"isa = PBXBuildFile; fileRef = {ref_assets};")
 
-# Grupos
-def grupo_de(prefijo, nombre):
-    hijos = [r for r in (fuentes + recursos) if os.path.dirname(r) == prefijo]
-    return hijos
-
+# Grupos de la app
 g_resources = uid("grupo-resources")
-obj(g_resources, "Resources", "isa = PBXGroup; children = (\n" + "".join(f"\t\t\t\t{refs[r]},\n" for r in recursos) + "\t\t\t); path = Resources; sourceTree = \"<group>\";")
+obj(g_resources, "Resources", "isa = PBXGroup; children = (\n" + lista([refs[r] for r in recursos]) + "\t\t\t); path = Resources; sourceTree = \"<group>\";")
 g_app = uid("grupo-app")
 raiz_swift = [r for r in fuentes if os.path.dirname(r) == NOMBRE]
 subcarpetas = sorted({os.path.dirname(r) for r in fuentes if os.path.dirname(r) != NOMBRE})
@@ -105,27 +94,16 @@ g_sub = {}
 for sc in subcarpetas:
     g_sub[sc] = uid("grupo" + sc)
     hijos = [r for r in fuentes if os.path.dirname(r) == sc]
-    obj(g_sub[sc], os.path.basename(sc), "isa = PBXGroup; children = (\n" + "".join(f"\t\t\t\t{refs[r]},\n" for r in hijos) + f"\t\t\t); path = {q(os.path.basename(sc))}; sourceTree = \"<group>\";")
+    obj(g_sub[sc], os.path.basename(sc), "isa = PBXGroup; children = (\n" + lista([refs[r] for r in hijos]) + f"\t\t\t); path = {q(os.path.basename(sc))}; sourceTree = \"<group>\";")
 hijos_app = [refs[r] for r in raiz_swift] + list(g_sub.values()) + [g_resources, ref_assets, ref_info, ref_ent_app]
-obj(g_app, NOMBRE, "isa = PBXGroup; children = (\n" + "".join(f"\t\t\t\t{h},\n" for h in hijos_app) + f"\t\t\t); path = {NOMBRE}; sourceTree = \"<group>\";")
-g_ext = uid("grupo-ext")
-hijos_ext = [refs[r] for r in fuentes_ext] + [ref_info_ext, ref_ent_ext]
-obj(g_ext, EXT, "isa = PBXGroup; children = (\n" + "".join(f"\t\t\t\t{h},\n" for h in hijos_ext) + f"\t\t\t); path = {EXT}; sourceTree = \"<group>\";")
-g_productos = uid("grupo-productos")
-obj(g_productos, "Products", f"isa = PBXGroup; children = (\n\t\t\t\t{ref_producto},\n\t\t\t\t{ref_producto_ext},\n\t\t\t); name = Products; sourceTree = \"<group>\";")
-g_raiz = uid("grupo-raiz")
-obj(g_raiz, "", f"isa = PBXGroup; children = (\n\t\t\t\t{g_app},\n\t\t\t\t{g_ext},\n\t\t\t\t{g_productos},\n\t\t\t); sourceTree = \"<group>\";")
+obj(g_app, NOMBRE, "isa = PBXGroup; children = (\n" + lista(hijos_app) + f"\t\t\t); path = {NOMBRE}; sourceTree = \"<group>\";")
 
-# Fases
-f_fuentes, f_frameworks, f_recursos = uid("fase-fuentes"), uid("fase-frameworks"), uid("fase-recursos")
-obj(f_fuentes, "Sources", "isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (\n" + "".join(f"\t\t\t\t{build[r]},\n" for r in fuentes) + "\t\t\t); runOnlyForDeploymentPostprocessing = 0;")
+# Fases de la app
+f_fuentes, f_frameworks, f_recursos, f_embed = uid("fase-fuentes"), uid("fase-frameworks"), uid("fase-recursos"), uid("fase-embed")
+obj(f_fuentes, "Sources", "isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (\n" + lista([build[r] for r in fuentes]) + "\t\t\t); runOnlyForDeploymentPostprocessing = 0;")
 obj(f_frameworks, "Frameworks", "isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (\n\t\t\t); runOnlyForDeploymentPostprocessing = 0;")
-obj(f_recursos, "Resources", "isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (\n" + "".join(f"\t\t\t\t{build[r]},\n" for r in recursos) + f"\t\t\t\t{build_assets},\n\t\t\t); runOnlyForDeploymentPostprocessing = 0;")
+obj(f_recursos, "Resources", "isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (\n" + lista([build[r] for r in recursos] + [build_assets]) + "\t\t\t); runOnlyForDeploymentPostprocessing = 0;")
 
-f_fuentes_ext, f_frameworks_ext, f_embed = uid("fase-fuentes-ext"), uid("fase-frameworks-ext"), uid("fase-embed-ext")
-obj(f_fuentes_ext, "Sources", "isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (\n" + "".join(f"\t\t\t\t{build_ext[r]},\n" for r in fuentes_ext + compartidas) + "\t\t\t); runOnlyForDeploymentPostprocessing = 0;")
-obj(f_frameworks_ext, "Frameworks", "isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (\n\t\t\t); runOnlyForDeploymentPostprocessing = 0;")
-obj(f_embed, "Embed Foundation Extensions", f"isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = \"\"; dstSubfolderSpec = 13; files = (\n\t\t\t\t{build_embed},\n\t\t\t); name = \"Embed Foundation Extensions\"; runOnlyForDeploymentPostprocessing = 0;")
 
 # Configuraciones
 def config(id_, nombre, ajustes):
@@ -163,40 +141,97 @@ t_comunes = {
     "SWIFT_EMIT_LOC_STRINGS": "YES",
     "TARGETED_DEVICE_FAMILY": "1",
 }
+
+
+def lista_de_configuraciones(id_, nombre_del_target, debug, release):
+    obj(id_, f'Build configuration list for PBXNativeTarget "{nombre_del_target}"',
+        f"isa = XCConfigurationList; buildConfigurations = (\n\t\t\t\t{debug},\n\t\t\t\t{release},\n\t\t\t); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;")
+
+
 c_debug, c_release = uid("target-debug"), uid("target-release")
 config(c_debug, "Debug", t_comunes)
 config(c_release, "Release", t_comunes)
-t_ext = {
-    **t_comunes,
-    "APPLICATION_EXTENSION_API_ONLY": "YES",
-    "CODE_SIGN_ENTITLEMENTS": f"{EXT}/{EXT}.entitlements",
-    "INFOPLIST_FILE": f"{EXT}/Info.plist",
-    "LD_RUNPATH_SEARCH_PATHS": q("$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"),
-    "PRODUCT_BUNDLE_IDENTIFIER": BUNDLE_EXT,
-    "SKIP_INSTALL": "YES",
-}
-for clave in ("ASSETCATALOG_COMPILER_APPICON_NAME", "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME"):
-    t_ext.pop(clave)
-ce_debug, ce_release = uid("ext-debug"), uid("ext-release")
-config(ce_debug, "Debug", t_ext)
-config(ce_release, "Release", t_ext)
 l_proy, l_target = uid("lista-proyecto"), uid("lista-target")
 obj(l_proy, f'Build configuration list for PBXProject "{NOMBRE}"', f"isa = XCConfigurationList; buildConfigurations = (\n\t\t\t\t{p_debug},\n\t\t\t\t{p_release},\n\t\t\t); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;")
-obj(l_target, f'Build configuration list for PBXNativeTarget "{NOMBRE}"', f"isa = XCConfigurationList; buildConfigurations = (\n\t\t\t\t{c_debug},\n\t\t\t\t{c_release},\n\t\t\t); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;")
-l_ext = uid("lista-ext")
-obj(l_ext, f'Build configuration list for PBXNativeTarget "{EXT}"', f"isa = XCConfigurationList; buildConfigurations = (\n\t\t\t\t{ce_debug},\n\t\t\t\t{ce_release},\n\t\t\t); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;")
+lista_de_configuraciones(l_target, NOMBRE, c_debug, c_release)
 
-# Target y proyecto
 target = uid("target")
-target_ext = uid("target-ext")
 proyecto = uid("proyecto")
-proxy = uid("proxy-ext")
-obj(proxy, "PBXContainerItemProxy", f"isa = PBXContainerItemProxy; containerPortal = {proyecto} /* Project object */; proxyType = 1; remoteGlobalIDString = {target_ext}; remoteInfo = {EXT};")
-dependencia = uid("dependencia-ext")
-obj(dependencia, "PBXTargetDependency", f"isa = PBXTargetDependency; target = {target_ext}; targetProxy = {proxy};")
-obj(target_ext, EXT, f"isa = PBXNativeTarget; buildConfigurationList = {l_ext}; buildPhases = (\n\t\t\t\t{f_fuentes_ext},\n\t\t\t\t{f_frameworks_ext},\n\t\t\t); buildRules = (\n\t\t\t); dependencies = (\n\t\t\t); name = {EXT}; productName = {EXT}; productReference = {ref_producto_ext}; productType = \"com.apple.product-type.app-extension\";")
-obj(target, NOMBRE, f"isa = PBXNativeTarget; buildConfigurationList = {l_target}; buildPhases = (\n\t\t\t\t{f_fuentes},\n\t\t\t\t{f_frameworks},\n\t\t\t\t{f_recursos},\n\t\t\t\t{f_embed},\n\t\t\t); buildRules = (\n\t\t\t); dependencies = (\n\t\t\t\t{dependencia},\n\t\t\t); name = {NOMBRE}; productName = {NOMBRE}; productReference = {ref_producto}; productType = \"com.apple.product-type.application\";")
-obj(proyecto, "Project object", f"isa = PBXProject; attributes = {{\n\t\t\t\tBuildIndependentTargetsInParallel = 1;\n\t\t\t\tLastSwiftUpdateCheck = 2700;\n\t\t\t\tLastUpgradeCheck = 2700;\n\t\t\t}}; buildConfigurationList = {l_proy}; compatibilityVersion = \"Xcode 14.0\"; developmentRegion = es; hasScannedForEncodings = 0; knownRegions = (\n\t\t\t\tes,\n\t\t\t\tBase,\n\t\t\t); mainGroup = {g_raiz}; productRefGroup = {g_productos}; projectDirPath = \"\"; projectRoot = \"\"; targets = (\n\t\t\t\t{target},\n\t\t\t\t{target_ext},\n\t\t\t);")
+
+# Las extensiones
+grupos_ext, productos_ext, embebidos, dependencias, targets_ext = [], [], [], [], []
+for ext in EXTENSIONES:
+    nombre = ext["nombre"]
+    clave = ext["sufijo"]
+    fuentes_ext = archivos(nombre, (".swift",))
+    for ruta in fuentes_ext:
+        refs[ruta] = uid("ref" + ruta)
+        obj(refs[ruta], os.path.basename(ruta), f"isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = {q(os.path.basename(ruta))}; sourceTree = \"<group>\";")
+    ref_info_ext = uid(f"ref-info-{clave}")
+    obj(ref_info_ext, "Info.plist", "isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = \"<group>\";")
+    hijos_ext = [refs[r] for r in fuentes_ext] + [ref_info_ext]
+    if ext["entitlements"]:
+        ref_ent = uid(f"ref-ent-{clave}")
+        obj(ref_ent, f"{nombre}.entitlements", f"isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = {nombre}.entitlements; sourceTree = \"<group>\";")
+        hijos_ext.append(ref_ent)
+    ref_prod = uid(f"ref-producto-{clave}")
+    obj(ref_prod, f"{nombre}.appex", f"isa = PBXFileReference; explicitFileType = \"wrapper.app-extension\"; includeInIndex = 0; path = {nombre}.appex; sourceTree = BUILT_PRODUCTS_DIR;")
+    grupo = uid(f"grupo-{clave}")
+    obj(grupo, nombre, "isa = PBXGroup; children = (\n" + lista(hijos_ext) + f"\t\t\t); path = {nombre}; sourceTree = \"<group>\";")
+
+    build_ext = {}
+    for ruta in fuentes_ext + ext["compartidas"]:
+        build_ext[ruta] = uid(f"buildext-{clave}" + ruta)
+        obj(build_ext[ruta], f"{os.path.basename(ruta)} in Sources", f"isa = PBXBuildFile; fileRef = {refs[ruta]};")
+    build_embed = uid(f"build-embed-{clave}")
+    obj(build_embed, f"{nombre}.appex in Embed Foundation Extensions", f"isa = PBXBuildFile; fileRef = {ref_prod}; settings = {{ATTRIBUTES = (RemoveHeadersOnCopy, ); }};")
+    f_src, f_frw = uid(f"fase-fuentes-{clave}"), uid(f"fase-frameworks-{clave}")
+    obj(f_src, "Sources", "isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (\n" + lista([build_ext[r] for r in fuentes_ext + ext["compartidas"]]) + "\t\t\t); runOnlyForDeploymentPostprocessing = 0;")
+    obj(f_frw, "Frameworks", "isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (\n\t\t\t); runOnlyForDeploymentPostprocessing = 0;")
+
+    t_ext = {
+        **t_comunes,
+        "APPLICATION_EXTENSION_API_ONLY": "YES",
+        "INFOPLIST_FILE": f"{nombre}/Info.plist",
+        "LD_RUNPATH_SEARCH_PATHS": q("$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"),
+        "PRODUCT_BUNDLE_IDENTIFIER": f"{BUNDLE}.{clave}",
+        "SKIP_INSTALL": "YES",
+    }
+    for k in ("ASSETCATALOG_COMPILER_APPICON_NAME", "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME"):
+        t_ext.pop(k)
+    if ext["entitlements"]:
+        t_ext["CODE_SIGN_ENTITLEMENTS"] = f"{nombre}/{nombre}.entitlements"
+    else:
+        t_ext.pop("CODE_SIGN_ENTITLEMENTS")
+    ce_debug, ce_release = uid(f"ext-debug-{clave}"), uid(f"ext-release-{clave}")
+    config(ce_debug, "Debug", t_ext)
+    config(ce_release, "Release", t_ext)
+    l_ext = uid(f"lista-{clave}")
+    lista_de_configuraciones(l_ext, nombre, ce_debug, ce_release)
+
+    target_ext = uid(f"target-{clave}")
+    proxy = uid(f"proxy-{clave}")
+    obj(proxy, "PBXContainerItemProxy", f"isa = PBXContainerItemProxy; containerPortal = {proyecto} /* Project object */; proxyType = 1; remoteGlobalIDString = {target_ext}; remoteInfo = {nombre};")
+    dependencia = uid(f"dependencia-{clave}")
+    obj(dependencia, "PBXTargetDependency", f"isa = PBXTargetDependency; target = {target_ext}; targetProxy = {proxy};")
+    obj(target_ext, nombre, f"isa = PBXNativeTarget; buildConfigurationList = {l_ext}; buildPhases = (\n\t\t\t\t{f_src},\n\t\t\t\t{f_frw},\n\t\t\t); buildRules = (\n\t\t\t); dependencies = (\n\t\t\t); name = {nombre}; productName = {nombre}; productReference = {ref_prod}; productType = \"com.apple.product-type.app-extension\";")
+    grupos_ext.append(grupo)
+    productos_ext.append(ref_prod)
+    embebidos.append(build_embed)
+    dependencias.append(dependencia)
+    targets_ext.append(target_ext)
+
+obj(f_embed, "Embed Foundation Extensions", f"isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = \"\"; dstSubfolderSpec = 13; files = (\n{lista(embebidos)}\t\t\t); name = \"Embed Foundation Extensions\"; runOnlyForDeploymentPostprocessing = 0;")
+
+# Productos y grupo raíz
+g_productos = uid("grupo-productos")
+obj(g_productos, "Products", f"isa = PBXGroup; children = (\n{lista([ref_producto] + productos_ext)}\t\t\t); name = Products; sourceTree = \"<group>\";")
+g_raiz = uid("grupo-raiz")
+obj(g_raiz, "", f"isa = PBXGroup; children = (\n{lista([g_app] + grupos_ext + [g_productos])}\t\t\t); sourceTree = \"<group>\";")
+
+# Target de la app y proyecto
+obj(target, NOMBRE, f"isa = PBXNativeTarget; buildConfigurationList = {l_target}; buildPhases = (\n{lista([f_fuentes, f_frameworks, f_recursos, f_embed])}\t\t\t); buildRules = (\n\t\t\t); dependencies = (\n{lista(dependencias)}\t\t\t); name = {NOMBRE}; productName = {NOMBRE}; productReference = {ref_producto}; productType = \"com.apple.product-type.application\";")
+obj(proyecto, "Project object", f"isa = PBXProject; attributes = {{\n\t\t\t\tBuildIndependentTargetsInParallel = 1;\n\t\t\t\tLastSwiftUpdateCheck = 2700;\n\t\t\t\tLastUpgradeCheck = 2700;\n\t\t\t}}; buildConfigurationList = {l_proy}; compatibilityVersion = \"Xcode 14.0\"; developmentRegion = es; hasScannedForEncodings = 0; knownRegions = (\n\t\t\t\tes,\n\t\t\t\tBase,\n\t\t\t); mainGroup = {g_raiz}; productRefGroup = {g_productos}; projectDirPath = \"\"; projectRoot = \"\"; targets = (\n{lista([target] + targets_ext)}\t\t\t);")
 
 tipos = {"PBXBuildFile": [], "PBXContainerItemProxy": [], "PBXCopyFilesBuildPhase": [], "PBXFileReference": [], "PBXFrameworksBuildPhase": [], "PBXGroup": [], "PBXNativeTarget": [], "PBXProject": [],
          "PBXResourcesBuildPhase": [], "PBXSourcesBuildPhase": [], "PBXTargetDependency": [], "XCBuildConfiguration": [], "XCConfigurationList": []}
