@@ -14,7 +14,7 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 505 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 507 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **En marcha**: proyecto, base cifrada con Keychain, Resumen, Movimientos, Nuevo movimiento, Detalle y Reportes; faltan las demás pantallas |
 
@@ -68,9 +68,9 @@ El Resumen, Movimientos, Nuevo movimiento, Detalle, Reportes y Ajustes de iPhone
 |---|---|
 | ![Reportes en iPhone](docs/comparacion/ios-mg-05-reportes-mes.png) | ![Reportes por rango en iPhone](docs/comparacion/ios-mg-05-reportes-rango.png) |
 
-| Ajustes | Respaldo cifrado creado |
-|---|---|
-| ![Ajustes en iPhone](docs/comparacion/ios-mg-06-ajustes.png) | ![Respaldo en iPhone](docs/comparacion/ios-mg-06-ajustes-respaldo.png) |
+| Ajustes | Respaldo cifrado creado | Bloqueo con Face ID |
+|---|---|---|
+| ![Ajustes en iPhone](docs/comparacion/ios-mg-06-ajustes.png) | ![Respaldo en iPhone](docs/comparacion/ios-mg-06-ajustes-respaldo.png) | ![Bloqueo en iPhone](docs/comparacion/ios-mg-06-bloqueo-face-id.png) |
 
 ## Arquitectura
 
@@ -113,7 +113,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **505 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **507 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
 
@@ -157,7 +157,7 @@ También sirve la variable de entorno `GOOGLE_MAPS_API_KEY`. Sin clave todo lo d
 
 ## Qué falta
 
-- **iPhone** (`iosApp`): faltan «Agregar ubicación» con mapa en el Detalle, la extensión para compartir capturas con Vision, App Intents, el widget y Face ID (en Ajustes aún no está el bloqueo, y «Dónde pagaste» necesita el mapa).
+- **iPhone** (`iosApp`): faltan «Agregar ubicación» con mapa en el Detalle, la extensión para compartir capturas con Vision, App Intents, el widget y «Dónde pagaste» (necesita el mapa). El bloqueo con Face ID ya está y se probó con el Face ID simulado, no con un iPhone real.
 - **Mapa de Google sin probar:** «Agregar ubicación» y «Dónde pagaste» están hechos y probados en el emulador, pero el mapa solo se dibuja con una clave de Google Maps (ver «Cómo correrlo») y no tengo una para probarlo: sin clave la app lo explica en vez de mostrar un mapa en blanco.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).

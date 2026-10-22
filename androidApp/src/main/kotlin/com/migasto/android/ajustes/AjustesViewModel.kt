@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Lo de Ajustes que es igual en iPhone vive en [SeguimientoDeAjustes]; aquí solo queda el bloqueo, que es de Android. */
+/** Lo de Ajustes que es igual en iPhone vive en [SeguimientoDeAjustes]; aquí solo queda avisar a la puerta de bloqueo, que es de Android. */
 class AjustesViewModel(
     private val baseDiferida: Deferred<BaseMiGasto>,
     private val registroDiferido: Deferred<RegistroDeMovimientos>,
@@ -48,7 +48,7 @@ class AjustesViewModel(
     /** Activa o apaga el bloqueo; la puerta de bloqueo lo ve al instante. */
     fun establecerBloqueo(activado: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            baseDiferida.await().ajustes.establecerBloqueoActivado(activado)
+            seguimientoDiferido.await().establecerBloqueo(activado)
             bloqueoActivado.value = activado
         }
     }

@@ -27,6 +27,28 @@ struct AjustesView: View {
         _modelo = State(initialValue: AjustesModelo(base: aplicacion.base, registro: aplicacion.registro))
     }
 
+    /// Para activar el bloqueo hay que confirmar con Face ID (o el código): así se sabe que el usuario podrá desbloquear.
+    private func alternarBloqueo(activado: Bool) {
+        if activado {
+            modelo.seguimiento.establecerBloqueo(activado: false)
+            aplicacion.bloqueoActivado = false
+            return
+        }
+        let autenticador = Autenticador()
+        switch decidirAlActivar(telefonoSoportaBloqueo: autenticador.disponible()) {
+        case .explicar:
+            aplicacion.avisar(TextosDelBloqueo.shared.SIN_BLOQUEO_EN_EL_TELEFONO, segundos: 4)
+        case .pedirConfirmacion:
+            Task {
+                let correcta = await autenticador.autenticar(motivo: TextosDelBloqueo.shared.MOTIVO_AL_ACTIVAR)
+                if activarSiConfirmo(correcta: correcta) {
+                    modelo.seguimiento.establecerBloqueo(activado: true)
+                    aplicacion.bloqueoActivado = true
+                }
+            }
+        }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -73,6 +95,11 @@ struct AjustesView: View {
                             }
                             Separador()
                             FilaDeAjuste(simbolo: "lock", titulo: "Respaldo cifrado", subtitulo: p.subtituloDelRespaldo) { pidiendoContrasena = .crear }
+                            Separador()
+                            FilaDeAjuste(
+                                simbolo: "faceid", titulo: "Bloqueo con Face ID o código", subtitulo: "Usa el desbloqueo de tu iPhone",
+                                interruptor: p.bloqueoActivado
+                            ) { alternarBloqueo(activado: p.bloqueoActivado) }
                             Separador()
                             FilaDeAjuste(simbolo: "doc", titulo: "Restaurar un respaldo", subtitulo: "Desde un archivo .mgb, con tu contraseña") {
                                 eligiendoArchivo = true

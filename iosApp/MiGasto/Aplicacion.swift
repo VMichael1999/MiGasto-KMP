@@ -8,6 +8,9 @@ final class Aplicacion {
     let base: BaseMiGasto
     let registro: RegistroDeMovimientos
 
+    /// Si el bloqueo con Face ID o código está activado (lo cambia Ajustes; la puerta de bloqueo lo ve al instante).
+    var bloqueoActivado: Bool
+
     /// Si el usuario ocultó los montos (el ojo del Resumen). Vale para todas las pantallas.
     var montosOcultos = false
 
@@ -45,5 +48,6 @@ final class Aplicacion {
     init() {
         base = abrirLaBaseDeLaApp()
         registro = crearRegistroDeMovimientos(base: base)
+        bloqueoActivado = base.ajustes.bloqueoActivado()
     }
 }
