@@ -22,6 +22,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>MiGasto usa Face ID para que solo tú abras tus movimientos.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>MiGasto usa tu ubicación solo cuando tocas «Agregar ubicación», para guardar dónde pagaste.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIAppFonts</key>
