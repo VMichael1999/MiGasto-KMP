@@ -64,9 +64,9 @@ El Resumen, Movimientos, Nuevo movimiento, Detalle, Reportes y Ajustes de iPhone
 |---|---|---|
 | ![Nuevo movimiento en iPhone](docs/comparacion/ios-mg-03-nuevo-movimiento.png) | ![Nueva categoría en iPhone](docs/comparacion/ios-mg-03-categoria-nueva.png) | ![Detalle en iPhone](docs/comparacion/ios-mg-04-detalle.png) |
 
-| Reportes (mes) | Reportes (rango) |
-|---|---|
-| ![Reportes en iPhone](docs/comparacion/ios-mg-05-reportes-mes.png) | ![Reportes por rango en iPhone](docs/comparacion/ios-mg-05-reportes-rango.png) |
+| Reportes (mes) | Reportes (rango) | Detalle con ubicación |
+|---|---|---|
+| ![Reportes en iPhone](docs/comparacion/ios-mg-05-reportes-mes.png) | ![Reportes por rango en iPhone](docs/comparacion/ios-mg-05-reportes-rango.png) | ![Detalle con ubicación en iPhone](docs/comparacion/ios-mg-04-detalle-con-ubicacion.png) |
 
 | Ajustes | Respaldo cifrado creado | Bloqueo con Face ID |
 |---|---|---|
@@ -157,7 +157,7 @@ También sirve la variable de entorno `GOOGLE_MAPS_API_KEY`. Sin clave todo lo d
 
 ## Qué falta
 
-- **iPhone** (`iosApp`): faltan «Agregar ubicación» con mapa en el Detalle, la extensión para compartir capturas con Vision, App Intents, el widget y «Dónde pagaste» (necesita el mapa). El bloqueo con Face ID ya está y se probó con el Face ID simulado, no con un iPhone real.
+- **iPhone** (`iosApp`): falta «Dónde pagaste» (la pantalla con el mapa de todas las zonas), la extensión para compartir capturas con Vision, App Intents, y el widget. «Agregar ubicación» (con mapa de Apple, sin clave) y el bloqueo con Face ID ya están, probados en el simulador (ubicación y Face ID simulados), no en un iPhone real.
 - **Mapa de Google sin probar:** «Agregar ubicación» y «Dónde pagaste» están hechos y probados en el emulador, pero el mapa solo se dibuja con una clave de Google Maps (ver «Cómo correrlo») y no tengo una para probarlo: sin clave la app lo explica en vez de mostrar un mapa en blanco.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
