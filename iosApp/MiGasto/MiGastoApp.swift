@@ -6,14 +6,16 @@ struct MiGastoApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RaizView()
-                .environment(aplicacion)
-                .tint(Paleta.marcaTinta)
-                .task {
-                    #if DEBUG
-                    DatosDeEjemplo.aplicar(aplicacion)
-                    #endif
-                }
+            PuertaDeBloqueoView(aplicacion: aplicacion) {
+                RaizView()
+                    .environment(aplicacion)
+            }
+            .tint(Paleta.marcaTinta)
+            .task {
+                #if DEBUG
+                DatosDeEjemplo.aplicar(aplicacion)
+                #endif
+            }
         }
     }
 }
