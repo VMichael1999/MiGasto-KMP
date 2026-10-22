@@ -14,7 +14,7 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 516 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 523 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **En marcha**: proyecto, base cifrada con Keychain, Resumen, Movimientos, Nuevo movimiento, Detalle y Reportes; faltan las demás pantallas |
 
@@ -80,6 +80,10 @@ La extensión «Compartir» (`iosApp/MiGastoCompartir`) recibe una captura, lee 
 |---|
 | ![Captura compartida en iPhone](docs/comparacion/ios-mg-09-captura-compartida.png) |
 
+### Apple Pay con Atajos (iPhone)
+
+La acción «Registrar movimiento» (`App Intents`, en `iosApp/MiGasto/AtajosYWallet`) es la que la automatización «Transacción» de Wallet llama al pagar con Apple Pay: recibe el monto, el comercio, la tarjeta y, si quieres, la ubicación, y guarda el gasto sin abrir la app. Qué se lee del monto (`25.50`, `S/ 25,50`, `1,200.50`), cómo se guarda y qué se contesta lo decide `RegistradorDeWallet` de `shared`, con 7 pruebas. Aparece en la app Atajos bajo «MiGasto». **Sin verificar de punta a punta:** el simulador, con la firma ad hoc que usa este proyecto, rechaza la conexión de la app con Atajos (`requiresValidBundle`), así que la ejecución real de la acción queda por probar con una firma de desarrollador o en un iPhone.
+
 ## Arquitectura
 
 ```text
@@ -121,7 +125,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **516 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **523 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de iOS y los de Android en un emulador.
 
@@ -165,7 +169,7 @@ También sirve la variable de entorno `GOOGLE_MAPS_API_KEY`. Sin clave todo lo d
 
 ## Qué falta
 
-- **iPhone** (`iosApp`): faltan App Intents y el widget. «Agregar ubicación», «Dónde pagaste» (con el mapa de Apple, sin clave), el bloqueo con Face ID y compartir capturas con Vision ya están, probados en el simulador (ubicación y Face ID simulados), no en un iPhone real.
+- **iPhone** (`iosApp`): falta el widget. «Agregar ubicación», «Dónde pagaste» (con el mapa de Apple, sin clave), el bloqueo con Face ID compartir capturas con Vision y la acción de Atajos «Registrar movimiento» (Apple Pay) ya están, probados en el simulador (ubicación y Face ID simulados), no en un iPhone real.
 - **Mapa de Google sin probar:** «Agregar ubicación» y «Dónde pagaste» están hechos y probados en el emulador, pero el mapa solo se dibuja con una clave de Google Maps (ver «Cómo correrlo») y no tengo una para probarlo: sin clave la app lo explica en vez de mostrar un mapa en blanco.
-- **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
+- **Sin verificar de verdad:** la acción de Atajos para Apple Pay corriendo de verdad, la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
