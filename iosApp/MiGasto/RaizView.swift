@@ -11,7 +11,7 @@ struct RaizView: View {
             Tab("Resumen", systemImage: "house") { ResumenView() }
             Tab("Movimientos", systemImage: "list.bullet") { MovimientosView() }
             Tab("Reportes", systemImage: "chart.bar") { ReportesView(aplicacion: aplicacion) }
-            Tab("Ajustes", systemImage: "gearshape") { EnConstruccion(titulo: "Ajustes") }
+            Tab("Ajustes", systemImage: "gearshape") { AjustesView(aplicacion: aplicacion) }
         }
         .overlay(alignment: .bottomTrailing) {
             if aplicacion.pantallasEncima == 0 {
@@ -50,17 +50,5 @@ struct RaizView: View {
         }
         .animation(.easeInOut(duration: 0.25), value: aplicacion.aviso)
         .fullScreenCover(isPresented: $nuevoAbierto) { NuevoMovimientoView() }
-    }
-}
-
-private struct EnConstruccion: View {
-    let titulo: String
-
-    var body: some View {
-        Text("\(titulo): todavía no está hecha")
-            .font(.outfit(16))
-            .foregroundStyle(Paleta.apagado)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Paleta.fondo)
     }
 }
