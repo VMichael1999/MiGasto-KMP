@@ -19,6 +19,7 @@
 		26652677F4A896FAF5B2FB4A /* AjustesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C508C756DD9535A607280EE /* AjustesView.swift */; };
 		29106C452AA4BCEDC0897763 /* MovimientosModelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FD6B4FD124BBCC2CA8ABECA /* MovimientosModelo.swift */; };
 		2BF7AFFD08B88561CCB9DE1F /* ResumenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52200DF07DD7D39C4DF22BF /* ResumenView.swift */; };
+		2CB32B5C03D6FB55D70DF08F /* MiGastoCompartir.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9E941C562B0AA9A95508CACA /* MiGastoCompartir.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3F8E65BCBCC522440BFCBBD1 /* NuevoMovimientoModelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E751A52DF3EC7F6818E2C6C0 /* NuevoMovimientoModelo.swift */; };
 		410C15EDFDC598401E7467BE /* MovimientosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316AE8DCFE948AD705CB2ADE /* MovimientosView.swift */; };
 		4F4453057E835604C40C001A /* RegistrarMovimientoIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A9602189F04BBAEB66EDB7 /* RegistrarMovimientoIntent.swift */; };
@@ -26,46 +27,55 @@
 		60E7E50E1D074E081E0896F0 /* ResumenModelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA558FAB9DF50F394437735 /* ResumenModelo.swift */; };
 		644E97D75EA548AD05344BB8 /* NuevoMovimientoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EA68E369B540049CAC0D12 /* NuevoMovimientoView.swift */; };
 		68709FA3C9B7EF1F52A1490D /* ReportesModelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F09BC2ED0DCD3A9997B91A9 /* ReportesModelo.swift */; };
+		6B38581BA9D36B631A7C3040 /* ColaDeCapturas.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA42D8C38B404A8D043131F /* ColaDeCapturas.swift */; };
 		6C730B897467EFE254ABD0EB /* HojaDeCategoriaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28EBF83488842F57E6B40284 /* HojaDeCategoriaView.swift */; };
 		6F2693790E00B5C331E51BD9 /* AjustesModelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5759781E47AF9A96B198838E /* AjustesModelo.swift */; };
 		752D9B9B952F6CD1E3241203 /* ServicioDeUbicacion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E80F7C8474759CA5C15F20 /* ServicioDeUbicacion.swift */; };
 		7CECB69D9CB1C5DBCD19EE04 /* DondePagasteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05910B21A90E642940492FC4 /* DondePagasteView.swift */; };
-		7F3E9D153CE35223C46D8B69 /* MiGastoCompartir.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E9BC253F2E5BCD4E3FB90D5F /* MiGastoCompartir.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		81C6F9CA84DA58FB37E0E5D0 /* ColaDeCapturas.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA42D8C38B404A8D043131F /* ColaDeCapturas.swift */; };
+		7F5680847421D026DA1BD9FE /* MiGastoWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B29D05F2F20DB8EFF23A43EA /* MiGastoWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		83961A2224F2B505608DC613 /* Iconos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC158C058BC0FADFFAC3274 /* Iconos.swift */; };
 		862C7C60220BB07578B7090A /* ColaDeCapturas.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA42D8C38B404A8D043131F /* ColaDeCapturas.swift */; };
 		8923F13578211529D1947166 /* RaizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E17CE6CFA6EB1BD359E97D /* RaizView.swift */; };
-		9FAB6627DDD0BB9ADA9F4867 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A844930593EBD8D9E1C4A40 /* ShareViewController.swift */; };
+		AAC1E24E817272C51F9399C3 /* Pods_MiGasto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8705F0E24074482816DCE71C /* Pods_MiGasto.framework */; };
 		B776E07BEECF6E27EE95DD6F /* Outfit.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8954F489A45C30C14CCE7BEC /* Outfit.ttf */; };
 		B8D7D38A05615F332A73ED99 /* Tipografia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0952DB71996C6FB535B2B61E /* Tipografia.swift */; };
 		B91C678A02090F218CDD0B82 /* HojaDeEdicionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A6B8AB7BC91E583DDC27B0 /* HojaDeEdicionView.swift */; };
 		C675DBC92E15C578BC8FB6D9 /* ReportesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2760C21ADEF2AEAB2161BEF /* ReportesView.swift */; };
+		C89218AC12C29716DCF10F67 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A844930593EBD8D9E1C4A40 /* ShareViewController.swift */; };
 		CD293A742680DC4FFBE5EAB3 /* HojaDeFiltrosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F002E972DDC7295164DB143 /* HojaDeFiltrosView.swift */; };
 		CF5F2E02DFB6B983FD365E4D /* Aplicacion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307C8C345D28DAAB3B066BBC /* Aplicacion.swift */; };
 		D148196AE79C00161DD66AC8 /* PuertaDeBloqueoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1698C014322C57D35D1DDA /* PuertaDeBloqueoView.swift */; };
-		E054E1E44AF93A66D54DB2C1 /* Pods_MiGasto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE00ECC121CDDC154C81F7BD /* Pods_MiGasto.framework */; };
+		DF35E5848D079587281540E1 /* MiGastoWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B3E316D1C27DE76F6E991A3 /* MiGastoWidgets.swift */; };
 		E473B8BC92B6C96F3F28610F /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3C09168CCDC143C64E25A3F /* FlowLayout.swift */; };
 		FB035141319B4F27749CF235 /* HojaDeCategoriaNuevaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CBBD69647B7EBFFD7F78FD /* HojaDeCategoriaNuevaView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		C7D4312AF23511FAF986C076 /* PBXContainerItemProxy */ = {
+		29818483B84B4DA477386676 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B6581EE30595C57D6133265 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = D0F33231676C29E80E208426;
+			remoteGlobalIDString = 84BA07F25CCD0B55B0A773A8;
+			remoteInfo = MiGastoWidgets;
+		};
+		AA9620219BEBBD88706AFB89 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B6581EE30595C57D6133265 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DBAB6C36548B7B8CD510649A;
 			remoteInfo = MiGastoCompartir;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		F3B1FFC98180240407D42063 /* Embed Foundation Extensions */ = {
+		8CC5E2040A33F38AABA4A206 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				7F3E9D153CE35223C46D8B69 /* MiGastoCompartir.appex in Embed Foundation Extensions */,
+				2CB32B5C03D6FB55D70DF08F /* MiGastoCompartir.appex in Embed Foundation Extensions */,
+				7F5680847421D026DA1BD9FE /* MiGastoWidgets.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -73,7 +83,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		03645CE5BF434B219612B065 /* Pods-MiGasto.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MiGasto.release.xcconfig"; path = "Target Support Files/Pods-MiGasto/Pods-MiGasto.release.xcconfig"; sourceTree = "<group>"; };
 		03A9602189F04BBAEB66EDB7 /* RegistrarMovimientoIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrarMovimientoIntent.swift; sourceTree = "<group>"; };
 		03E9F9D1C37629BA356DC031 /* DondePagasteModelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DondePagasteModelo.swift; sourceTree = "<group>"; };
 		05910B21A90E642940492FC4 /* DondePagasteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DondePagasteView.swift; sourceTree = "<group>"; };
@@ -87,41 +96,52 @@
 		2A844930593EBD8D9E1C4A40 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		307C8C345D28DAAB3B066BBC /* Aplicacion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Aplicacion.swift; sourceTree = "<group>"; };
 		316AE8DCFE948AD705CB2ADE /* MovimientosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovimientosView.swift; sourceTree = "<group>"; };
+		349053D2884179E776273AFF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		34B1D2D4F23BBC8842D25F33 /* Autenticador.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Autenticador.swift; sourceTree = "<group>"; };
+		4B3E316D1C27DE76F6E991A3 /* MiGastoWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiGastoWidgets.swift; sourceTree = "<group>"; };
+		4D8CA5C92D5AD129FC847369 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		55A6997E98C6481EEC83078F /* DetalleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetalleView.swift; sourceTree = "<group>"; };
 		5759781E47AF9A96B198838E /* AjustesModelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AjustesModelo.swift; sourceTree = "<group>"; };
 		6B0478200B3FA1EA3903A017 /* DatosDeEjemplo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatosDeEjemplo.swift; sourceTree = "<group>"; };
-		6EFAE7DD5132EB658B7FF2FE /* Pods-MiGasto.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MiGasto.debug.xcconfig"; path = "Target Support Files/Pods-MiGasto/Pods-MiGasto.debug.xcconfig"; sourceTree = "<group>"; };
 		6FD6B4FD124BBCC2CA8ABECA /* MovimientosModelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovimientosModelo.swift; sourceTree = "<group>"; };
 		75046E84DAE53AA83B440071 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B2FB79A2E515A1178DA2405 /* FilaDeMovimientoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilaDeMovimientoView.swift; sourceTree = "<group>"; };
 		7C7CFB3217D3622258EC15CE /* MiGasto.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MiGasto.entitlements; sourceTree = "<group>"; };
+		7D13EC2A167E2625CDFD085B /* Pods-MiGasto.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MiGasto.debug.xcconfig"; path = "Target Support Files/Pods-MiGasto/Pods-MiGasto.debug.xcconfig"; sourceTree = "<group>"; };
 		7F09BC2ED0DCD3A9997B91A9 /* ReportesModelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportesModelo.swift; sourceTree = "<group>"; };
+		8705F0E24074482816DCE71C /* Pods_MiGasto.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MiGasto.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8954F489A45C30C14CCE7BEC /* Outfit.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Outfit.ttf; sourceTree = "<group>"; };
 		8C508C756DD9535A607280EE /* AjustesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AjustesView.swift; sourceTree = "<group>"; };
 		8F002E972DDC7295164DB143 /* HojaDeFiltrosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HojaDeFiltrosView.swift; sourceTree = "<group>"; };
 		978471982C0BFBA8A4BC4721 /* MiGastoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiGastoApp.swift; sourceTree = "<group>"; };
+		9E941C562B0AA9A95508CACA /* MiGastoCompartir.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MiGastoCompartir.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EADA38B192A5E411A9351E2 /* Colores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colores.swift; sourceTree = "<group>"; };
 		9F1698C014322C57D35D1DDA /* PuertaDeBloqueoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuertaDeBloqueoView.swift; sourceTree = "<group>"; };
 		A3CBBD69647B7EBFFD7F78FD /* HojaDeCategoriaNuevaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HojaDeCategoriaNuevaView.swift; sourceTree = "<group>"; };
+		B29D05F2F20DB8EFF23A43EA /* MiGastoWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MiGastoWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4E80F7C8474759CA5C15F20 /* ServicioDeUbicacion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicioDeUbicacion.swift; sourceTree = "<group>"; };
 		B52200DF07DD7D39C4DF22BF /* ResumenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumenView.swift; sourceTree = "<group>"; };
-		C4D1F59D58A00F0C63623B00 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BC02B5B0578EED3471B4963F /* Pods-MiGasto.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MiGasto.release.xcconfig"; path = "Target Support Files/Pods-MiGasto/Pods-MiGasto.release.xcconfig"; sourceTree = "<group>"; };
 		CEA558FAB9DF50F394437735 /* ResumenModelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumenModelo.swift; sourceTree = "<group>"; };
 		D2760C21ADEF2AEAB2161BEF /* ReportesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportesView.swift; sourceTree = "<group>"; };
 		DCA42D8C38B404A8D043131F /* ColaDeCapturas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColaDeCapturas.swift; sourceTree = "<group>"; };
 		DE8AEBCB4E11EC3D0FA122BB /* DetalleModelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetalleModelo.swift; sourceTree = "<group>"; };
-		DF0607296907583F56B36C9B /* MiGastoCompartir.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MiGastoCompartir.entitlements; sourceTree = "<group>"; };
 		E3C09168CCDC143C64E25A3F /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		E751A52DF3EC7F6818E2C6C0 /* NuevoMovimientoModelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NuevoMovimientoModelo.swift; sourceTree = "<group>"; };
-		E9BC253F2E5BCD4E3FB90D5F /* MiGastoCompartir.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MiGastoCompartir.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE00ECC121CDDC154C81F7BD /* Pods_MiGasto.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MiGasto.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB932DE3590135B5CAF56A9B /* MiGastoCompartir.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MiGastoCompartir.entitlements; sourceTree = "<group>"; };
 		FA40DDD3483F8429E6F68A8B /* ArchivoDeTexto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivoDeTexto.swift; sourceTree = "<group>"; };
 		FB47058CA1DEB2BC986B612C /* MiGasto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiGasto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		4B1EC426914BCAA1BDCBE8B7 /* Frameworks */ = {
+		23BA5ECE16585A75F606EEB9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		25AC881D03B355E819E44040 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -132,7 +152,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E054E1E44AF93A66D54DB2C1 /* Pods_MiGasto.framework in Frameworks */,
+				AAC1E24E817272C51F9399C3 /* Pods_MiGasto.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,6 +179,25 @@
 			path = Resumen;
 			sourceTree = "<group>";
 		};
+		3D722458DD1BC91BF135DB24 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				7D13EC2A167E2625CDFD085B /* Pods-MiGasto.debug.xcconfig */,
+				BC02B5B0578EED3471B4963F /* Pods-MiGasto.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		434DA754E4C16F2196F803C5 /* MiGastoWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				4B3E316D1C27DE76F6E991A3 /* MiGastoWidgets.swift */,
+				349053D2884179E776273AFF /* Info.plist */,
+			);
+			path = MiGastoWidgets;
+			sourceTree = "<group>";
+		};
 		4D5C99E5DE1C03006C45B1AD /* DondePagaste */ = {
 			isa = PBXGroup;
 			children = (
@@ -175,24 +214,6 @@
 				9F1698C014322C57D35D1DDA /* PuertaDeBloqueoView.swift */,
 			);
 			path = Bloqueo;
-			sourceTree = "<group>";
-		};
-		5438CE133C8AE7AEAE15731F /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EE00ECC121CDDC154C81F7BD /* Pods_MiGasto.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		5C17D56B9A93721957991EEB /* MiGastoCompartir */ = {
-			isa = PBXGroup;
-			children = (
-				2A844930593EBD8D9E1C4A40 /* ShareViewController.swift */,
-				C4D1F59D58A00F0C63623B00 /* Info.plist */,
-				DF0607296907583F56B36C9B /* MiGastoCompartir.entitlements */,
-			);
-			path = MiGastoCompartir;
 			sourceTree = "<group>";
 		};
 		78206CA97A07DCA9560549F0 /* MiGasto */ = {
@@ -235,9 +256,28 @@
 			isa = PBXGroup;
 			children = (
 				FB47058CA1DEB2BC986B612C /* MiGasto.app */,
-				E9BC253F2E5BCD4E3FB90D5F /* MiGastoCompartir.appex */,
+				9E941C562B0AA9A95508CACA /* MiGastoCompartir.appex */,
+				B29D05F2F20DB8EFF23A43EA /* MiGastoWidgets.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A38859DB7A195DEB1D6ADD43 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8705F0E24074482816DCE71C /* Pods_MiGasto.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A8680E69454D10C5AC0F3159 /* MiGastoCompartir */ = {
+			isa = PBXGroup;
+			children = (
+				2A844930593EBD8D9E1C4A40 /* ShareViewController.swift */,
+				4D8CA5C92D5AD129FC847369 /* Info.plist */,
+				EB932DE3590135B5CAF56A9B /* MiGastoCompartir.entitlements */,
+			);
+			path = MiGastoCompartir;
 			sourceTree = "<group>";
 		};
 		AA056AF45877BEF020E28B1D /* AtajosYWallet */ = {
@@ -248,24 +288,15 @@
 			path = AtajosYWallet;
 			sourceTree = "<group>";
 		};
-		AE4CCC426E9BBCC1421F523D /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				6EFAE7DD5132EB658B7FF2FE /* Pods-MiGasto.debug.xcconfig */,
-				03645CE5BF434B219612B065 /* Pods-MiGasto.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		BD0C4C4A25D53504AAF94770 = {
 			isa = PBXGroup;
 			children = (
 				78206CA97A07DCA9560549F0 /* MiGasto */,
-				5C17D56B9A93721957991EEB /* MiGastoCompartir */,
+				A8680E69454D10C5AC0F3159 /* MiGastoCompartir */,
+				434DA754E4C16F2196F803C5 /* MiGastoWidgets */,
 				90F9468BF779C3BB52BCA74F /* Products */,
-				AE4CCC426E9BBCC1421F523D /* Pods */,
-				5438CE133C8AE7AEAE15731F /* Frameworks */,
+				3D722458DD1BC91BF135DB24 /* Pods */,
+				A38859DB7A195DEB1D6ADD43 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -350,29 +381,46 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 14371565B670DF844D28E527 /* Build configuration list for PBXNativeTarget "MiGasto" */;
 			buildPhases = (
-				CB95523C3E200CE5903C9959 /* [CP] Check Pods Manifest.lock */,
+				3713184BF29CFA2D119077A7 /* [CP] Check Pods Manifest.lock */,
 				B5FFDE58AEFB4558E1BF155E /* Sources */,
 				9C8615A57EB591BB46E600F4 /* Frameworks */,
 				23897E47454E01E786759976 /* Resources */,
-				F3B1FFC98180240407D42063 /* Embed Foundation Extensions */,
-				AA33553DD8BA061872166F20 /* [CP] Copy Pods Resources */,
+				8CC5E2040A33F38AABA4A206 /* Embed Foundation Extensions */,
+				18C13061C76AF405BBEB508E /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				B71E9A345E3CC6F62B46F001 /* PBXTargetDependency */,
+				D2371187168F87A63F8D5AFF /* PBXTargetDependency */,
+				521D5E077CE770F630233B58 /* PBXTargetDependency */,
 			);
 			name = MiGasto;
 			productName = MiGasto;
 			productReference = FB47058CA1DEB2BC986B612C /* MiGasto.app */;
 			productType = "com.apple.product-type.application";
 		};
-		D0F33231676C29E80E208426 /* MiGastoCompartir */ = {
+		84BA07F25CCD0B55B0A773A8 /* MiGastoWidgets */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3B504E4388D44750B12007AB /* Build configuration list for PBXNativeTarget "MiGastoCompartir" */;
+			buildConfigurationList = 7FFA7D7DF9C2807BE7E48CC3 /* Build configuration list for PBXNativeTarget "MiGastoWidgets" */;
 			buildPhases = (
-				C2EFBA28DA9DD997194A5FF3 /* Sources */,
-				4B1EC426914BCAA1BDCBE8B7 /* Frameworks */,
+				0A3284A0192AAA3A78A898D5 /* Sources */,
+				25AC881D03B355E819E44040 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MiGastoWidgets;
+			productName = MiGastoWidgets;
+			productReference = B29D05F2F20DB8EFF23A43EA /* MiGastoWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		DBAB6C36548B7B8CD510649A /* MiGastoCompartir */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 70D8CB705AA686CD3F8B5BA7 /* Build configuration list for PBXNativeTarget "MiGastoCompartir" */;
+			buildPhases = (
+				8147DB41D9E990416ADD4946 /* Sources */,
+				23BA5ECE16585A75F606EEB9 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -380,7 +428,7 @@
 			);
 			name = MiGastoCompartir;
 			productName = MiGastoCompartir;
-			productReference = E9BC253F2E5BCD4E3FB90D5F /* MiGastoCompartir.appex */;
+			productReference = 9E941C562B0AA9A95508CACA /* MiGastoCompartir.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -407,7 +455,8 @@
 			projectRoot = "";
 			targets = (
 				42AEFBAE01D2DFD981F7DA7D /* MiGasto */,
-				D0F33231676C29E80E208426 /* MiGastoCompartir */,
+				DBAB6C36548B7B8CD510649A /* MiGastoCompartir */,
+				84BA07F25CCD0B55B0A773A8 /* MiGastoWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -425,7 +474,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		AA33553DD8BA061872166F20 /* [CP] Copy Pods Resources */ = {
+		18C13061C76AF405BBEB508E /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -442,7 +491,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MiGasto/Pods-MiGasto-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CB95523C3E200CE5903C9959 /* [CP] Check Pods Manifest.lock */ = {
+		3713184BF29CFA2D119077A7 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -467,6 +516,23 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0A3284A0192AAA3A78A898D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF35E5848D079587281540E1 /* MiGastoWidgets.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8147DB41D9E990416ADD4946 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C89218AC12C29716DCF10F67 /* ShareViewController.swift in Sources */,
+				6B38581BA9D36B631A7C3040 /* ColaDeCapturas.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B5FFDE58AEFB4558E1BF155E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -507,29 +573,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C2EFBA28DA9DD997194A5FF3 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				9FAB6627DDD0BB9ADA9F4867 /* ShareViewController.swift in Sources */,
-				81C6F9CA84DA58FB37E0E5D0 /* ColaDeCapturas.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		B71E9A345E3CC6F62B46F001 /* PBXTargetDependency */ = {
+		521D5E077CE770F630233B58 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D0F33231676C29E80E208426 /* MiGastoCompartir */;
-			targetProxy = C7D4312AF23511FAF986C076 /* PBXContainerItemProxy */;
+			target = 84BA07F25CCD0B55B0A773A8 /* MiGastoWidgets */;
+			targetProxy = 29818483B84B4DA477386676 /* PBXContainerItemProxy */;
+		};
+		D2371187168F87A63F8D5AFF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DBAB6C36548B7B8CD510649A /* MiGastoCompartir */;
+			targetProxy = AA9620219BEBBD88706AFB89 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1A9E10FAAD0A97FB97BCEC18 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6EFAE7DD5132EB658B7FF2FE /* Pods-MiGasto.debug.xcconfig */;
+			baseConfigurationReference = 7D13EC2A167E2625CDFD085B /* Pods-MiGasto.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -552,31 +614,6 @@
 			};
 			name = Debug;
 		};
-		1B83C8572D9B5C6BF62F0087 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_ENTITLEMENTS = MiGastoCompartir/MiGastoCompartir.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = MiGastoCompartir/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.migasto.ios.compartir;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
 		3436F31CD970D918D1D9E594 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -593,7 +630,31 @@
 			};
 			name = Release;
 		};
-		34CDA565B4E1584C5F998E9D /* Debug */ = {
+		3CB16FDF678EE7A118945B1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = MiGastoWidgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.migasto.ios.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		6869B3610F3B1CD49A8CDE32 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
@@ -617,6 +678,31 @@
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
+		};
+		AEE1940D516636CE6865A9F6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = MiGastoCompartir/MiGastoCompartir.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = MiGastoCompartir/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.migasto.ios.compartir;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
 		};
 		B71E9DA8BAFCEFB881D98784 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -639,7 +725,7 @@
 		};
 		B79C83306C8ABF7373B5E45C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 03645CE5BF434B219612B065 /* Pods-MiGasto.release.xcconfig */;
+			baseConfigurationReference = BC02B5B0578EED3471B4963F /* Pods-MiGasto.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -662,6 +748,30 @@
 			};
 			name = Release;
 		};
+		C30D4FACB1FF0931EF4E4FFC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = MiGastoWidgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.migasto.ios.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -674,11 +784,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3B504E4388D44750B12007AB /* Build configuration list for PBXNativeTarget "MiGastoCompartir" */ = {
+		70D8CB705AA686CD3F8B5BA7 /* Build configuration list for PBXNativeTarget "MiGastoCompartir" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				34CDA565B4E1584C5F998E9D /* Debug */,
-				1B83C8572D9B5C6BF62F0087 /* Release */,
+				6869B3610F3B1CD49A8CDE32 /* Debug */,
+				AEE1940D516636CE6865A9F6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7FFA7D7DF9C2807BE7E48CC3 /* Build configuration list for PBXNativeTarget "MiGastoWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C30D4FACB1FF0931EF4E4FFC /* Debug */,
+				3CB16FDF678EE7A118945B1F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
