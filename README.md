@@ -68,9 +68,9 @@ El Resumen, Movimientos, Nuevo movimiento, Detalle, Reportes y Ajustes de iPhone
 |---|---|
 | ![Reportes en iPhone](docs/comparacion/ios-mg-05-reportes-mes.png) | ![Reportes por rango en iPhone](docs/comparacion/ios-mg-05-reportes-rango.png) |
 
-| Ajustes | Respaldo cifrado creado |
-|---|---|
-| ![Ajustes en iPhone](docs/comparacion/ios-mg-06-ajustes.png) | ![Respaldo en iPhone](docs/comparacion/ios-mg-06-ajustes-respaldo.png) |
+| Ajustes | Respaldo cifrado creado | Bloqueo con Face ID |
+|---|---|---|
+| ![Ajustes en iPhone](docs/comparacion/ios-mg-06-ajustes.png) | ![Respaldo en iPhone](docs/comparacion/ios-mg-06-ajustes-respaldo.png) | ![Bloqueo en iPhone](docs/comparacion/ios-mg-06-bloqueo-face-id.png) |
 
 ## Arquitectura
 
@@ -157,7 +157,7 @@ También sirve la variable de entorno `GOOGLE_MAPS_API_KEY`. Sin clave todo lo d
 
 ## Qué falta
 
-- **iPhone** (`iosApp`): faltan «Agregar ubicación» con mapa en el Detalle, la extensión para compartir capturas con Vision, App Intents, el widget y Face ID (en Ajustes aún no está el bloqueo, y «Dónde pagaste» necesita el mapa).
+- **iPhone** (`iosApp`): faltan «Agregar ubicación» con mapa en el Detalle, la extensión para compartir capturas con Vision, App Intents, el widget y «Dónde pagaste» (necesita el mapa). El bloqueo con Face ID ya está y se probó con el Face ID simulado, no con un iPhone real.
 - **Mapa de Google sin probar:** «Agregar ubicación» y «Dónde pagaste» están hechos y probados en el emulador, pero el mapa solo se dibuja con una clave de Google Maps (ver «Cómo correrlo») y no tengo una para probarlo: sin clave la app lo explica en vez de mostrar un mapa en blanco.
 - **Sin verificar de verdad:** la lectura de una constancia real de Yape en pantalla, el comportamiento en un teléfono físico y TalkBack con texto al 200 %.
 - **Keychain de iOS:** el código compila, pero sus pruebas solo pueden correr dentro de una app anfitriona (la de `iosApp`).
