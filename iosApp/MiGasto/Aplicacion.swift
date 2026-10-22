@@ -46,6 +46,18 @@ final class Aplicacion {
     }
 
     private let recibidorDeCapturas: RecibidorDeCapturas
+    private let registradorDeWallet: RegistradorDeWallet
+
+    /// La misma instancia para la interfaz y para las acciones de Atajos: así comparten la base abierta.
+    static let compartida = Aplicacion()
+
+    /// Guarda un gasto de Apple Pay que pasó la acción de Atajos «Registrar movimiento».
+    func registrarPagoDeWallet(monto: String, comercio: String, tarjeta: String?, latitud: Double?, longitud: Double?) -> ResultadoDeWallet {
+        registradorDeWallet.registrar(
+            monto: monto, comercio: comercio, tarjeta: tarjeta,
+            latitud: latitud.map { KotlinDouble(value: $0) }, longitud: longitud.map { KotlinDouble(value: $0) }
+        )
+    }
 
     /// Registra las capturas que el usuario compartió con la extensión «Compartir» y dice qué pasó con cada una.
     func registrarCapturasPendientes() {
@@ -63,5 +75,6 @@ final class Aplicacion {
         registro = crearRegistroDeMovimientos(base: base)
         bloqueoActivado = base.ajustes.bloqueoActivado()
         recibidorDeCapturas = RecibidorDeCapturas(base: base, registro: registro)
+        registradorDeWallet = RegistradorDeWallet(registro: registro)
     }
 }

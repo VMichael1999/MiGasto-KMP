@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct MiGastoApp: App {
-    @State private var aplicacion = Aplicacion()
+    @State private var aplicacion = Aplicacion.compartida
 
     var body: some Scene {
         WindowGroup {
