@@ -45,6 +45,7 @@ import com.migasto.android.resumen.BotonDeIcono
 import com.migasto.android.resumen.OCULTO
 import com.migasto.android.tema.MiGastoTheme
 import com.migasto.android.ubicacion.hayClaveDeMapas
+import com.migasto.domain.FilaDeZona
 import com.migasto.domain.PeriodoDeUbicaciones
 import com.migasto.domain.TextosDeDondePagaste
 import com.migasto.domain.ZonaDePagos
@@ -95,7 +96,7 @@ fun DondePagasteContenido(
     val c = MiGastoTheme.colores
     Column(Modifier.fillMaxSize()) {
         Box(Modifier.weight(5f).fillMaxWidth()) {
-            mapa(ui.zonas, Modifier.fillMaxSize())
+            mapa(ui.pantalla.zonas, Modifier.fillMaxSize())
             Box(Modifier.statusBarsPadding().padding(14.dp).clip(RoundedCornerShape(13.dp)).background(c.superficie)) {
                 BotonDeIcono(Icons.AutoMirrored.Outlined.ArrowBack, "Volver", alVolver)
             }
@@ -105,31 +106,31 @@ fun DondePagasteContenido(
                 .padding(start = 18.dp, end = 18.dp, top = 14.dp).navigationBarsPadding(),
         ) {
             // El título y los tres botones no caben en una fila en pantallas angostas: cada uno va en la suya.
-            Text(TextosDeDondePagaste.TITULO, style = MaterialTheme.typography.headlineSmall, color = c.tinta)
+            Text(ui.pantalla.titulo, style = MaterialTheme.typography.headlineSmall, color = c.tinta)
             Spacer(Modifier.size(8.dp))
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                PeriodoDeUbicaciones.entries.forEachIndexed { i, periodo ->
+                ui.pantalla.opcionesDePeriodo.forEachIndexed { i, opcion ->
                     SegmentedButton(
-                        selected = ui.periodo == periodo,
-                        onClick = { alElegirPeriodo(periodo) },
-                        shape = SegmentedButtonDefaults.itemShape(i, PeriodoDeUbicaciones.entries.size),
+                        selected = ui.pantalla.periodo == opcion.periodo,
+                        onClick = { alElegirPeriodo(opcion.periodo) },
+                        shape = SegmentedButtonDefaults.itemShape(i, ui.pantalla.opcionesDePeriodo.size),
                         icon = {},
-                    ) { Text(periodo.etiqueta, style = MaterialTheme.typography.labelMedium) }
+                    ) { Text(opcion.texto, style = MaterialTheme.typography.labelMedium) }
                 }
             }
             Spacer(Modifier.size(8.dp))
-            if (ui.zonas.isEmpty()) {
+            if (ui.pantalla.filas.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(TextosDeDondePagaste.VACIO, style = MaterialTheme.typography.bodySmall, color = c.apagado, textAlign = TextAlign.Center)
+                    Text(ui.pantalla.textoVacio, style = MaterialTheme.typography.bodySmall, color = c.apagado, textAlign = TextAlign.Center)
                 }
             } else {
                 LazyColumn(Modifier.fillMaxSize()) {
-                    itemsIndexed(ui.zonas) { i, zona ->
+                    itemsIndexed(ui.pantalla.filas) { i, fila ->
                         if (i > 0) Box(Modifier.fillMaxWidth().size(1.dp).background(c.linea))
-                        FilaDeZona(zona, ui)
+                        FilaDeZonaUi(fila, ui.oculto)
                     }
                     item {
-                        Text(TextosDeDondePagaste.PIE, style = MaterialTheme.typography.bodySmall, color = c.apagado, modifier = Modifier.padding(vertical = 10.dp))
+                        Text(ui.pantalla.pie, style = MaterialTheme.typography.bodySmall, color = c.apagado, modifier = Modifier.padding(vertical = 10.dp))
                     }
                 }
             }
@@ -138,22 +139,22 @@ fun DondePagasteContenido(
 }
 
 @Composable
-private fun FilaDeZona(zona: ZonaDePagos, ui: DondePagasteUi) {
+private fun FilaDeZonaUi(fila: FilaDeZona, oculto: Boolean) {
     val c = MiGastoTheme.colores
     Row(
-        Modifier.fillMaxWidth().padding(vertical = 10.dp).clearAndSetSemantics { contentDescription = zona.descripcion(ui.alias, ui.oculto) },
+        Modifier.fillMaxWidth().padding(vertical = 10.dp).clearAndSetSemantics { contentDescription = fila.descripcion(oculto) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(36.dp).clip(CircleShape).background(c.tinta), contentAlignment = Alignment.Center) {
-            Text("${zona.movimientos.size}", style = MaterialTheme.typography.titleSmall, color = c.superficie)
+            Text("${fila.cantidad}", style = MaterialTheme.typography.titleSmall, color = c.superficie)
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(zona.nombre, style = MaterialTheme.typography.titleSmall, color = c.tinta)
-            Text(zona.subtitulo(ui.alias), style = MaterialTheme.typography.bodySmall, color = c.apagado)
+            Text(fila.nombre, style = MaterialTheme.typography.titleSmall, color = c.tinta)
+            Text(fila.subtitulo, style = MaterialTheme.typography.bodySmall, color = c.apagado)
         }
         Text(
-            if (ui.oculto) OCULTO else com.migasto.domain.formatearSoles(zona.totalGastos),
+            if (oculto) OCULTO else fila.totalTexto,
             style = MaterialTheme.typography.titleSmall, color = c.tinta,
         )
     }
