@@ -177,6 +177,23 @@ class RegistroDeMovimientos(
         return PagoGuardado(movimiento, guardado)
     }
 
+    /**
+     * Guarda un pago que se leyó de una captura de pantalla compartida (iPhone). Como no pasó por los frenos de Android,
+     * aquí sí se revisa que no sea el mismo pago que llegó hace poco por otra vía: en ese caso devuelve `null`.
+     */
+    fun guardarPagoDeCaptura(pago: PagoLeido, texto: String): PagoGuardado? {
+        val guardado = !pago.esIngreso || ajustes.guardarIngresosAutomaticamente()
+        val movimiento = registrarPagoNativo(
+            PagoNativo(
+                amount = pago.amount, peer = pago.peer, provider = pago.provider.clave,
+                tipo = if (pago.esIngreso) TipoMovimiento.Ingreso else TipoMovimiento.Gasto,
+                textoOriginal = texto, confirmado = guardado, en = reloj(), canal = CanalMovimiento.Captura,
+                id = nuevoId(),
+            ),
+        ) ?: return null
+        return PagoGuardado(movimiento, guardado)
+    }
+
     /** La categoría que se muestra en la ventana flotante: la aprendida, o la de las reglas. */
     fun categoriaSugerida(pago: PagoLeido, texto: String): Categoria =
         categoriaPara(if (pago.esIngreso) TipoMovimiento.Ingreso else TipoMovimiento.Gasto, texto, pago.peer)
