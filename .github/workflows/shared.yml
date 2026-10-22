@@ -77,9 +77,9 @@ jobs:
           echo "Usando $xcode"
           sudo xcode-select -s "$xcode"
           xcodebuild -version
-      - name: Generar el podspec de shared y el espacio de trabajo de CocoaPods
+      - name: Generar el podspec y el framework vacío de shared, y el espacio de trabajo de CocoaPods
         run: |
-          ./gradlew :shared:podspec --no-daemon
+          ./gradlew :shared:podspec :shared:generateDummyFramework --no-daemon
           cd iosApp && pod install
       - name: Compilar la app para el simulador (sin firma)
         run: |
