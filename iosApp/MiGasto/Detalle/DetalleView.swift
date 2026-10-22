@@ -1,3 +1,4 @@
+import MapKit
 import Shared
 import SwiftUI
 
@@ -13,6 +14,9 @@ struct DetalleView: View {
     @State private var nombreNuevo = ""
     @State private var confirmandoEliminar = false
     @State private var verTexto = false
+    @State private var servicioDeUbicacion = ServicioDeUbicacion()
+    @State private var capturando = false
+    @State private var ubicacionBloqueada = false
 
     init(id: String, aplicacion: Aplicacion) {
         self.aplicacion = aplicacion
@@ -47,7 +51,11 @@ struct DetalleView: View {
                        alCambiarNombre: { nombreNuevo = d.nombreParaEditar; cambiandoNombre = true },
                        alElegirCategoria: { eligiendoCategoria = true })
                 if d.porConfirmar { BotonConfirmar(detalle: d) { confirmar(d) } }
-                if d.tieneUbicacion { Ubicacion(detalle: d) { modelo.seguimiento.quitarUbicacion() } }
+                if d.tieneUbicacion {
+                    Ubicacion(detalle: d) { modelo.seguimiento.quitarUbicacion() }
+                } else {
+                    BotonAgregarUbicacion(capturando: capturando) { agregarUbicacion() }
+                }
                 if let texto = d.textoOriginal { TextoOriginal(texto: texto, abierto: $verTexto) }
                 BotonEliminar(detalle: d) { confirmandoEliminar = true }
             }
@@ -76,6 +84,14 @@ struct DetalleView: View {
             Button(TextosDelDetalle.shared.CANCELAR, role: .cancel) {}
         } message: {
             Text(d.preguntaDeEliminar)
+        }
+        .alert(TextosDeUbicacion.shared.AGREGAR, isPresented: $ubicacionBloqueada) {
+            Button(TextosDeUbicacion.shared.ABRIR_AJUSTES) {
+                if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+            }
+            Button(TextosDelDetalle.shared.CANCELAR, role: .cancel) {}
+        } message: {
+            Text(mensajeDeFallo(motivo: .denegadaParaSiempre))
         }
         .sheet(isPresented: $editando) { HojaDeEdicionView(detalle: d, seguimiento: modelo.seguimiento) }
         .sheet(isPresented: $eligiendoCategoria) { HojaDeCategoriaView(detalle: d, propias: listo.propias, tipo: listo.tipo, seguimiento: modelo.seguimiento) }
@@ -220,6 +236,15 @@ private struct Ubicacion: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
+            if let latitud = detalle.latitud?.doubleValue, let longitud = detalle.longitud?.doubleValue {
+                let centro = CLLocationCoordinate2D(latitude: latitud, longitude: longitud)
+                Map(initialPosition: .region(MKCoordinateRegion(center: centro, latitudinalMeters: 400, longitudinalMeters: 400)), interactionModes: []) {
+                    Marker(detalle.direccion ?? "", coordinate: centro).tint(Paleta.presupuestoPasado)
+                }
+                .frame(height: 120)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .accessibilityHidden(true)
+            }
             HStack(spacing: 12) {
                 Image(systemName: "mappin.and.ellipse").foregroundStyle(Paleta.apagado)
                 VStack(alignment: .leading, spacing: 2) {
@@ -275,5 +300,48 @@ private struct BotonEliminar: View {
                 .frame(maxWidth: .infinity, minHeight: 48)
         }
         .buttonStyle(.plain)
+    }
+}
+
+extension DetalleView {
+    /// Pide el permiso si falta, toma la ubicación una vez y la guarda; si falla, dice por qué (o ofrece abrir los ajustes).
+    fileprivate func agregarUbicacion() {
+        guard !capturando else { return }
+        capturando = true
+        Task {
+            let resultado = await servicioDeUbicacion.capturar()
+            capturando = false
+            switch resultado {
+            case .ok(let ubicacion):
+                modelo.seguimiento.ponerUbicacion(ubicacion: ubicacion)
+            case .fallo(let motivo):
+                if motivo.ofreceAbrirAjustes { ubicacionBloqueada = true } else { aplicacion.avisar(mensajeDeFallo(motivo: motivo), segundos: 4) }
+            }
+        }
+    }
+}
+
+private struct BotonAgregarUbicacion: View {
+    let capturando: Bool
+    let alTocar: () -> Void
+
+    var body: some View {
+        Button(action: alTocar) {
+            HStack(spacing: 12) {
+                Image(systemName: "mappin.and.ellipse").foregroundStyle(Paleta.marcaTinta)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(TextosDeUbicacion.shared.AGREGAR).font(.outfit(15, .semibold)).foregroundStyle(Paleta.tinta)
+                    Text(TextosDeUbicacion.shared.AGREGAR_DETALLE).font(.outfit(12.5, relativeTo: .caption)).foregroundStyle(Paleta.apagado)
+                }
+                Spacer()
+                if capturando { ProgressView() }
+            }
+            .padding(14)
+            .background(Paleta.superficie, in: RoundedRectangle(cornerRadius: 14))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(capturando)
+        .accessibilityLabel("\(TextosDeUbicacion.shared.AGREGAR). \(TextosDeUbicacion.shared.AGREGAR_DETALLE)")
     }
 }
