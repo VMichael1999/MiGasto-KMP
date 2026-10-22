@@ -1,3 +1,4 @@
+import Shared
 import SwiftUI
 
 /// La barra inferior de iOS (con Liquid Glass en iOS 26) y el botón «+» que abre Nuevo movimiento.
@@ -50,6 +51,9 @@ struct RaizView: View {
             }
         }
         .animation(.easeInOut(duration: 0.25), value: aplicacion.aviso)
+        .onOpenURL { enlace in
+            if EnlacesDeLaApp.shared.esNuevoMovimiento(enlace: enlace.absoluteString) { nuevoAbierto = true }
+        }
         .task { aplicacion.registrarCapturasPendientes() }
         .onChange(of: fase) { _, nueva in if nueva == .active { aplicacion.registrarCapturasPendientes() } }
         .fullScreenCover(isPresented: $nuevoAbierto) { NuevoMovimientoView() }

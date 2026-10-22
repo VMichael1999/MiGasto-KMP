@@ -24,6 +24,19 @@
 	<string>MiGasto usa Face ID para que solo tú abras tus movimientos.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>MiGasto usa tu ubicación solo cuando tocas «Agregar ubicación», para guardar dónde pagaste.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.migasto.ios</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>migasto</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIAppFonts</key>
