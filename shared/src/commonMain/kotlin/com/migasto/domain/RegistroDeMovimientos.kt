@@ -181,14 +181,14 @@ class RegistroDeMovimientos(
      * Guarda un pago que se leyó de una captura de pantalla compartida (iPhone). Como no pasó por los frenos de Android,
      * aquí sí se revisa que no sea el mismo pago que llegó hace poco por otra vía: en ese caso devuelve `null`.
      */
-    fun guardarPagoDeCaptura(pago: PagoLeido, texto: String): PagoGuardado? {
+    fun guardarPagoDeCaptura(pago: PagoLeido, texto: String, categoriaElegida: Categoria? = null): PagoGuardado? {
         val guardado = !pago.esIngreso || ajustes.guardarIngresosAutomaticamente()
         val movimiento = registrarPagoNativo(
             PagoNativo(
                 amount = pago.amount, peer = pago.peer, provider = pago.provider.clave,
                 tipo = if (pago.esIngreso) TipoMovimiento.Ingreso else TipoMovimiento.Gasto,
                 textoOriginal = texto, confirmado = guardado, en = reloj(), canal = CanalMovimiento.Captura,
-                id = nuevoId(),
+                id = nuevoId(), categoriaElegida = categoriaElegida,
             ),
         ) ?: return null
         return PagoGuardado(movimiento, guardado)

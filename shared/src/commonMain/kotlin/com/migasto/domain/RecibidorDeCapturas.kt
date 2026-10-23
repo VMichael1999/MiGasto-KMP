@@ -32,10 +32,13 @@ class RecibidorDeCapturas(
         guarda = GuardaDeDuplicados(2.minutes, reloj),
     )
 
-    fun recibir(texto: String): ResultadoDeLaCaptura = when (val lectura = procesador.procesar(texto, OrigenDeLectura.Pantalla)) {
+    /** Para Swift, que no ve los valores por defecto de Kotlin. */
+    fun recibir(texto: String): ResultadoDeLaCaptura = recibir(texto, null)
+
+    /** [categoriaElegida] es la clave de la categoría que el usuario eligió en la hoja de la extensión, o `null`. */
+    fun recibir(texto: String, categoriaElegida: String?): ResultadoDeLaCaptura = when (val lectura = procesador.procesar(texto, OrigenDeLectura.Pantalla)) {
         ResultadoDeLectura.SinPago -> ResultadoDeLaCaptura(
-            DesenlaceDeCaptura.SinPago, "No encontramos un pago en la captura.",
-            "Comparte la constancia de Yape o Plin, con el monto a la vista.",
+            DesenlaceDeCaptura.SinPago, TextosDeLaCaptura.SIN_PAGO, TextosDeLaCaptura.SIN_PAGO_AYUDA,
         )
         ResultadoDeLectura.ProveedorApagado -> ResultadoDeLaCaptura(
             DesenlaceDeCaptura.ProveedorApagado, "${proveedorDe(texto)} está apagado en Ajustes.",
@@ -43,7 +46,7 @@ class RecibidorDeCapturas(
         )
         ResultadoDeLectura.YaLeido, ResultadoDeLectura.Duplicado -> yaRegistrado()
         is ResultadoDeLectura.PagoNuevo -> {
-            val guardado = registro.guardarPagoDeCaptura(lectura.pago, lectura.texto)
+            val guardado = registro.guardarPagoDeCaptura(lectura.pago, lectura.texto, categoriaElegida?.let { Categoria.desdeClave(it) })
             if (guardado == null) {
                 yaRegistrado()
             } else {
