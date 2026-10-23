@@ -196,4 +196,32 @@ class SeguimientoDeAjustesTest {
         s.establecerBloqueo(false)
         assertFalse(s.estado.first().bloqueoActivado)
     }
+
+    @Test
+    fun ocultarMontosAlAbrirSeAlternaYLaPantallaLoMuestra() = probar { base, s ->
+        assertFalse(s.estado.first().ocultarMontosAlAbrir)
+        s.alternarOcultarMontosAlAbrir()
+        assertTrue(s.estado.first().ocultarMontosAlAbrir)
+        assertTrue(base.ajustes.ocultarMontosAlAbrir())
+        s.alternarOcultarMontosAlAbrir()
+        assertFalse(s.estado.first().ocultarMontosAlAbrir)
+    }
+
+    @Test
+    fun lasEtiquetasDeLosAjustesDeIphone() {
+        val t = TextosDeAjustesDeIphone
+        assertEquals("Registro en iPhone", t.SECCION_REGISTRO)
+        assertEquals("Compartir capturas de Yape y Plin", t.CAPTURAS)
+        assertEquals("Apple Pay con Atajos", t.ATAJOS)
+        assertEquals("Avisos de pagos", t.AVISOS)
+        assertEquals("Seguridad", t.SECCION_SEGURIDAD)
+        assertEquals("Bloquear con Face ID", t.FACE_ID)
+        assertEquals("Ocultar montos al abrir", t.OCULTAR_MONTOS)
+        assertEquals("Activo", t.ACTIVO)
+        assertEquals("Configurar", t.CONFIGURAR)
+        assertEquals("Activos", t.ACTIVOS)
+        assertEquals("Activar", t.ACTIVAR)
+        assertTrue(t.PIE_DEL_REGISTRO.startsWith("En iPhone las apps no pueden leer"))
+        assertTrue(t.PASOS_DE_LAS_CAPTURAS.size == 3 && t.PASOS_DE_ATAJOS.size == 4)
+    }
 }

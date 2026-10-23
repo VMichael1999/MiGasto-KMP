@@ -171,4 +171,15 @@ class RepositorioAjustesTest {
             assertEquals(3, base.ajustes.proveedoresActivos().size)
         }
     }
+
+    @Test
+    fun ocultarMontosAlAbrirEmpiezaApagadoYSeGuarda() {
+        abrir().use { base ->
+            assertFalse(base.ajustes.ocultarMontosAlAbrir())
+            base.ajustes.establecerOcultarMontosAlAbrir(true)
+            assertTrue(base.ajustes.ocultarMontosAlAbrir())
+            base.ajustes.establecerOcultarMontosAlAbrir(false)
+            assertFalse(base.ajustes.ocultarMontosAlAbrir())
+        }
+    }
 }

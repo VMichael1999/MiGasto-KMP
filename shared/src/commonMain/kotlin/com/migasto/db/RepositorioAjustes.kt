@@ -118,6 +118,11 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
 
     fun establecerBloqueoActivado(valor: Boolean) = guardar(CLAVE_BLOQUEO, valor.toString())
 
+    /** Si la app abre con los montos ocultos (iPhone). Apagado por defecto. */
+    fun ocultarMontosAlAbrir(): Boolean = leer(CLAVE_OCULTAR_AL_ABRIR) == "true"
+
+    fun establecerOcultarMontosAlAbrir(valor: Boolean) = guardar(CLAVE_OCULTAR_AL_ABRIR, valor.toString())
+
     /** `true` cuando el usuario ya pasó por la bienvenida (la marca `onboarding_complete` de Flutter). */
     fun bienvenidaCompleta(): Boolean = leer(CLAVE_BIENVENIDA) == "true"
 
@@ -155,6 +160,7 @@ class RepositorioAjustes internal constructor(private val db: MiGastoDb) {
         const val CLAVE_LEIDOS = "migasto_handled_notifications"
         const val CLAVE_MONTO_BLOQUEADO = "migasto_show_amount_locked"
         const val CLAVE_BLOQUEO = "migasto_passcode_enabled"
+        const val CLAVE_OCULTAR_AL_ABRIR = "migasto_hide_amounts_on_open"
         const val CLAVE_BIENVENIDA = "onboarding_complete"
         const val CLAVE_BATERIA_POSPUESTA = "migasto_battery_banner_dismissed_at"
         const val CLAVE_AVISOS_POSPUESTOS = "migasto_alerts_banner_dismissed_at"
