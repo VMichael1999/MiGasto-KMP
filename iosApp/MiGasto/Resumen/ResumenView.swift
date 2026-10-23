@@ -28,15 +28,13 @@ struct ResumenView: View {
             }
             .background(Paleta.fondo)
             .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         aplicacion.montosOcultos.toggle()
                     } label: {
                         Image(systemName: aplicacion.montosOcultos ? "eye.slash" : "eye")
                     }
                     .accessibilityLabel(aplicacion.montosOcultos ? "Mostrar montos" : "Ocultar montos")
-                    Button { aplicacion.pestana = .busqueda } label: { Image(systemName: "magnifyingglass") }
-                        .accessibilityLabel(TextosDeLaBusqueda.shared.TITULO)
                 }
             }
             .toolbarTitleDisplayMode(.inline)
@@ -87,7 +85,7 @@ private struct Saldo: View {
                         .font(.outfit(18, .medium, relativeTo: .title3))
                         .foregroundStyle(Paleta.apagado)
                 }
-                Text(oculto ? "••••" : pantalla.saldo)
+                MontoQueCuenta(valor: pantalla.saldoValor, conSoles: false, oculto: oculto)
                     .font(.outfit(46, .bold, relativeTo: .largeTitle))
                     .foregroundStyle(Paleta.tinta)
                     .minimumScaleFactor(0.6)
@@ -104,15 +102,16 @@ private struct IngresosYGastos: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Tarjeta(titulo: "Ingresos", icono: "arrow.up", monto: oculto ? "••••" : pantalla.ingresos, color: Paleta.ingreso)
-            Tarjeta(titulo: "Gastos", icono: "arrow.down", monto: oculto ? "••••" : pantalla.gastos, color: Paleta.apagado)
+            Tarjeta(titulo: "Ingresos", icono: "arrow.up", valor: pantalla.ingresosValor, oculto: oculto, color: Paleta.ingreso)
+            Tarjeta(titulo: "Gastos", icono: "arrow.down", valor: pantalla.gastosValor, oculto: oculto, color: Paleta.apagado)
         }
     }
 
     private struct Tarjeta: View {
         let titulo: String
         let icono: String
-        let monto: String
+        let valor: Double
+        let oculto: Bool
         let color: Color
 
         var body: some View {
@@ -121,7 +120,7 @@ private struct IngresosYGastos: View {
                     Image(systemName: icono).font(.system(size: 12, weight: .semibold)).foregroundStyle(color)
                     Text(titulo).font(.outfit(13)).foregroundStyle(Paleta.apagado)
                 }
-                Text(monto)
+                MontoQueCuenta(valor: valor, conSoles: true, oculto: oculto)
                     .font(.outfit(18, .semibold, relativeTo: .title3))
                     .foregroundStyle(Paleta.tinta)
                     .minimumScaleFactor(0.7)

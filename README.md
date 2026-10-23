@@ -14,7 +14,7 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 545 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 546 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **Hecho en el simulador**: las 7 pantallas, base cifrada con Keychain, Face ID, ubicación con mapa, compartir capturas con Vision, Atajos para Apple Pay y widget; sin probar en un iPhone real |
 
@@ -94,11 +94,17 @@ La acción «Registrar movimiento» (`App Intents`, en `iosApp/MiGasto/AtajosYWa
 
 ### Barra y búsqueda (iPhone)
 
-La barra inferior sigue el diseño: las cuatro pestañas en el vidrio del sistema y la lupa aparte, con el «+» de vidrio verde flotando justo encima de ella. La lupa abre una búsqueda que ya trae el teclado y busca entre **todos** los movimientos, por comercio o nombre guardado (`BusquedaGlobal` de `shared`, 6 pruebas); el ojo y la lupa del Resumen llevan a la misma búsqueda y «Ver todos» lleva a Movimientos. Movimientos ya no tiene su propia búsqueda: queda el filtro por tipo y la hoja de filtros. Los íconos de la barra (de contorno o rellenos) y el «lente» de la pestaña activa los dibuja el sistema, así que se ven como el iOS del teléfono y no calcados del HTML.
+La barra inferior sigue el diseño: las cuatro pestañas en el vidrio del sistema y la lupa aparte, con el «+» de vidrio verde flotando justo encima de ella. La lupa abre la búsqueda ya con el teclado y se ve como la de Android: los chips (Todo, Gastos, Ingresos, Por confirmar · N) y los movimientos por día con su total de gastos. Con el campo vacío se ven todos; escribir filtra por nombre (o nombre guardado) y los chips filtran junto con el texto. Es la misma pantalla de Movimientos que arma `shared` (`observarPantallaDeMovimientos`), con sus propios filtros, aparte de los de la pestaña Movimientos. El Resumen ya no repite la lupa arriba: queda solo el ojo. «Ver todos» lleva a Movimientos, que ya no tiene búsqueda propia (queda el filtro por tipo y la hoja de filtros). Los íconos de la barra y el «lente» de la pestaña activa los dibuja el sistema, así que se ven como el iOS del teléfono y no calcados del HTML.
 
 | Resumen | Movimientos | Búsqueda |
 |---|---|---|
-| ![Barra en el Resumen](docs/comparacion/ios-mg-11-barra-resumen.png) | ![Barra en Movimientos](docs/comparacion/ios-mg-11-barra-movimientos.png) | ![Búsqueda en iPhone](docs/comparacion/ios-mg-11-busqueda.png) |
+| ![Barra en el Resumen](docs/comparacion/ios-mg-11-barra-resumen.png) | ![Barra en Movimientos](docs/comparacion/ios-mg-11-barra-movimientos.png) | ![Búsqueda en iPhone](docs/comparacion/ios-mg-15-busqueda.png) |
+
+### Montos que cuentan (iPhone)
+
+Al volver a mostrar los montos con el ojo, el saldo grande y los números de Ingresos y Gastos suben desde 0 hasta su valor en 900 ms, frenando al final (`easeOutCubic`), como el `BigAmount` de Flutter; al ocultarlos pasan de golpe a «••••». La curva, la duración y el texto de cada instante salen de `CuentaAnimada` en `shared` (6 pruebas); la vista (`MontoQueCuenta`) solo avanza el tiempo. El Android de este repo no tiene esta animación.
+
+![Los montos contando](docs/comparacion/ios-mg-15-conteo-de-montos.png)
 
 ### Nuevo movimiento y Detalle (iPhone)
 
@@ -157,7 +163,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **545 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **546 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de `shared` en iOS, la compilación de `iosApp` (app y extensiones, para el simulador y sin firma) y los tests de Android en un emulador. El job de `iosApp` se probó en un clon limpio de este Mac con los mismos comandos; en GitHub aún no corrió (no se hizo push), así que depende de que `macos-latest` traiga un Xcode con iOS 26.
 

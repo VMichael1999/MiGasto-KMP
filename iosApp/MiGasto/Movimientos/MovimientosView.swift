@@ -65,7 +65,7 @@ private struct Insignia: View {
 }
 
 /// El filtro por tipo: un control segmentado propio, porque «Por confirmar · 2» no cabe sin achicarse.
-private struct TipoDeMovimientos: View {
+struct TipoDeMovimientos: View {
     let pantalla: PantallaDeMovimientos
     let alElegir: (FiltroDeTipo) -> Void
 
