@@ -11,6 +11,12 @@ final class Aplicacion {
     /// Si el bloqueo con Face ID o código está activado (lo cambia Ajustes; la puerta de bloqueo lo ve al instante).
     var bloqueoActivado: Bool
 
+    /// Las pestañas de la barra. La lupa (`busqueda`) es la pestaña de búsqueda del sistema, aparte de las otras cuatro.
+    enum Pestana: Hashable { case resumen, movimientos, reportes, ajustes, busqueda }
+
+    /// La pestaña abierta; el Resumen la cambia con la lupa y con «Ver todos».
+    var pestana: Pestana = .resumen
+
     /// Si el usuario ocultó los montos (el ojo del Resumen). Vale para todas las pantallas.
     var montosOcultos = false
 

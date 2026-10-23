@@ -9,25 +9,20 @@ struct RaizView: View {
     @Environment(\.scenePhase) private var fase
 
     var body: some View {
-        TabView {
-            Tab("Resumen", systemImage: "house") { ResumenView() }
-            Tab("Movimientos", systemImage: "list.bullet") { MovimientosView() }
-            Tab("Reportes", systemImage: "chart.bar") { ReportesView(aplicacion: aplicacion) }
-            Tab("Ajustes", systemImage: "gearshape") { AjustesView(aplicacion: aplicacion) }
+        @Bindable var aplicacion = aplicacion
+        TabView(selection: $aplicacion.pestana) {
+            Tab("Resumen", systemImage: "house", value: Aplicacion.Pestana.resumen) { ResumenView() }
+            Tab("Movimientos", systemImage: "list.bullet", value: Aplicacion.Pestana.movimientos) { MovimientosView() }
+            Tab("Reportes", systemImage: "chart.bar", value: Aplicacion.Pestana.reportes) { ReportesView(aplicacion: aplicacion) }
+            Tab("Ajustes", systemImage: "gearshape", value: Aplicacion.Pestana.ajustes) { AjustesView(aplicacion: aplicacion) }
+            // La lupa: el sistema la dibuja aparte de las otras cuatro, a la derecha de la barra.
+            Tab(value: Aplicacion.Pestana.busqueda, role: .search) { BusquedaView(aplicacion: aplicacion) }
         }
         .overlay(alignment: .bottomTrailing) {
-            if aplicacion.pantallasEncima == 0 {
-            Button { nuevoAbierto = true } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundStyle(Paleta.tintaSobreVerde)
-                    .frame(width: 58, height: 58)
-                    .background(Paleta.verdeNeon, in: Circle())
-                    .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
-            }
-            .padding(.trailing, 20)
-            .padding(.bottom, 96)
-            .accessibilityLabel("Agregar movimiento")
+            if aplicacion.pantallasEncima == 0 && aplicacion.pestana != .busqueda {
+                BotonAgregar { nuevoAbierto = true }
+                    .padding(.trailing, 21)
+                    .padding(.bottom, 55)
             }
         }
         .overlay(alignment: .bottom) {
@@ -57,5 +52,22 @@ struct RaizView: View {
         .task { aplicacion.registrarCapturasPendientes() }
         .onChange(of: fase) { _, nueva in if nueva == .active { aplicacion.registrarCapturasPendientes() } }
         .fullScreenCover(isPresented: $nuevoAbierto) { NuevoMovimientoView() }
+    }
+}
+
+/// El «+» de vidrio verde que flota sobre la barra (Liquid Glass, como en el diseño).
+private struct BotonAgregar: View {
+    let alTocar: () -> Void
+
+    var body: some View {
+        Button(action: alTocar) {
+            Image(systemName: "plus")
+                .font(.system(size: 26, weight: .semibold))
+                .foregroundStyle(Color(hex: 0x0F3D1C))
+                .frame(width: 56, height: 56)
+        }
+        .buttonStyle(.plain)
+        .glassEffect(.regular.tint(Paleta.verdeNeon.opacity(0.78)).interactive(), in: .circle)
+        .accessibilityLabel("Agregar movimiento")
     }
 }
