@@ -14,7 +14,7 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 537 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 545 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **Hecho en el simulador**: las 7 pantallas, base cifrada con Keychain, Face ID, ubicación con mapa, compartir capturas con Vision, Atajos para Apple Pay y widget; sin probar en un iPhone real |
 
@@ -74,11 +74,11 @@ El Resumen, Movimientos, Nuevo movimiento, Detalle, Reportes, Ajustes y Dónde p
 
 ### Compartir capturas (iPhone)
 
-La extensión «Compartir» (`iosApp/MiGastoCompartir`) recibe una captura, lee su texto con Vision en el teléfono y lo deja en una cola de la carpeta compartida de la app (`group.com.migasto.ios`). La extensión nunca toca la base cifrada ni su clave: al abrir MiGasto, la app registra lo pendiente con `RecibidorDeCapturas` de `shared` (las mismas reglas que la lectura de pantalla de Android: solo cuenta la constancia, lo ya leído no se repite y los proveedores apagados se ignoran) y borra el archivo. De cada captura solo se guardan los primeros 1500 caracteres de texto, no la imagen.
+La extensión «Compartir» (`iosApp/MiGastoCompartir`) recibe una captura, lee su texto con Vision en el teléfono y abre una hoja como la del diseño: «Cancelar» y «Guardar» arriba, «Leído en tu iPhone, sin internet», el monto, el comercio, la fuente y la categoría (la sugerida por las reglas, que se puede cambiar). Si la imagen no es la constancia de un pago, lo dice y no guarda nada. Al guardar, deja el texto y la categoría elegida en una cola de la carpeta compartida de la app (`group.com.migasto.ios`). La extensión no abre la base cifrada ni su clave: usa `shared` solo para leer el texto (`vistaPreviaDeCaptura`, 8 pruebas). Al abrir MiGasto, la app registra lo pendiente con `RecibidorDeCapturas` (las mismas reglas que la lectura de pantalla de Android: solo cuenta la constancia, lo ya leído no se repite y los proveedores apagados se ignoran) y borra el archivo. De cada captura solo se guardan los primeros 1500 caracteres de texto, no la imagen.
 
-| Pago registrado desde una captura |
-|---|
-| ![Captura compartida en iPhone](docs/comparacion/ios-mg-09-captura-compartida.png) |
+| La hoja de la extensión | El pago ya registrado (categoría «Servicios», la que se eligió) |
+|---|---|
+| ![Hoja de Compartir en iPhone](docs/comparacion/ios-mg-14-compartir-hoja.png) | ![Captura compartida en iPhone](docs/comparacion/ios-mg-14-compartir-registrado.png) |
 
 ### Apple Pay con Atajos (iPhone)
 
@@ -157,7 +157,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **537 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **545 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de `shared` en iOS, la compilación de `iosApp` (app y extensiones, para el simulador y sin firma) y los tests de Android en un emulador. El job de `iosApp` se probó en un clon limpio de este Mac con los mismos comandos; en GitHub aún no corrió (no se hizo push), así que depende de que `macos-latest` traiga un Xcode con iOS 26.
 
