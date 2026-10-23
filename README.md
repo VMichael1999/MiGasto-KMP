@@ -14,7 +14,7 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 526 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 532 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **Hecho en el simulador**: las 7 pantallas, base cifrada con Keychain, Face ID, ubicación con mapa, compartir capturas con Vision, Atajos para Apple Pay y widget; sin probar en un iPhone real |
 
@@ -92,6 +92,14 @@ La acción «Registrar movimiento» (`App Intents`, en `iosApp/MiGasto/AtajosYWa
 |---|
 | ![Widget en iPhone](docs/comparacion/ios-mg-10-widget.png) |
 
+### Barra y búsqueda (iPhone)
+
+La barra inferior sigue el diseño: las cuatro pestañas en el vidrio del sistema y la lupa aparte, con el «+» de vidrio verde flotando justo encima de ella. La lupa abre una búsqueda que ya trae el teclado y busca entre **todos** los movimientos, por comercio o nombre guardado (`BusquedaGlobal` de `shared`, 6 pruebas); el ojo y la lupa del Resumen llevan a la misma búsqueda y «Ver todos» lleva a Movimientos. Movimientos ya no tiene su propia búsqueda: queda el filtro por tipo y la hoja de filtros. Los íconos de la barra (de contorno o rellenos) y el «lente» de la pestaña activa los dibuja el sistema, así que se ven como el iOS del teléfono y no calcados del HTML.
+
+| Resumen | Movimientos | Búsqueda |
+|---|---|---|
+| ![Barra en el Resumen](docs/comparacion/ios-mg-11-barra-resumen.png) | ![Barra en Movimientos](docs/comparacion/ios-mg-11-barra-movimientos.png) | ![Búsqueda en iPhone](docs/comparacion/ios-mg-11-busqueda.png) |
+
 ## Arquitectura
 
 ```text
@@ -133,7 +141,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **526 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **532 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de `shared` en iOS, la compilación de `iosApp` (app y extensiones, para el simulador y sin firma) y los tests de Android en un emulador. El job de `iosApp` se probó en un clon limpio de este Mac con los mismos comandos; en GitHub aún no corrió (no se hizo push), así que depende de que `macos-latest` traiga un Xcode con iOS 26.
 
