@@ -20,6 +20,39 @@ object TextosDeLaPantallaDeAjustes {
     const val PIE = "Tus datos se guardan solo en este teléfono."
 }
 
+/** Los textos de Ajustes que son de iPhone: la sección «Registro en iPhone» (capturas, Atajos y avisos) y la de seguridad. */
+object TextosDeAjustesDeIphone {
+    const val SECCION_REGISTRO = "Registro en iPhone"
+    const val CAPTURAS = "Compartir capturas de Yape y Plin"
+    const val ATAJOS = "Apple Pay con Atajos"
+    const val AVISOS = "Avisos de pagos"
+    const val ACTIVO = "Activo"
+    const val ACTIVOS = "Activos"
+    const val ACTIVAR = "Activar"
+    const val CONFIGURAR = "Configurar"
+    const val PIE_DEL_REGISTRO = "En iPhone las apps no pueden leer las notificaciones de otras apps; por eso se registra con capturas y con Atajos."
+    const val SECCION_SEGURIDAD = "Seguridad"
+    const val FACE_ID = "Bloquear con Face ID"
+    const val OCULTAR_MONTOS = "Ocultar montos al abrir"
+    const val ABRIR_ATAJOS = "Abrir Atajos"
+    const val ABRIR_AJUSTES = "Abrir Ajustes"
+    const val ENTENDIDO = "Entendido"
+    const val AVISOS_BLOQUEADOS = "Los avisos están apagados para MiGasto. Actívalos en Ajustes ▸ Notificaciones."
+
+    val PASOS_DE_LAS_CAPTURAS = listOf(
+        "Abre la captura de Yape o Plin en Fotos.",
+        "Toca Compartir y elige MiGasto.",
+        "El pago se lee en tu iPhone, sin internet, y se registra al abrir la app.",
+    )
+
+    val PASOS_DE_ATAJOS = listOf(
+        "Abre Atajos ▸ Automatización ▸ Nueva automatización.",
+        "Elige «Transacción» (Wallet) y las tarjetas que quieras.",
+        "Agrega la acción «Registrar movimiento» de MiGasto.",
+        "Pásale el monto, el comercio y la tarjeta de la transacción.",
+    )
+}
+
 class ProveedorDeAjuste(val clave: String, val nombre: String, val activo: Boolean)
 
 /** Lo que muestra Ajustes, ya con sus textos. */
@@ -33,6 +66,7 @@ class PantallaDeAjustes(
     val subtituloDeLosIngresosAutomaticos: String,
     val montoEnPantallaBloqueada: Boolean,
     val bloqueoActivado: Boolean,
+    val ocultarMontosAlAbrir: Boolean,
     val subtituloDelMontoEnPantallaBloqueada: String,
     val proveedores: List<ProveedorDeAjuste>,
     val subtituloDelRespaldo: String,
@@ -78,6 +112,7 @@ class SeguimientoDeAjustes(
             },
             montoEnPantallaBloqueada = a.mostrarMontoEnPantallaBloqueada(),
             bloqueoActivado = a.bloqueoActivado(),
+            ocultarMontosAlAbrir = a.ocultarMontosAlAbrir(),
             subtituloDelMontoEnPantallaBloqueada = if (a.mostrarMontoEnPantallaBloqueada()) {
                 "Visible: el aviso muestra el monto y el nombre"
             } else {
@@ -114,6 +149,9 @@ class SeguimientoDeAjustes(
 
     /** Activa o apaga el bloqueo de la app (la autenticación del teléfono la pide cada sistema antes de activarlo). */
     fun establecerBloqueo(activado: Boolean) = cambiar { base.ajustes.establecerBloqueoActivado(activado) }
+
+    fun alternarOcultarMontosAlAbrir() =
+        cambiar { base.ajustes.establecerOcultarMontosAlAbrir(!base.ajustes.ocultarMontosAlAbrir()) }
 
     fun alternarProveedor(clave: String) = cambiar {
         val activos = base.ajustes.proveedoresActivos()

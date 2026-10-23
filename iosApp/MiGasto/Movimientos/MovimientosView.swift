@@ -28,7 +28,6 @@ struct MovimientosView: View {
             }
             .background(Paleta.fondo)
             .navigationTitle(TextosDeMovimientos.shared.TITULO)
-            .searchable(text: busqueda, prompt: "Buscar")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { hojaAbierta = true } label: {
@@ -46,10 +45,6 @@ struct MovimientosView: View {
             }
         }
         .task(id: modelo.claveDeLosFiltros) { await modelo.observar(aplicacion.base) }
-    }
-
-    private var busqueda: Binding<String> {
-        Binding(get: { modelo.filtros.busqueda }, set: { modelo.filtros = modelo.filtros.conBusqueda(texto: $0) })
     }
 }
 
@@ -97,7 +92,7 @@ private struct TipoDeMovimientos: View {
     }
 }
 
-private struct GrupoView: View {
+struct GrupoView: View {
     let grupo: GrupoDeMovimientos
     let oculto: Bool
 

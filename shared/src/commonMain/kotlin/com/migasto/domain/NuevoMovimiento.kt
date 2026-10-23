@@ -111,6 +111,9 @@ fun opcionesDeFuente() = FormularioNuevoMovimiento.fuentesPosibles.map { OpcionD
 
 object TextosDeNuevoMovimiento {
     const val TITULO = "Nuevo movimiento"
+    const val CANCELAR = "Cancelar"
+    const val GUARDAR = "Guardar"
+    const val NOTA = "Nota"
     const val CAMBIAR = "Cambiar"
     const val NUEVA = "Nueva"
     const val NUEVA_CATEGORIA = "Nueva categoría"
