@@ -132,4 +132,11 @@ class NuevoMovimientoParaLasPantallasTest {
             assertEquals(0, base.movimientos.todos().size)
         }
     }
+
+    @Test
+    fun lasEtiquetasDeLaHojaDeIphone() {
+        assertEquals("Cancelar", TextosDeNuevoMovimiento.CANCELAR)
+        assertEquals("Guardar", TextosDeNuevoMovimiento.GUARDAR)
+        assertEquals("Nota", TextosDeNuevoMovimiento.NOTA)
+    }
 }
