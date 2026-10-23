@@ -18,7 +18,7 @@ final class Aplicacion {
     var pestana: Pestana = .resumen
 
     /// Si el usuario ocultó los montos (el ojo del Resumen). Vale para todas las pantallas.
-    var montosOcultos = false
+    var montosOcultos: Bool
 
     /// Un aviso breve que se ve sobre todo («Gasto guardado»), con una acción opcional («Deshacer»).
     struct Aviso: Equatable {
@@ -57,6 +57,15 @@ final class Aplicacion {
     /// La misma instancia para la interfaz y para las acciones de Atajos: así comparten la base abierta.
     static let compartida = Aplicacion()
 
+    /// El aviso del sistema de un pago de Apple Pay ya registrado. Con «Monto en pantalla bloqueada» apagado, no dice el monto.
+    func avisarPagoDeWallet(_ resultado: ResultadoDeWallet) async {
+        if base.ajustes.mostrarMontoEnPantallaBloqueada() {
+            await AvisosDePagos.avisar(titulo: resultado.titulo, detalle: resultado.detalle)
+        } else {
+            await AvisosDePagos.avisar(titulo: TEXTOS_DEL_AVISO_PUBLICO.titulo, detalle: TEXTOS_DEL_AVISO_PUBLICO.texto)
+        }
+    }
+
     /// Guarda un gasto de Apple Pay que pasó la acción de Atajos «Registrar movimiento».
     func registrarPagoDeWallet(monto: String, comercio: String, tarjeta: String?, latitud: Double?, longitud: Double?) -> ResultadoDeWallet {
         registradorDeWallet.registrar(
@@ -80,6 +89,7 @@ final class Aplicacion {
         base = abrirLaBaseDeLaApp()
         registro = crearRegistroDeMovimientos(base: base)
         bloqueoActivado = base.ajustes.bloqueoActivado()
+        montosOcultos = base.ajustes.ocultarMontosAlAbrir()
         recibidorDeCapturas = RecibidorDeCapturas(base: base, registro: registro)
         registradorDeWallet = RegistradorDeWallet(registro: registro)
     }

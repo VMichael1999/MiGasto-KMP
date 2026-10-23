@@ -42,6 +42,7 @@ struct RegistrarMovimientoIntent: AppIntent {
             monto: monto, comercio: comercio, tarjeta: tarjeta, latitud: latitud, longitud: longitud
         )
         if resultado.desenlace == .montoInvalido { throw ErrorDeRegistro.montoInvalido(resultado.titulo) }
+        if resultado.desenlace == .guardado { await Aplicacion.compartida.avisarPagoDeWallet(resultado) }
         let texto = resultado.detalle.isEmpty ? resultado.titulo : "\(resultado.titulo). \(resultado.detalle)"
         return .result(dialog: IntentDialog(stringLiteral: texto))
     }
