@@ -1,9 +1,11 @@
+import Shared
+import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 import Vision
 
-/// La extensión «Compartir»: recibe una captura (por ejemplo, la constancia de Yape), lee su texto con Vision en el
-/// teléfono y lo deja en la cola para que MiGasto lo registre. No sale nada del teléfono.
+/// La extensión «Compartir»: recibe una captura (por ejemplo, la constancia de Yape), lee su texto con Vision en el teléfono,
+/// lo muestra para confirmar y lo deja en la cola para que MiGasto lo registre. No sale nada del teléfono.
 final class ShareViewController: UIViewController {
     private let mensaje = UILabel()
     private let rueda = UIActivityIndicatorView(style: .large)
@@ -31,11 +33,33 @@ final class ShareViewController: UIViewController {
     }
 
     private func procesar() async {
-        guard let imagen = await imagenCompartida() else { return terminar("No pudimos abrir la imagen.") }
+        guard let imagen = await imagenCompartida() else { return mostrarFallo("No pudimos abrir la imagen.") }
         let texto = await leerTexto(de: imagen)
-        guard !texto.isEmpty else { return terminar("No se leyó texto en la imagen.") }
-        guard ColaDeCapturas.agregar(texto) else { return terminar("No se pudo guardar la captura. Abre MiGasto e inténtalo otra vez.") }
-        terminar("Listo. Abre MiGasto para ver el pago.")
+        guard !texto.isEmpty else { return mostrarFallo("No se leyó texto en la imagen.") }
+        guard let vista = vistaPreviaDeCaptura(texto: texto) else { return mostrar(SinPagoView { [weak self] in self?.cerrar() }) }
+        mostrar(HojaDeLaCapturaView(vista: vista, alCancelar: { [weak self] in self?.cerrar() }, alGuardar: { [weak self] categoria in
+            guard ColaDeCapturas.agregar(texto, categoria: categoria) else {
+                self?.mostrarFallo("No se pudo guardar la captura. Abre MiGasto e inténtalo otra vez.")
+                return
+            }
+            self?.mostrarFallo("Listo. Abre MiGasto para ver el pago.")
+        }))
+    }
+
+    /// Reemplaza lo que se ve por una vista de SwiftUI.
+    private func mostrar<V: View>(_ contenido: V) {
+        let anfitrion = UIHostingController(rootView: contenido)
+        addChild(anfitrion)
+        anfitrion.view.translatesAutoresizingMaskIntoConstraints = false
+        view.subviews.forEach { $0.removeFromSuperview() }
+        view.addSubview(anfitrion.view)
+        NSLayoutConstraint.activate([
+            anfitrion.view.topAnchor.constraint(equalTo: view.topAnchor),
+            anfitrion.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            anfitrion.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            anfitrion.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+        anfitrion.didMove(toParent: self)
     }
 
     private func imagenCompartida() async -> CGImage? {
@@ -68,11 +92,22 @@ final class ShareViewController: UIViewController {
         }
     }
 
-    private func terminar(_ texto: String) {
-        rueda.stopAnimating()
+    private func mostrarFallo(_ texto: String) {
+        view.subviews.forEach { $0.removeFromSuperview() }
+        children.forEach { $0.removeFromParent() }
         mensaje.text = texto
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { [weak self] in
-            self?.extensionContext?.completeRequest(returningItems: nil)
-        }
+        rueda.stopAnimating()
+        mensaje.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(mensaje)
+        NSLayoutConstraint.activate([
+            mensaje.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            mensaje.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            mensaje.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+        ])
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { [weak self] in self?.cerrar() }
+    }
+
+    private func cerrar() {
+        extensionContext?.completeRequest(returningItems: nil)
     }
 }

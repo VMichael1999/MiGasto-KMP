@@ -7,6 +7,11 @@ target 'MiGasto' do
   pod 'shared', :path => '../shared'
 end
 
+# La extensión «Compartir» usa el lector de pagos de `shared` para mostrar lo que leyó (no abre la base).
+target 'MiGastoCompartir' do
+  pod 'shared', :path => '../shared'
+end
+
 # SQLCipher declara iOS 12 como mínimo y este Xcode ya no lo admite: todas las pods usan el de la app.
 post_install do |installer|
   installer.pods_project.targets.each do |target|
