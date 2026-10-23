@@ -14,7 +14,7 @@ Las dos apps se ven como MiGasto (la misma tipografía Outfit, el mismo verde y 
 
 | Parte | Estado |
 |---|---|
-| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 534 tests y 98 % de cobertura de líneas |
+| `shared` (lógica, base cifrada, respaldo, CSV) | **Hecho**, con 537 tests y 98 % de cobertura de líneas |
 | `androidApp` (7 pantallas, lectura de pagos, ventana flotante) | **Hecho**, con 62 pruebas de interfaz y bloqueo con huella o PIN; faltan algunas pantallas secundarias (ver abajo) |
 | `iosApp` (SwiftUI) | **Hecho en el simulador**: las 7 pantallas, base cifrada con Keychain, Face ID, ubicación con mapa, compartir capturas con Vision, Atajos para Apple Pay y widget; sin probar en un iPhone real |
 
@@ -108,6 +108,14 @@ La barra inferior sigue el diseño: las cuatro pestañas en el vidrio del sistem
 |---|---|
 | ![Nuevo movimiento en iPhone](docs/comparacion/ios-mg-12-nuevo-movimiento-hoja.png) | ![Detalle en iPhone](docs/comparacion/ios-mg-12-detalle-regreso.png) |
 
+### Ajustes (iPhone)
+
+Ajustes sigue el diseño: **Registro en iPhone** (Compartir capturas de Yape y Plin, Apple Pay con Atajos, Avisos de pagos), **Seguridad** (Bloquear con Face ID y «Ocultar montos al abrir»), y debajo lo demás que ya existía (registro automático, «Dónde pagaste» y Tus datos). Las dos primeras filas abren los pasos para usarlas (la de Atajos con un botón que abre la app Atajos). «Avisos de pagos» pide el permiso de notificaciones la primera vez y lleva a los ajustes del sistema después; la acción de Atajos avisa cuando registra un pago de Apple Pay, y con «Monto en pantalla bloqueada» apagado el aviso solo dice «Pago detectado». «Ocultar montos al abrir» se guarda en la base (`RepositorioAjustes`) y la app abre con los montos ocultos. Los textos salen de `TextosDeAjustesDeIphone`, en `shared`. «Compartir capturas» y «Apple Pay con Atajos» no se pueden saber desde la app si están usándose, por eso muestran «Activo» y «Configurar» fijos.
+
+| Ajustes | Apple Pay con Atajos |
+|---|---|
+| ![Ajustes en iPhone](docs/comparacion/ios-mg-13-ajustes.png) | ![Atajos en iPhone](docs/comparacion/ios-mg-13-ajustes-atajos.png) |
+
 ## Arquitectura
 
 ```text
@@ -149,7 +157,7 @@ MiGasto-KMP/
 ./gradlew :shared:ktlintCheck :androidApp:ktlintCheck
 ```
 
-- **534 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
+- **537 tests de `shared`** corren en las tres plataformas (JVM, iOS y Android). Casi todos son los de Flutter, portados primero, más los casos nuevos.
 - **62 pruebas de interfaz** en `androidApp`: la bienvenida, «Dónde pagaste», Resumen (con el menú de meses), Movimientos (con la hoja de filtros), Nuevo movimiento (con el teclado), la ventana flotante (botones, cuenta regresiva, pausa y deslizar) y el bloqueo (con un autenticador falso).
 - La CI (`.github/workflows/shared.yml`) corre el estilo, la cobertura, los tests de `shared` en iOS, la compilación de `iosApp` (app y extensiones, para el simulador y sin firma) y los tests de Android en un emulador. El job de `iosApp` se probó en un clon limpio de este Mac con los mismos comandos; en GitHub aún no corrió (no se hizo push), así que depende de que `macos-latest` traiga un Xcode con iOS 26.
 
