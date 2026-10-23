@@ -42,6 +42,15 @@ struct DetalleView: View {
         .onDisappear { aplicacion.pantallasEncima -= 1 }
     }
 
+    /// El nombre de la pestaña desde la que se abrió el detalle.
+    private var nombreDeLaPantallaAnterior: String {
+        switch aplicacion.pestana {
+        case .movimientos: TextosDeMovimientos.shared.TITULO
+        case .busqueda: TextosDeLaBusqueda.shared.TITULO
+        default: TextosDelResumen.shared.TITULO
+        }
+    }
+
     @ViewBuilder
     private func contenido(_ listo: EstadoDelDetalleListo) -> some View {
         let d = listo.detalle
@@ -63,10 +72,24 @@ struct DetalleView: View {
             .padding(.bottom, 24)
         }
         .navigationTitle(d.tipoTexto)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            // «‹ Movimientos»: el regreso lleva el nombre de la pantalla de donde se vino, como en las apps de Apple.
+            ToolbarItem(placement: .topBarLeading) {
+                Button { cerrar() } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left").font(.system(size: 16, weight: .semibold))
+                        Text(nombreDeLaPantallaAnterior).font(.outfit(16))
+                    }
+                }
+                .accessibilityLabel(nombreDeLaPantallaAnterior)
+            }
+            .sharedBackgroundVisibility(.hidden)
             ToolbarItem(placement: .topBarTrailing) {
                 Button(TextosDelDetalle.shared.EDITAR) { editando = true }
+                    .font(.outfit(16, .medium))
             }
+            .sharedBackgroundVisibility(.hidden)
         }
         .alert(TextosDelDetalle.shared.CAMBIAR_NOMBRE, isPresented: $cambiandoNombre) {
             TextField(TextosDelDetalle.shared.NOMBRE, text: $nombreNuevo)
@@ -343,5 +366,17 @@ private struct BotonAgregarUbicacion: View {
         .buttonStyle(.plain)
         .disabled(capturando)
         .accessibilityLabel("\(TextosDeUbicacion.shared.AGREGAR). \(TextosDeUbicacion.shared.AGREGAR_DETALLE)")
+    }
+}
+
+/// Con el botón de regreso propio, el gesto de deslizar desde el borde para volver sigue funcionando.
+extension UINavigationController: @retroactive UIGestureRecognizerDelegate {
+    override open func viewDidLoad() {
+        super.viewDidLoad()
+        interactivePopGestureRecognizer?.delegate = self
+    }
+
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        viewControllers.count > 1
     }
 }
