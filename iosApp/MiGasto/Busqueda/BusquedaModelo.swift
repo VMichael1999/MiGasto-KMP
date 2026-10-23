@@ -1,16 +1,24 @@
 import Observation
 import Shared
 
-/// Estado de la búsqueda de la barra: el texto escrito y los resultados que arma `shared`, siempre al día.
+/// Estado de la búsqueda de la barra: es la pantalla de Movimientos (la arma `shared`) con su propio texto de búsqueda y sus
+/// chips, aparte de los filtros de la pestaña Movimientos.
 @MainActor
 @Observable
 final class BusquedaModelo {
-    private(set) var resultados: ResultadosDeBusqueda?
-    var texto = ""
+    private(set) var pantalla: PantallaDeMovimientos?
+    var filtros: FiltrosDeMovimientos = filtrosVacios()
+
+    var claveDeLosFiltros: String { String(describing: filtros) }
+
+    var texto: String {
+        get { filtros.busqueda }
+        set { filtros = filtros.conBusqueda(texto: newValue) }
+    }
 
     func observar(_ base: BaseMiGasto) async {
-        for await nuevos in observarBusqueda(base: base, texto: texto) {
-            resultados = nuevos
+        for await nueva in observarPantallaDeMovimientos(base: base, filtros: filtros) {
+            pantalla = nueva
         }
     }
 }

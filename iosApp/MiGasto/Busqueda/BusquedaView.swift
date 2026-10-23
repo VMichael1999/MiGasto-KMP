@@ -1,8 +1,8 @@
 import Shared
 import SwiftUI
 
-/// La búsqueda de la barra (la lupa aparte): busca entre todos los movimientos. Lo que coincide, los grupos por día y los
-/// textos los arma `shared`; aquí solo se dibuja.
+/// La búsqueda de la barra (la lupa aparte): igual que en Android, con los chips (Todo, Gastos, Ingresos, Por confirmar) y los
+/// movimientos por día con su total de gastos. Con el campo vacío se ven todos. Los grupos y los textos los arma `shared`.
 struct BusquedaView: View {
     let aplicacion: Aplicacion
     @State private var modelo = BusquedaModelo()
@@ -11,21 +11,20 @@ struct BusquedaView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                if let r = modelo.resultados {
+                if let p = modelo.pantalla {
                     VStack(alignment: .leading, spacing: 16) {
-                        if let resumen = r.resumen {
-                            Text(resumen).font(.outfit(13, .semibold)).foregroundStyle(Paleta.apagado).padding(.horizontal, 4)
-                        }
-                        ForEach(r.grupos, id: \.etiqueta) { grupo in
-                            GrupoView(grupo: grupo, oculto: aplicacion.montosOcultos)
-                        }
-                        if let mensaje = r.mensaje {
-                            Text(mensaje)
+                        TipoDeMovimientos(pantalla: p) { modelo.filtros = modelo.filtros.conTipo(nuevo: $0) }
+                        if p.grupos.isEmpty {
+                            Text(p.textoSinMovimientos)
                                 .font(.outfit(15))
                                 .foregroundStyle(Paleta.apagado)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
                                 .padding(.top, 60)
+                        } else {
+                            ForEach(p.grupos, id: \.etiqueta) { grupo in
+                                GrupoView(grupo: grupo, oculto: aplicacion.montosOcultos)
+                            }
                         }
                     }
                     .padding(.horizontal, 18)
@@ -34,8 +33,7 @@ struct BusquedaView: View {
             }
             .background(Paleta.fondo)
             .navigationTitle(TextosDeLaBusqueda.shared.TITULO)
-            .searchable(text: $modelo.texto, isPresented: $buscando, prompt: TextosDeLaBusqueda.shared.PLACEHOLDER)
-            // Al tocar la lupa la búsqueda se abre sola, con el teclado listo para escribir.
+            .searchable(text: textoBuscado, isPresented: $buscando, prompt: TextosDeLaBusqueda.shared.PLACEHOLDER)
             .task(id: aplicacion.pestana) {
                 guard aplicacion.pestana == .busqueda else { return }
                 // La pestaña tiene que estar a la vista antes de poder abrir la búsqueda.
@@ -44,6 +42,10 @@ struct BusquedaView: View {
             }
             .navigationDestination(for: String.self) { DetalleView(id: $0, aplicacion: aplicacion) }
         }
-        .task(id: modelo.texto) { await modelo.observar(aplicacion.base) }
+        .task(id: modelo.claveDeLosFiltros) { await modelo.observar(aplicacion.base) }
+    }
+
+    private var textoBuscado: Binding<String> {
+        Binding(get: { modelo.texto }, set: { modelo.texto = $0 })
     }
 }
