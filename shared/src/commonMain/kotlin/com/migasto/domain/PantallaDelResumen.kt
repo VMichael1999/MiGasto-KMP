@@ -58,6 +58,10 @@ class PantallaDelResumen(
     val saldo: String,
     val ingresos: String,
     val gastos: String,
+    /** Los mismos tres montos como número, para la animación de [CuentaAnimada]. */
+    val saldoValor: Double,
+    val ingresosValor: Double,
+    val gastosValor: Double,
     /** `null` si no hay nada por confirmar. */
     val porConfirmarTexto: String?,
     val porConfirmarMonto: String,
@@ -103,6 +107,9 @@ fun armarPantallaDelResumen(
         saldo = formatearMonto(resumen.saldo),
         ingresos = formatearSoles(resumen.ingresos),
         gastos = formatearSoles(resumen.gastos),
+        saldoValor = resumen.saldo,
+        ingresosValor = resumen.ingresos,
+        gastosValor = resumen.gastos,
         porConfirmarTexto = pendientes.takeIf { it.isNotEmpty() }?.let { textoPorConfirmar(it) },
         porConfirmarMonto = "+ ${formatearSoles(resumen.porConfirmar)}",
         presupuesto = if (resumen.tienePresupuesto) {
