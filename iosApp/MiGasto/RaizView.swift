@@ -51,7 +51,7 @@ struct RaizView: View {
         }
         .task { aplicacion.registrarCapturasPendientes() }
         .onChange(of: fase) { _, nueva in if nueva == .active { aplicacion.registrarCapturasPendientes() } }
-        .fullScreenCover(isPresented: $nuevoAbierto) { NuevoMovimientoView() }
+        .sheet(isPresented: $nuevoAbierto) { NuevoMovimientoView() }
     }
 }
 

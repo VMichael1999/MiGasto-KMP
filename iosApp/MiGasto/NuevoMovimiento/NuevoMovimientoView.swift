@@ -1,8 +1,8 @@
 import Shared
 import SwiftUI
 
-/// La pantalla «Nuevo movimiento» (mg-03): teclado numérico, categorías, fuente y Guardar.
-/// Las reglas (monto, categorías, textos) las pone `shared`; aquí solo se dibuja.
+/// La hoja «Nuevo movimiento» (mg-03), como las de Apple: Cancelar y Guardar arriba, monto con teclado propio, nota y
+/// fuente en una tarjeta, y las categorías en cuadrícula. Las reglas (monto, categorías, textos) las pone `shared`.
 struct NuevoMovimientoView: View {
     @Environment(Aplicacion.self) private var aplicacion
     @Environment(\.dismiss) private var cerrar
@@ -10,37 +10,49 @@ struct NuevoMovimientoView: View {
     @State private var eligiendoFuente = false
     @State private var creandoCategoria = false
 
+    private let columnas = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
+
     var body: some View {
         let f = modelo.formulario
-        VStack(spacing: 0) {
-            Cabecera(alCerrar: { cerrar() })
-            ScrollView {
-                VStack(spacing: 12) {
-                    SelectorDeTipo(tipo: f.tipo) { modelo.formulario = modelo.formulario.conTipo(nuevo: $0) }
-                    Monto(formulario: f)
-                    ConceptoField(formulario: f) { modelo.formulario = modelo.formulario.conConcepto(texto: $0) }
-                    FuenteFila(formulario: f) { eligiendoFuente = true }
-                    FlowLayout {
-                        ForEach(Array(f.chipsDeCategoria(propias: modelo.propias).enumerated()), id: \.offset) { _, opcion in
-                            ChipDeCategoria(texto: opcion.etiqueta, icono: iconoDeCategoria(opcion.categoria, propio: opcion.propia?.icono), elegido: opcion.elegido, esIngreso: f.esIngreso) {
-                                modelo.formulario = modelo.formulario.conChip(chip: opcion)
-                            }
+        NavigationStack {
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 12) {
+                        SelectorDeTipo(tipo: f.tipo) { modelo.formulario = modelo.formulario.conTipo(nuevo: $0) }
+                        Monto(formulario: f)
+                        NotaYFuente(formulario: f, alEscribir: { modelo.formulario = modelo.formulario.conConcepto(texto: $0) }) {
+                            eligiendoFuente = true
                         }
-                        ChipDeCategoria(texto: TextosDeNuevoMovimiento.shared.NUEVA, icono: "plus", elegido: false, esIngreso: f.esIngreso) { creandoCategoria = true }
+                        LazyVGrid(columns: columnas, spacing: 8) {
+                            ForEach(Array(f.chipsDeCategoria(propias: modelo.propias).enumerated()), id: \.offset) { _, opcion in
+                                CeldaDeCategoria(texto: opcion.etiqueta, icono: iconoDeCategoria(opcion.categoria, propio: opcion.propia?.icono), elegido: opcion.elegido, esIngreso: f.esIngreso) {
+                                    modelo.formulario = modelo.formulario.conChip(chip: opcion)
+                                }
+                            }
+                            CeldaDeCategoria(texto: TextosDeNuevoMovimiento.shared.NUEVA, icono: "plus", elegido: false, esIngreso: f.esIngreso) { creandoCategoria = true }
+                        }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 6)
                 }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 6)
+                Teclado { modelo.formulario = modelo.formulario.presionando(tecla: $0) }
+                    .padding(.horizontal, 18)
+                    .padding(.bottom, 8)
             }
-            Teclado { modelo.formulario = modelo.formulario.presionando(tecla: $0) }
-                .padding(.horizontal, 18)
-                .padding(.top, 8)
-            BotonGuardar(formulario: f) { guardar() }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
+            .background(Paleta.fondo)
+            .navigationTitle(TextosDeNuevoMovimiento.shared.TITULO)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(TextosDeNuevoMovimiento.shared.CANCELAR) { cerrar() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(TextosDeNuevoMovimiento.shared.GUARDAR) { guardar() }
+                        .disabled(!f.puedeGuardar)
+                        .accessibilityLabel(f.textoDelBoton)
+                }
+            }
         }
-        .background(Paleta.fondo)
         .task { modelo.cargarPropias(aplicacion.base) }
         .confirmationDialog(f.prefijoDeLaFuente, isPresented: $eligiendoFuente, titleVisibility: .visible) {
             ForEach(opcionesDeFuente(), id: \.etiqueta) { opcion in
@@ -58,32 +70,6 @@ struct NuevoMovimientoView: View {
         guard let mensaje = modelo.guardar(aplicacion.registro) else { return }
         aplicacion.avisar(mensaje)
         cerrar()
-    }
-}
-
-private struct Cabecera: View {
-    let alCerrar: () -> Void
-
-    var body: some View {
-        ZStack {
-            Text(TextosDeNuevoMovimiento.shared.TITULO)
-                .font(.outfit(16.5, .semibold, relativeTo: .headline))
-                .foregroundStyle(Paleta.tinta)
-            HStack {
-                Button(action: alCerrar) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Paleta.tinta)
-                        .frame(width: 44, height: 44)
-                        .background(Paleta.superficie, in: Circle())
-                }
-                .accessibilityLabel("Cerrar")
-                Spacer()
-            }
-        }
-        .padding(.horizontal, 18)
-        .padding(.top, 14)
-        .padding(.bottom, 8)
     }
 }
 
@@ -138,53 +124,51 @@ private struct Monto: View {
     }
 }
 
-private struct ConceptoField: View {
+/// «Nota» y «Pagado con» juntas en una tarjeta, como una lista de Ajustes de iOS.
+private struct NotaYFuente: View {
     let formulario: FormularioNuevoMovimiento
     let alEscribir: (String) -> Void
+    let alCambiarFuente: () -> Void
 
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "tag").foregroundStyle(Paleta.apagado)
-            TextField(formulario.pistaDelConcepto, text: Binding(get: { formulario.concepto }, set: alEscribir))
-                .font(.outfit(16))
-                .foregroundStyle(Paleta.tinta)
-                .submitLabel(.done)
-                // Son nombres de comercios y personas: la autocorrección los cambia (lo vimos: «Segundo gasto» pasó a otra frase).
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.sentences)
-        }
-        .padding(.horizontal, 14)
-        .frame(minHeight: 50)
-        .background(Paleta.superficie, in: RoundedRectangle(cornerRadius: 13))
-    }
-}
-
-private struct FuenteFila: View {
-    let formulario: FormularioNuevoMovimiento
-    let alCambiar: () -> Void
-
-    var body: some View {
-        Button(action: alCambiar) {
-            HStack(spacing: 10) {
-                Circle().fill(colorDeLaFuente(formulario.fuente)).frame(width: 8, height: 8)
-                Text("\(formulario.prefijoDeLaFuente) \(FormularioNuevoMovimiento.companion.etiquetaDeLaFuente(fuente: formulario.fuente))")
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                Image(systemName: "textformat").foregroundStyle(Paleta.marcaTinta).frame(width: 22)
+                Text(TextosDeNuevoMovimiento.shared.NOTA).font(.outfit(16)).foregroundStyle(Paleta.tinta)
+                TextField(formulario.pistaDelConcepto, text: Binding(get: { formulario.concepto }, set: alEscribir))
                     .font(.outfit(16))
                     .foregroundStyle(Paleta.tinta)
-                Spacer()
-                Text(TextosDeNuevoMovimiento.shared.CAMBIAR)
-                    .font(.outfit(13, .semibold))
-                    .foregroundStyle(Paleta.apagado)
-                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(Paleta.apagado)
+                    .multilineTextAlignment(.trailing)
+                    .submitLabel(.done)
+                    // Son nombres de comercios y personas: la autocorrección los cambia (lo vimos: «Segundo gasto» pasó a otra frase).
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.sentences)
             }
-            .padding(.horizontal, 14)
-            .frame(minHeight: 50)
-            .background(Paleta.superficie, in: RoundedRectangle(cornerRadius: 13))
+            .padding(.horizontal, 16)
+            .frame(minHeight: 48)
+            Divider().overlay(Paleta.linea).padding(.leading, 50)
+            Button(action: alCambiarFuente) {
+                HStack(spacing: 12) {
+                    Circle().fill(colorDeLaFuente(formulario.fuente)).frame(width: 8, height: 8).frame(width: 22)
+                    Text(formulario.prefijoDeLaFuente).font(.outfit(16)).foregroundStyle(Paleta.tinta)
+                    Spacer()
+                    Text(FormularioNuevoMovimiento.companion.etiquetaDeLaFuente(fuente: formulario.fuente))
+                        .font(.outfit(16)).foregroundStyle(Paleta.marcaTinta)
+                    Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(Paleta.apagado)
+                }
+                .padding(.horizontal, 16)
+                .frame(minHeight: 48)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("\(formulario.prefijoDeLaFuente) \(FormularioNuevoMovimiento.companion.etiquetaDeLaFuente(fuente: formulario.fuente)). \(TextosDeNuevoMovimiento.shared.CAMBIAR)")
         }
-        .buttonStyle(.plain)
+        .background(Paleta.superficie, in: RoundedRectangle(cornerRadius: 14))
     }
 }
 
-private struct ChipDeCategoria: View {
+/// Una categoría en la cuadrícula: el ícono arriba y el nombre abajo.
+private struct CeldaDeCategoria: View {
     let texto: String
     let icono: String
     let elegido: Bool
@@ -194,60 +178,43 @@ private struct ChipDeCategoria: View {
     var body: some View {
         let acento = esIngreso ? Paleta.ingreso : Paleta.marcaTinta
         Button(action: alTocar) {
-            HStack(spacing: 6) {
-                Image(systemName: icono).font(.system(size: 14))
-                Text(texto).font(.outfit(13.5, .medium)).lineLimit(1)
+            VStack(spacing: 4) {
+                Image(systemName: icono).font(.system(size: 18)).frame(height: 22)
+                Text(texto).font(.outfit(12.5, .medium, relativeTo: .caption)).lineLimit(1).minimumScaleFactor(0.8)
             }
             .foregroundStyle(elegido ? acento : Paleta.tinta)
-            .padding(.horizontal, 12)
-            .frame(height: 38)
-            .background(elegido ? acento.opacity(0.14) : Paleta.superficie, in: Capsule())
-            .overlay(Capsule().stroke(elegido ? acento : Paleta.linea, lineWidth: 1))
+            .frame(maxWidth: .infinity, minHeight: 58)
+            .background(elegido ? acento.opacity(0.14) : Paleta.superficie, in: RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(elegido ? acento : Paleta.linea, lineWidth: 1))
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(elegido ? .isSelected : [])
     }
 }
 
+/// El teclado numérico, con las teclas sin fondo (como en el diseño).
 private struct Teclado: View {
     let alPresionar: (String) -> Void
-    private let columnas = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
+    private let columnas = Array(repeating: GridItem(.flexible(), spacing: 0), count: 3)
 
     var body: some View {
-        LazyVGrid(columns: columnas, spacing: 8) {
+        LazyVGrid(columns: columnas, spacing: 0) {
             ForEach(TextosDeNuevoMovimiento.shared.TECLAS, id: \.self) { tecla in
                 Button { alPresionar(tecla) } label: {
                     Group {
                         if tecla == "<" {
                             Image(systemName: "delete.left").font(.system(size: 20, weight: .medium))
                         } else {
-                            Text(tecla).font(.outfit(22, .medium, relativeTo: .title2))
+                            Text(tecla).font(.outfit(24, .medium, relativeTo: .title2))
                         }
                     }
                     .foregroundStyle(Paleta.tinta)
-                    .frame(maxWidth: .infinity, minHeight: 50)
-                    .background(Paleta.superficie, in: RoundedRectangle(cornerRadius: 13))
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(tecla == "<" ? "Borrar" : tecla == "." ? "Punto" : tecla)
             }
         }
-    }
-}
-
-private struct BotonGuardar: View {
-    let formulario: FormularioNuevoMovimiento
-    let alGuardar: () -> Void
-
-    var body: some View {
-        Button(action: alGuardar) {
-            Text(formulario.textoDelBoton)
-                .font(.outfit(16.5, .semibold))
-                .foregroundStyle(formulario.puedeGuardar ? Paleta.tintaSobreVerde : Paleta.apagado)
-                .frame(maxWidth: .infinity, minHeight: 54)
-                .background(formulario.puedeGuardar ? Paleta.verdeNeon : Paleta.linea, in: RoundedRectangle(cornerRadius: 15))
-        }
-        .buttonStyle(.plain)
-        .disabled(!formulario.puedeGuardar)
     }
 }
