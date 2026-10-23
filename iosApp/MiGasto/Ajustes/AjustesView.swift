@@ -12,9 +12,12 @@ struct AjustesView: View {
     @State private var pidiendoContrasena: ContrasenaPara?
     @State private var eligiendoArchivo = false
     @State private var verDondePagaste = false
+    @State private var estadoDeAvisos: EstadoDeAvisos = .porActivar
+    @Environment(\.scenePhase) private var fase
+    @Environment(\.openURL) private var abrirURL
 
     enum Hoja: Identifiable {
-        case presupuesto, aprendidas, propias, alias
+        case presupuesto, aprendidas, propias, alias, capturas, atajos
         var id: Self { self }
     }
 
@@ -50,11 +53,52 @@ struct AjustesView: View {
         }
     }
 
+    /// Pide el permiso de avisos la primera vez; después, lleva a los ajustes del sistema, donde se cambia.
+    private func tocarAvisos() {
+        Task {
+            if estadoDeAvisos == .porActivar {
+                _ = await AvisosDePagos.pedirPermiso()
+                estadoDeAvisos = await AvisosDePagos.estado()
+            } else if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                abrirURL(url)
+            }
+        }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 if let p = modelo.pantalla {
                     VStack(alignment: .leading, spacing: 0) {
+                        Etiqueta(TextosDeAjustesDeIphone.shared.SECCION_REGISTRO)
+                        Caja {
+                            FilaDeAjuste(simbolo: "square.and.arrow.up", titulo: TextosDeAjustesDeIphone.shared.CAPTURAS, valor: TextosDeAjustesDeIphone.shared.ACTIVO) {
+                                hoja = .capturas
+                            }
+                            Separador()
+                            FilaDeAjuste(simbolo: "creditcard", titulo: TextosDeAjustesDeIphone.shared.ATAJOS, valor: TextosDeAjustesDeIphone.shared.CONFIGURAR) {
+                                hoja = .atajos
+                            }
+                            Separador()
+                            FilaDeAjuste(
+                                simbolo: "bell", titulo: TextosDeAjustesDeIphone.shared.AVISOS,
+                                valor: estadoDeAvisos == .activos ? TextosDeAjustesDeIphone.shared.ACTIVOS : TextosDeAjustesDeIphone.shared.ACTIVAR
+                            ) { tocarAvisos() }
+                        }
+                        Text(TextosDeAjustesDeIphone.shared.PIE_DEL_REGISTRO)
+                            .font(.outfit(12.5)).foregroundStyle(Paleta.apagado).padding(.horizontal, 4).padding(.top, 8)
+
+                        Etiqueta(TextosDeAjustesDeIphone.shared.SECCION_SEGURIDAD)
+                        Caja {
+                            FilaDeAjuste(simbolo: "lock", titulo: TextosDeAjustesDeIphone.shared.FACE_ID, interruptor: p.bloqueoActivado) {
+                                alternarBloqueo(activado: p.bloqueoActivado)
+                            }
+                            Separador()
+                            FilaDeAjuste(simbolo: "eye", titulo: TextosDeAjustesDeIphone.shared.OCULTAR_MONTOS, interruptor: p.ocultarMontosAlAbrir) {
+                                modelo.seguimiento.alternarOcultarMontosAlAbrir()
+                            }
+                        }
+
                         Etiqueta(TextosDeLaPantallaDeAjustes.shared.SECCION_REGISTRO)
                         Caja {
                             FilaDeAjuste(
@@ -99,11 +143,6 @@ struct AjustesView: View {
                             Separador()
                             FilaDeAjuste(simbolo: "lock", titulo: "Respaldo cifrado", subtitulo: p.subtituloDelRespaldo) { pidiendoContrasena = .crear }
                             Separador()
-                            FilaDeAjuste(
-                                simbolo: "faceid", titulo: "Bloqueo con Face ID o código", subtitulo: "Usa el desbloqueo de tu iPhone",
-                                interruptor: p.bloqueoActivado
-                            ) { alternarBloqueo(activado: p.bloqueoActivado) }
-                            Separador()
                             FilaDeAjuste(simbolo: "doc", titulo: "Restaurar un respaldo", subtitulo: "Desde un archivo .mgb, con tu contraseña") {
                                 eligiendoArchivo = true
                             }
@@ -120,6 +159,7 @@ struct AjustesView: View {
             .navigationDestination(isPresented: $verDondePagaste) { DondePagasteView(aplicacion: aplicacion) }
         }
         .task { await modelo.observar() }
+        .task(id: fase) { estadoDeAvisos = await AvisosDePagos.estado() }
         .sheet(item: $hoja) { hoja in
             if let p = modelo.pantalla {
                 switch hoja {
@@ -152,6 +192,13 @@ struct AjustesView: View {
                             ) { modelo.seguimiento.quitarPropia(id: c.id) }
                         }
                     }
+                case .capturas:
+                    HojaDePasos(titulo: TextosDeAjustesDeIphone.shared.CAPTURAS, pasos: TextosDeAjustesDeIphone.shared.PASOS_DE_LAS_CAPTURAS, boton: nil)
+                case .atajos:
+                    HojaDePasos(
+                        titulo: TextosDeAjustesDeIphone.shared.ATAJOS, pasos: TextosDeAjustesDeIphone.shared.PASOS_DE_ATAJOS,
+                        boton: (TextosDeAjustesDeIphone.shared.ABRIR_ATAJOS, { if let url = URL(string: "shortcuts://") { abrirURL(url) } })
+                    )
                 case .alias:
                     HojaDeLista(
                         titulo: "Nombres guardados", ayuda: "Para ponerle nombre a alguien, abre un movimiento suyo y toca \"De\" o \"Para\".",
@@ -248,7 +295,7 @@ private struct Etiqueta: View {
     let texto: String
     init(_ texto: String) { self.texto = texto }
     var body: some View {
-        Text(texto).font(.outfit(13, .medium)).foregroundStyle(Paleta.apagado).padding(.leading, 4).padding(.top, 16).padding(.bottom, 8)
+        Text(texto.uppercased()).font(.outfit(12.5, .medium)).foregroundStyle(Paleta.apagado).padding(.leading, 4).padding(.top, 20).padding(.bottom, 8)
     }
 }
 
@@ -285,7 +332,7 @@ private struct FilaDeAjuste: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            Image(systemName: simbolo).font(.system(size: 17)).foregroundStyle(Paleta.apagado).frame(width: 24)
+            Image(systemName: simbolo).font(.system(size: 17)).foregroundStyle(Paleta.marcaTinta).frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
                 Text(titulo).font(.outfit(16, .medium)).foregroundStyle(Paleta.tinta)
                 if let subtitulo {
@@ -482,5 +529,43 @@ private struct HojaDeContrasena: View {
         }
         alAceptar(primera)
         cerrar()
+    }
+}
+
+/// Los pasos para usar una función (compartir capturas o la automatización de Apple Pay), con un botón opcional.
+private struct HojaDePasos: View {
+    let titulo: String
+    let pasos: [String]
+    let boton: (String, () -> Void)?
+    @Environment(\.dismiss) private var cerrar
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    ForEach(Array(pasos.enumerated()), id: \.offset) { i, paso in
+                        HStack(alignment: .top, spacing: 12) {
+                            Text("\(i + 1)").font(.outfit(14, .bold)).foregroundStyle(Paleta.tintaSobreVerde)
+                                .frame(width: 26, height: 26).background(Paleta.verdeNeon, in: Circle())
+                            Text(paso).font(.outfit(16)).foregroundStyle(Paleta.tinta).fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    if let boton {
+                        Button(action: boton.1) {
+                            Text(boton.0).font(.outfit(16.5, .semibold)).foregroundStyle(Paleta.tintaSobreVerde)
+                                .frame(maxWidth: .infinity, minHeight: 50).background(Paleta.verdeNeon, in: RoundedRectangle(cornerRadius: 15))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.top, 8)
+                    }
+                }
+                .padding(18)
+            }
+            .background(Paleta.fondo)
+            .navigationTitle(titulo)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(TextosDeAjustesDeIphone.shared.ENTENDIDO) { cerrar() } } }
+        }
+        .presentationDetents([.medium, .large])
     }
 }
