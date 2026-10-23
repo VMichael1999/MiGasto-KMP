@@ -28,13 +28,15 @@ struct ResumenView: View {
             }
             .background(Paleta.fondo)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
                         aplicacion.montosOcultos.toggle()
                     } label: {
                         Image(systemName: aplicacion.montosOcultos ? "eye.slash" : "eye")
                     }
                     .accessibilityLabel(aplicacion.montosOcultos ? "Mostrar montos" : "Ocultar montos")
+                    Button { aplicacion.pestana = .busqueda } label: { Image(systemName: "magnifyingglass") }
+                        .accessibilityLabel(TextosDeLaBusqueda.shared.TITULO)
                 }
             }
             .toolbarTitleDisplayMode(.inline)
@@ -185,14 +187,21 @@ private struct PresupuestoView: View {
 }
 
 private struct ListaDelDia: View {
+    @Environment(Aplicacion.self) private var aplicacion
     let pantalla: PantallaDelResumen
     let oculto: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(pantalla.tituloDeLaLista)
-                .font(.outfit(17, .semibold, relativeTo: .headline))
-                .foregroundStyle(Paleta.tinta)
+            HStack {
+                Text(pantalla.tituloDeLaLista)
+                    .font(.outfit(17, .semibold, relativeTo: .headline))
+                    .foregroundStyle(Paleta.tinta)
+                Spacer()
+                Button(TextosDelResumen.shared.VER_TODOS) { aplicacion.pestana = .movimientos }
+                    .font(.outfit(14, .semibold))
+                    .foregroundStyle(Paleta.marcaTinta)
+            }
             if pantalla.hoy.isEmpty {
                 Text(pantalla.textoSinMovimientos)
                     .font(.outfit(14))
