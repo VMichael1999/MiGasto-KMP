@@ -72,6 +72,7 @@ import com.migasto.domain.FilaDeMovimiento
 import com.migasto.domain.MesElegido
 import com.migasto.domain.PaymentSource
 import com.migasto.domain.PresupuestoDelResumen
+import com.migasto.domain.TextosDelResumen
 import com.migasto.domain.calcularAvisosDeConfiguracion
 import com.migasto.domain.claveDePausa
 import com.migasto.domain.textosDelAvisoDeConfiguracion
@@ -348,7 +349,7 @@ private fun SeccionHoy(ui: ResumenUi, alVerTodos: () -> Unit, alAbrir: (String) 
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(ui.tituloDeLaLista, style = MaterialTheme.typography.titleLarge, color = c.tinta, modifier = Modifier.weight(1f))
             Text(
-                "Ver todos", style = MaterialTheme.typography.labelLarge, color = c.marcaTinta,
+                TextosDelResumen.VER_TODOS, style = MaterialTheme.typography.labelLarge, color = c.marcaTinta,
                 modifier = Modifier.clickable(onClick = alVerTodos).padding(vertical = 6.dp),
             )
         }
