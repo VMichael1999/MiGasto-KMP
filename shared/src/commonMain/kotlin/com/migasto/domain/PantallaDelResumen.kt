@@ -13,6 +13,7 @@ import kotlin.time.Instant
 
 /** Una fila de movimiento (en Resumen y en Movimientos). El texto ya viene armado. */
 object TextosDelResumen {
+    const val TITULO = "Resumen"
     const val VER_TODOS = "Ver todos"
 }
 

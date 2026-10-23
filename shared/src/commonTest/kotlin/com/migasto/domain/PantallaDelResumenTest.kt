@@ -159,4 +159,10 @@ class PantallaDelResumenTest {
             assertEquals(4, p.hoy.size)
         }
     }
+
+    @Test
+    fun lasEtiquetasFijasDelResumen() {
+        assertEquals("Resumen", TextosDelResumen.TITULO)
+        assertEquals("Ver todos", TextosDelResumen.VER_TODOS)
+    }
 }
