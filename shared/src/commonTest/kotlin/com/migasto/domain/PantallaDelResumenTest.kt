@@ -155,6 +155,9 @@ class PantallaDelResumenTest {
             delDiseno.forEach(base.movimientos::guardar)
             val p = observarPantallaDelResumen(base, null, { ahora }, utc).first()
             assertEquals("2,655.30", p.saldo)
+            assertEquals(2655.30, p.saldoValor, 0.001)
+            assertEquals(2800.0, p.ingresosValor, 0.001)
+            assertEquals(144.70, p.gastosValor, 0.001)
             assertEquals("10 % de S/ 1,500", p.presupuesto!!.detalle)
             assertEquals(4, p.hoy.size)
         }
