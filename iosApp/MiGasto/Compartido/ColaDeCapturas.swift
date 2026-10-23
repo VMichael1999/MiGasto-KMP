@@ -1,5 +1,12 @@
 import Foundation
 
+/// Una captura compartida, a la espera de que la app la registre: el texto que Vision leyó y, si el usuario la cambió en la
+/// hoja de la extensión, la clave de la categoría elegida.
+struct CapturaPendiente: Codable {
+    let texto: String
+    let categoria: String?
+}
+
 /// La cola de capturas compartidas: la extensión «Compartir» deja aquí el texto que Vision leyó, y la app lo registra
 /// cuando se abre. Así la extensión nunca toca la base cifrada ni su clave (que viven solo en la app).
 /// Este archivo está en la app y en la extensión.
@@ -15,24 +22,26 @@ enum ColaDeCapturas {
 
     /// `false` si no hay carpeta compartida (la app no tiene el permiso de grupo).
     @discardableResult
-    static func agregar(_ texto: String) -> Bool {
+    static func agregar(_ texto: String, categoria: String? = nil) -> Bool {
         guard let archivo else { return false }
-        var textos = leerArchivo(archivo)
-        textos.append(String(texto.prefix(largoMaximo)))
-        guard let datos = try? JSONEncoder().encode(textos) else { return false }
+        var capturas = leerArchivo(archivo)
+        capturas.append(CapturaPendiente(texto: String(texto.prefix(largoMaximo)), categoria: categoria))
+        guard let datos = try? JSONEncoder().encode(capturas) else { return false }
         return (try? datos.write(to: archivo, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])) != nil
     }
 
-    /// Los textos pendientes, en orden; el archivo se borra apenas se leen.
-    static func tomarPendientes() -> [String] {
+    /// Las capturas pendientes, en orden; el archivo se borra apenas se leen.
+    static func tomarPendientes() -> [CapturaPendiente] {
         guard let archivo else { return [] }
-        let textos = leerArchivo(archivo)
+        let capturas = leerArchivo(archivo)
         try? FileManager.default.removeItem(at: archivo)
-        return textos
+        return capturas
     }
 
-    private static func leerArchivo(_ archivo: URL) -> [String] {
+    private static func leerArchivo(_ archivo: URL) -> [CapturaPendiente] {
         guard let datos = try? Data(contentsOf: archivo) else { return [] }
-        return (try? JSONDecoder().decode([String].self, from: datos)) ?? []
+        if let capturas = try? JSONDecoder().decode([CapturaPendiente].self, from: datos) { return capturas }
+        // Una cola vieja era una lista de textos sueltos.
+        return ((try? JSONDecoder().decode([String].self, from: datos)) ?? []).map { CapturaPendiente(texto: $0, categoria: nil) }
     }
 }

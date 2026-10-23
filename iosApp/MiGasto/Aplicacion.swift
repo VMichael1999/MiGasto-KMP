@@ -76,10 +76,10 @@ final class Aplicacion {
 
     /// Registra las capturas que el usuario compartió con la extensión «Compartir» y dice qué pasó con cada una.
     func registrarCapturasPendientes() {
-        let textos = ColaDeCapturas.tomarPendientes()
-        guard !textos.isEmpty else { return }
+        let capturas = ColaDeCapturas.tomarPendientes()
+        guard !capturas.isEmpty else { return }
         var resultados: [ResultadoDeLaCaptura] = []
-        for texto in textos { resultados.append(recibidorDeCapturas.recibir(texto: texto)) }
+        for captura in capturas { resultados.append(recibidorDeCapturas.recibir(texto: captura.texto, categoriaElegida: captura.categoria)) }
         guard let ultimo = resultados.last else { return }
         let mensaje = resultados.count == 1 ? ultimo.titulo : "\(resultados.count) capturas: \(ultimo.titulo)"
         avisar(mensaje, segundos: 5)
